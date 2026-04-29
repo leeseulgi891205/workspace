@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메인페이지</title>
+</head>
+<body>
+    <h2>메인페이지</h2>
+    
+    <!-- 영화 박스오피스 섹션 -->
+    <div>
+        <h3>일일 박스오피스 TOP 5 ({{ targetDt }})</h3>
+        {% if movie_list %}
+        <table>
+            <thead>
+                <tr>
+                    <th>순위</th>
+                    <th>증감</th>
+                    <th>영화명</th>
+                    <th>개봉일</th>
+                    <th>상영횟수</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movie in movie_list %}
+                <tr>
+                    <td>{{ movie.rank }}</td>
+                    <td>
+                        {% if movie.rankInten == "0" %}
+                          -
+                        {% elif movie.rankInten|slice:":1" == "-" %}
+                          <span style="color:blue;">▼{{ movie.rankInten|slice:"1:" }}</span>
+                        {% else %}
+                          <span style="color:red;">▲{{ movie.rankInten }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ movie.movieNm }} <span style="font-size:12px;color:#888;">({{ movie.audiAcc|default:'-' }}명)</span></td>
+                    <td>{{ movie.openDt }}</td>
+                    <td>{{ movie.showCnt }}회</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div>
+            <a href='/board/list3/'>전체 박스오피스 보기</a>
+        </div>
+        {% else %}
+        <p>박스오피스 데이터를 불러올 수 없습니다.</p>
+        {% endif %}
+    </div>
+    
+    <!-- 메뉴 섹션 -->
+    <div>
+        {% if not request.session.session_id %}
+            <h3>메뉴</h3>
+            <ul>
+                <li><a href='/member/login/'>로그인</a></li>
+                <li><a href='/member/join/'>회원가입</a></li>
+                <li><a href='/admin/'>admin관리자</a></li>
+            </ul>
+        {% else %}
+            <h3>메뉴</h3>
+            <ul>
+                <li><a href='{% url "member:logout" %}'>로그아웃</a></li>
+                <li><a href='/board/list/'>게시판</a></li>
+                <li><a href='/board/list2/'>공공데이터api</a></li>
+                <li><a href='/board/list3/'>영화 박스오피스</a></li>
+                <li><a href='/board/view2/101/'>하단댓글게시판</a></li>
+                <li><a href='/board/chart/'>chart.js 그래프 출력</a></li>
+                <li><a href='/admin/'>admin관리자</a></li>
+            </ul>
+        {% endif %}
+    </div>
+    
+</body>
+</html>

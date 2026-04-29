@@ -1,0 +1,616 @@
+{% extends 'base.html' %}
+{% load static %}
+{# 26-01-02 슬기 추가: 월령별 발달 차트 페이지 #}
+{% block content %}
+<style>
+    .chart-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .chart-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+    }
+    
+    .chart-header h2 {
+        font-size: 32px;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+    
+    .chart-header p {
+        font-size: 16px;
+        opacity: 0.9;
+    }
+    
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+    
+    @media (max-width: 768px) {
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .chart-box {
+        background: white;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .chart-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    
+    .chart-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .chart-title.physical {
+        border-color: #ff6b6b;
+        color: #ff6b6b;
+    }
+    
+    .chart-title.cognitive {
+        border-color: #74b9ff;
+        color: #74b9ff;
+    }
+    
+    .chart-title.language {
+        border-color: #feca57;
+        color: #feca57;
+    }
+    
+    .chart-title.social {
+        border-color: #48dbfb;
+        color: #48dbfb;
+    }
+    
+    .chart-icon {
+        font-size: 28px;
+    }
+    
+    .overview-box {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        padding: 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        color: white;
+    }
+    
+    .overview-title {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 30px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid #f1f3f5;
+    }
+    
+    .data-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+    }
+    
+    .data-table tbody tr {
+        transition: all 0.3s;
+    }
+    
+    .data-table tbody tr:hover {
+        background: #f8f9fa;
+        transform: scale(1.01);
+    }
+    
+    .no-data {
+        text-align: center;
+        padding: 80px 20px;
+        color: #999;
+    }
+    
+    .no-data-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .btn-group {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    
+    .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 25px;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+        font-size: 15px;
+    }
+    
+    .btn-list {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-list:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-write {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    
+    .btn-write:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+    }
+</style>
+
+<div class="chart-container">
+    <div class="chart-header">
+        <h2>월령별 발달 지표</h2>
+        <p>아이의 성장 과정을 4가지 영역별로 확인하세요</p>
+    </div>
+    
+    {% if developments %}
+        <div class="overview-box">
+            <div class="overview-title">
+                <span></span>
+                <span>전체 발달 추이</span>
+            </div>
+            <canvas id="overviewChart" style="max-height: 300px;"></canvas>
+        </div>
+        
+        <div class="chart-grid">
+            <div class="chart-box">
+                <div class="chart-title physical">
+                    <span class="chart-icon"></span>
+                    <span>신체발달</span>
+                </div>
+                <canvas id="physicalChart"></canvas>
+            </div>
+            
+            <div class="chart-box">
+                <div class="chart-title cognitive">
+                    <span class="chart-icon"></span>
+                    <span>인지발달</span>
+                </div>
+                <canvas id="cognitiveChart"></canvas>
+            </div>
+            
+            <div class="chart-box">
+                <div class="chart-title language">
+                    <span class="chart-icon"></span>
+                    <span>언어발달</span>
+                </div>
+                <canvas id="languageChart"></canvas>
+            </div>
+            
+            <div class="chart-box">
+                <div class="chart-title social">
+                    <span class="chart-icon"></span>
+                    <span>사회성발달</span>
+                </div>
+                <canvas id="socialChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-box">
+            <h3 style="font-size: 22px; margin-bottom: 20px; color: #333;">📋 발달 데이터 상세</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>월령</th>
+                        <th>신체발달</th>
+                        <th>인지발달</th>
+                        <th>언어발달</th>
+                        <th>사회성발달</th>
+                        <th>작성자</th>
+                        <th>작성일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dev in developments %}
+                    <tr>
+                        <td><strong>{{ dev.month_age }}개월</strong></td>
+                        <td><span style="color: #ff6b6b; font-weight: bold;">{{ dev.physical_score|default:"-" }}</span></td>
+                        <td><span style="color: #74b9ff; font-weight: bold;">{{ dev.cognitive_score|default:"-" }}</span></td>
+                        <td><span style="color: #feca57; font-weight: bold;">{{ dev.language_score|default:"-" }}</span></td>
+                        <td><span style="color: #48dbfb; font-weight: bold;">{{ dev.social_score|default:"-" }}</span></td>
+                        <td>{{ dev.author.nickname }}</td>
+                        <td>{{ dev.created_at|date:"Y.m.d" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="chart-box">
+            <div class="no-data">
+                <div class="no-data-icon"></div>
+                <p style="font-size: 20px; margin: 20px 0; font-weight: bold;">아직 등록된 발달 데이터가 없습니다.</p>
+                <p style="color: #666;">월령별 발달 카테고리로 글을 작성하고 발달 지표를 입력해주세요!</p>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="btn-group">
+        <a href="{% url 'board:parenting_list' %}" class="btn btn-list">목록으로</a>
+        <a href="{% url 'board:parenting_create' %}" class="btn btn-write">글쓰기</a>
+    </div>
+</div>
+
+{% if developments %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// 26-01-02 슬기 추가: 심플하고 직관적인 발달 차트
+const months = {{ months_json|safe }}.map(m => m + '개월');
+const physicalData = {{ physical_json|safe }};
+const cognitiveData = {{ cognitive_json|safe }};
+const languageData = {{ language_json|safe }};
+const socialData = {{ social_json|safe }};
+
+// 전체 평균 데이터
+const avgMonths = {{ avg_months_json|safe }}.map(m => m + '개월');
+const avgPhysicalData = {{ avg_physical_json|safe }};
+const avgCognitiveData = {{ avg_cognitive_json|safe }};
+const avgLanguageData = {{ avg_language_json|safe }};
+const avgSocialData = {{ avg_social_json|safe }};
+
+// 전체 평균 계산 (4개 영역의 평균)
+const overallAvg = avgMonths.map((_, index) => {
+    const sum = avgPhysicalData[index] + avgCognitiveData[index] + 
+                avgLanguageData[index] + avgSocialData[index];
+    return Math.round(sum / 4 * 10) / 10;
+});
+
+// 내 아이 전체 평균
+const myOverallAvg = months.map((_, index) => {
+    const sum = physicalData[index] + cognitiveData[index] + 
+                languageData[index] + socialData[index];
+    return Math.round(sum / 4 * 10) / 10;
+});
+
+// 전체 발달 추이 차트 (심플 버전)
+new Chart(document.getElementById('overviewChart'), {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: [
+            {
+                label: '내 아이',
+                data: myOverallAvg,
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.15)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 4,
+                pointRadius: 6,
+                pointBackgroundColor: '#667eea',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 8
+            },
+            {
+                label: '전체 평균',
+                data: overallAvg.slice(0, months.length),
+                borderColor: '#e0e0e0',
+                backgroundColor: 'transparent',
+                tension: 0.4,
+                fill: false,
+                borderWidth: 3,
+                borderDash: [8, 4],
+                pointRadius: 4,
+                pointBackgroundColor: '#e0e0e0',
+                pointBorderWidth: 0
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    font: {
+                        size: 15,
+                        weight: 'bold'
+                    },
+                    padding: 20,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(255,255,255,0.97)',
+                titleColor: '#333',
+                bodyColor: '#666',
+                borderColor: '#667eea',
+                borderWidth: 2,
+                padding: 15,
+                displayColors: true,
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + context.parsed.y + '점';
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                grid: {
+                    color: 'rgba(255,255,255,0.3)',
+                    lineWidth: 1
+                },
+                ticks: {
+                    color: 'white',
+                    font: {
+                        size: 13,
+                        weight: 'bold'
+                    },
+                    stepSize: 20
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: 'white',
+                    font: {
+                        size: 13,
+                        weight: 'bold'
+                    }
+                }
+            }
+        }
+    }
+});
+
+// 개별 차트 공통 옵션
+const individualOptions = (color, avgData) => ({
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+        legend: {
+            display: true,
+            position: 'top',
+            labels: {
+                font: {
+                    size: 12
+                },
+                padding: 10,
+                usePointStyle: true
+            }
+        },
+        tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.85)',
+            padding: 12,
+            titleFont: {
+                size: 13
+            },
+            bodyFont: {
+                size: 12
+            },
+            callbacks: {
+                label: function(context) {
+                    return context.dataset.label + ': ' + context.parsed.y + '점';
+                }
+            }
+        }
+    },
+    scales: {
+        y: {
+            beginAtZero: true,
+            max: 100,
+            grid: {
+                color: 'rgba(0,0,0,0.06)'
+            },
+            ticks: {
+                font: {
+                    size: 11
+                },
+                stepSize: 25
+            }
+        },
+        x: {
+            grid: {
+                display: false
+            },
+            ticks: {
+                font: {
+                    size: 11
+                }
+            }
+        }
+    }
+});
+
+// 신체발달 차트
+new Chart(document.getElementById('physicalChart'), {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: [
+            {
+                label: '내 아이',
+                data: physicalData,
+                borderColor: '#ff6b6b',
+                backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 3,
+                pointRadius: 5,
+                pointBackgroundColor: '#ff6b6b'
+            },
+            {
+                label: '평균',
+                data: avgPhysicalData.slice(0, months.length),
+                borderColor: '#ddd',
+                backgroundColor: 'transparent',
+                tension: 0.4,
+                fill: false,
+                borderWidth: 2,
+                borderDash: [5, 3],
+                pointRadius: 3,
+                pointBackgroundColor: '#ddd'
+            }
+        ]
+    },
+    options: individualOptions('#ff6b6b', avgPhysicalData)
+});
+
+// 인지발달 차트
+new Chart(document.getElementById('cognitiveChart'), {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: [
+            {
+                label: '내 아이',
+                data: cognitiveData,
+                borderColor: '#74b9ff',
+                backgroundColor: 'rgba(116, 185, 255, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 3,
+                pointRadius: 5,
+                pointBackgroundColor: '#74b9ff'
+            },
+            {
+                label: '평균',
+                data: avgCognitiveData.slice(0, months.length),
+                borderColor: '#ddd',
+                backgroundColor: 'transparent',
+                tension: 0.4,
+                fill: false,
+                borderWidth: 2,
+                borderDash: [5, 3],
+                pointRadius: 3,
+                pointBackgroundColor: '#ddd'
+            }
+        ]
+    },
+    options: individualOptions('#74b9ff', avgCognitiveData)
+});
+
+// 언어발달 차트
+new Chart(document.getElementById('languageChart'), {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: [
+            {
+                label: '내 아이',
+                data: languageData,
+                borderColor: '#feca57',
+                backgroundColor: 'rgba(254, 202, 87, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 3,
+                pointRadius: 5,
+                pointBackgroundColor: '#feca57'
+            },
+            {
+                label: '평균',
+                data: avgLanguageData.slice(0, months.length),
+                borderColor: '#ddd',
+                backgroundColor: 'transparent',
+                tension: 0.4,
+                fill: false,
+                borderWidth: 2,
+                borderDash: [5, 3],
+                pointRadius: 3,
+                pointBackgroundColor: '#ddd'
+            }
+        ]
+    },
+    options: individualOptions('#feca57', avgLanguageData)
+});
+
+// 사회성발달 차트
+new Chart(document.getElementById('socialChart'), {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: [
+            {
+                label: '내 아이',
+                data: socialData,
+                borderColor: '#48dbfb',
+                backgroundColor: 'rgba(72, 219, 251, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 3,
+                pointRadius: 5,
+                pointBackgroundColor: '#48dbfb'
+            },
+            {
+                label: '평균',
+                data: avgSocialData.slice(0, months.length),
+                borderColor: '#ddd',
+                backgroundColor: 'transparent',
+                tension: 0.4,
+                fill: false,
+                borderWidth: 2,
+                borderDash: [5, 3],
+                pointRadius: 3,
+                pointBackgroundColor: '#ddd'
+            }
+        ]
+    },
+    options: individualOptions('#48dbfb', avgSocialData)
+});
+</script>
+{% endif %}
+{% endblock %}

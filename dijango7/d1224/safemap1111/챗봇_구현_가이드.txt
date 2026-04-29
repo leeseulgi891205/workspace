@@ -1,0 +1,807 @@
+================================================================================
+💬 SafeMap AI 챗봇 구현 완료 가이드
+================================================================================
+작성일: 2025년 12월 24일
+난이도: 초보자용
+목적: AI 챗봇 페이지 만들기 (사용자와 실시간 대화)
+
+================================================================================
+📁 [1단계] 수정/생성한 파일 목록
+================================================================================
+
+✅ 수정한 파일 (2개):
+   1. c:\workspace\dijango7\d1224\safemap1111\pages\views.py
+      → 챗봇 함수 3개 추가
+   
+   2. c:\workspace\dijango7\d1224\safemap1111\pages\urls.py
+      → 챗봇 주소(URL) 2개 추가
+   
+   3. c:\workspace\dijango7\d1224\safemap1111\templates\base.html
+      → 상단 메뉴에 챗봇 링크 추가
+
+✅ 새로 만든 파일 (1개):
+   1. c:\workspace\dijango7\d1224\safemap1111\templates\pages\chatbot.html
+      → 챗봇 화면 HTML (채팅 UI)
+
+
+================================================================================
+📄 [2단계] pages/views.py - 챗봇 로직 추가
+================================================================================
+위치: c:\workspace\dijango7\d1224\safemap1111\pages\views.py
+역할: 챗봇 페이지를 보여주고, 사용자 메시지에 AI가 답변하는 함수
+
+----- 파일 맨 아래에 추가한 코드 (총 3개 함수) -----
+
+# ========================================== 챗봇 기능 ====================
+# 역할: 사용자와 AI가 대화할 수 있는 챗봇 페이지
+# 위치: /chatbot/ 주소로 접속
+
+import json  # JSON 데이터를 읽고 쓰기 위한 라이브러리
+from django.views.decorators.csrf import csrf_exempt  # API 보안 설정 (CSRF 토큰 제외)
+
+def chatbot(request):
+    """
+    챗봇 페이지 보여주기
+    - 사용자와 AI가 대화할 수 있는 채팅 인터페이스
+    - 주소: /chatbot/
+    """
+    return render(request, 'pages/chatbot.html')
+
+
+@csrf_exempt  # API 요청이므로 CSRF 토큰 검증 제외 (보안상 실제 운영에서는 주의 필요)
+def chatbot_api(request):
+    """
+    챗봇 AI 응답 API
+    - 사용자 메시지를 받아서 AI 응답 생성
+    - POST /pages/chatbot/api/ {"message": "안녕하세요"}
+    
+    동작 순서:
+    1. 사용자가 메시지 전송 (예: "안녕하세요")
+    2. 서버가 메시지 받음
+    3. generate_ai_response() 함수로 AI 응답 생성
+    4. JSON 형식으로 응답 반환 (예: {"response": "안녕하세요! 무엇을 도와드릴까요?"})
+    """
+    # POST 요청이 아니면 에러
+    if request.method != 'POST':
+        return JsonResponse({'error': '잘못된 요청입니다'}, status=400)
+    
+    try:
+        # 요청에서 사용자 메시지 받기
+        data = json.loads(request.body)  # JSON 문자열을 Python 딕셔너리로 변환
+        user_message = data.get('message', '').strip()  # 'message' 키의 값 가져오기
+        
+        # 메시지가 비어있으면 에러
+        if not user_message:
+            return JsonResponse({'error': '메시지를 입력해주세요'}, status=400)
+        
+        # 🤖 AI 응답 생성 (현재는 간단한 규칙 기반, 나중에 OpenAI API로 교체 가능)
+        ai_response = generate_ai_response(user_message)
+        
+        # JSON 형식으로 응답 반환
+        return JsonResponse({
+            'success': True,
+            'response': ai_response,  # AI가 생성한 답변
+            'timestamp': timezone.now().isoformat()  # 현재 시간
+        })
+    
+    except json.JSONDecodeError:
+        # JSON 파싱 오류
+        return JsonResponse({'error': 'JSON 형식이 올바르지 않습니다'}, status=400)
+    except Exception as e:
+        # 기타 오류
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def generate_ai_response(user_message):
+    """
+    사용자 메시지에 대한 AI 응답 생성
+    - 현재는 간단한 규칙 기반 (키워드 매칭)
+    - 실제 AI 연동 시 OpenAI API 또는 Google Gemini API 사용
+    
+    동작 원리:
+    1. 사용자 메시지를 소문자로 변환
+    2. 특정 키워드가 있는지 확인 (예: "안녕", "기능", "신고" 등)
+    3. 키워드에 맞는 답변 반환
+    4. 매칭되는 키워드가 없으면 기본 응답
+    """
+    message_lower = user_message.lower()  # 소문자로 변환 (대소문자 구분 없이 비교)
+    
+    # 인사말 체크
+    if any(word in message_lower for word in ['안녕', 'hi', 'hello', '헬로', '하이']):
+        return "안녕하세요! 😊 SafeMap 챗봇입니다. 무엇을 도와드릴까요?"
+    
+    # 기능 문의
+    elif any(word in message_lower for word in ['기능', '뭐', '무엇', '할 수 있어', 'what']):
+        return """저는 SafeMap 챗봇입니다! 다음과 같은 도움을 드릴 수 있어요:
+
+📍 안전 신고 방법 안내
+🗺️ 지역별 사건사고 정보 조회
+📝 게시판 사용법 안내
+❓ 자주 묻는 질문 답변
+
+궁금하신 내용을 말씀해주세요!"""
+    
+    # 신고 관련
+    elif any(word in message_lower for word in ['신고', '제보', 'report', '사건', '사고']):
+        return """🚨 안전 신고는 다음과 같이 할 수 있습니다:
+
+1. 상단 메뉴에서 '신고하기' 클릭
+2. 지도에서 사건 발생 위치 선택
+3. 카테고리와 위험도 선택
+4. 상세 내용 작성 후 제출
+
+💡 Tip: 사진을 첨부하면 더욱 정확한 신고가 가능해요!"""
+    
+    # 게시판 관련
+    elif any(word in message_lower for word in ['게시판', '글', '작성', 'board', '게시글']):
+        return """📝 게시판 사용법:
+
+• 글 보기: 메뉴 → 게시판
+• 글 쓰기: 게시판 우측 하단 '글 작성' 버튼
+• 로그인 필수: 게시글 작성/수정/삭제는 로그인 후 가능합니다
+
+본인이 작성한 글만 수정/삭제할 수 있어요!"""
+    
+    # 지도 관련
+    elif any(word in message_lower for word in ['지도', 'map', '위치', '지역']):
+        return """🗺️ 지도 사용법:
+
+• 시/도 선택 → 시/군/구 선택 → 동 선택
+• 날짜 필터로 최근 7일/30일/90일 조회
+• 카테고리별 필터링 가능
+• 위험도 범위 설정 가능
+• 상단 미니 리스트에서 최근 제보 확인
+
+지도를 클릭하면 해당 지역 상세 정보를 볼 수 있어요!"""
+    
+    # 로그인 관련
+    elif any(word in message_lower for word in ['로그인', 'login', '회원가입', '계정', 'sign']):
+        return """🔐 로그인/회원가입:
+
+• 회원가입: 우측 상단 'Sign Up' 클릭
+• 로그인: 우측 상단 'Login' 클릭
+• 로그인 후 가능한 기능:
+  - 게시글 작성/수정/삭제
+  - 안전 신고 제보
+  - 내 활동 내역 조회
+
+계정이 없으시면 먼저 회원가입을 진행해주세요!"""
+    
+    # 도움말
+    elif any(word in message_lower for word in ['도움', 'help', '헬프', '사용법']):
+        return """❓ SafeMap 사용 가이드:
+
+🏠 홈: 최근 통계 및 대시보드
+🗺️ 지도: 지역별 사건사고 조회
+📝 게시판: 커뮤니티 게시판
+📍 신고: 안전 제보 작성
+💬 챗봇: 실시간 도움말 (지금 여기!)
+
+각 메뉴를 클릭해서 기능을 사용해보세요!"""
+    
+    # 감사 인사
+    elif any(word in message_lower for word in ['고마워', '감사', 'thank', '땡큐']):
+        return "천만에요! 😊 더 궁금하신 점이 있으면 언제든 물어보세요!"
+    
+    # 작별 인사
+    elif any(word in message_lower for word in ['잘가', '바이', 'bye', '안녕']):
+        return "안녕히 가세요! 👋 SafeMap을 이용해주셔서 감사합니다. 안전한 하루 되세요!"
+    
+    # 기본 응답 (매칭되는 키워드가 없을 때)
+    else:
+        return f"'{user_message}'에 대해 잘 모르겠어요. 😅\n\n다음과 같이 질문해보세요:\n• '기능이 뭐야?'\n• '신고는 어떻게 해?'\n• '게시판 사용법'\n• '지도 사용법'"
+
+
+# 🔧 OpenAI API 사용 예시 (주석 처리 - 실제 사용 시 주석 해제)
+# def generate_ai_response_openai(user_message):
+#     """
+#     OpenAI GPT API를 사용한 AI 응답 생성
+#     사용법:
+#     1. pip install openai
+#     2. settings.py에 OPENAI_API_KEY 설정
+#     3. 이 함수를 generate_ai_response 대신 사용
+#     """
+#     import openai
+#     from django.conf import settings
+#     
+#     openai.api_key = settings.OPENAI_API_KEY
+#     
+#     try:
+#         response = openai.ChatCompletion.create(
+#             model="gpt-3.5-turbo",
+#             messages=[
+#                 {"role": "system", "content": "당신은 SafeMap 서비스의 친절한 챗봇입니다."},
+#                 {"role": "user", "content": user_message}
+#             ],
+#             max_tokens=500,
+#             temperature=0.7
+#         )
+#         return response.choices[0].message.content
+#     except Exception as e:
+#         return f"AI 응답 생성 중 오류가 발생했습니다: {str(e)}"
+
+
+================================================================================
+📄 [3단계] pages/urls.py - 챗봇 주소(URL) 추가
+================================================================================
+위치: c:\workspace\dijango7\d1224\safemap1111\pages\urls.py
+역할: 챗봇 페이지 주소를 등록 (어떤 주소로 접속하면 어떤 함수를 실행할지 설정)
+
+----- 수정한 부분 (urlpatterns 리스트 끝부분) -----
+
+from django.urls import path
+from . import views
+
+app_name = 'pages'
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('about/', views.about, name='about'),
+    path('api/kr-admin/', views.kr_admin, name='kr_admin'),
+    
+    # 게시판 ==========================================혜은
+    path('board/', views.board_list, name='board_list'),
+    path('board/<int:pk>/', views.board_detail, name='board_detail'),
+
+    # 게시글 작성 ==========================================혜은
+    path('create/', views.board_create, name='board_create'),
+    
+    # 챗봇 ==========================================혜은 (새로 추가)
+    # 1. 챗봇 페이지: http://localhost:8000/chatbot/
+    path('chatbot/', views.chatbot, name='chatbot'),
+    
+    # 2. 챗봇 API: 메시지 전송하고 AI 응답 받기
+    #    JavaScript에서 POST 요청으로 사용
+    path('chatbot/api/', views.chatbot_api, name='chatbot_api'),
+]
+
+----- 설명 -----
+• path('chatbot/', views.chatbot, name='chatbot')
+  → 주소: /chatbot/
+  → 실행: views.py의 chatbot() 함수
+  → 이름: 'chatbot' (템플릿에서 {% url 'pages:chatbot' %}으로 사용)
+
+• path('chatbot/api/', views.chatbot_api, name='chatbot_api')
+  → 주소: /chatbot/api/
+  → 실행: views.py의 chatbot_api() 함수
+  → 용도: JavaScript에서 메시지 보내고 AI 응답 받기
+
+
+================================================================================
+📄 [4단계] templates/pages/chatbot.html - 챗봇 화면 만들기
+================================================================================
+위치: c:\workspace\dijango7\d1224\safemap1111\templates\pages\chatbot.html
+역할: 사용자에게 보이는 채팅 화면 (HTML + CSS + JavaScript)
+
+----- 새로 만든 파일 전체 내용 -----
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI 챗봇 | SafeMap{% endblock %}
+
+{% block head %}
+<style>
+/* 🎨 챗봇 전용 스타일 - 예쁜 채팅 화면 만들기 */
+
+.chatbot-container {
+    max-width: 900px;  /* 최대 너비 */
+    margin: 40px auto;  /* 가운데 정렬 */
+    padding: 20px;
+    min-height: calc(100vh - 200px);  /* 화면 높이에 맞춤 */
+}
+
+.chatbot-header {
+    text-align: center;  /* 가운데 정렬 */
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);  /* 보라색 그라데이션 */
+    color: white;
+    border-radius: 20px 20px 0 0;  /* 위쪽 모서리만 둥글게 */
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);  /* 그림자 */
+}
+
+.chatbot-header h1 {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+    font-weight: 700;  /* 굵게 */
+}
+
+.chat-window {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 0 0 20px 20px;  /* 아래쪽 모서리만 둥글게 */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;  /* 넘치는 내용 숨기기 */
+}
+
+.chat-messages {
+    height: 500px;  /* 채팅 영역 높이 */
+    overflow-y: auto;  /* 세로 스크롤 */
+    padding: 25px;
+    background: #f8f9fa;  /* 연한 회색 배경 */
+    scroll-behavior: smooth;  /* 부드러운 스크롤 */
+}
+
+.chat-message {
+    display: flex;  /* 가로 정렬 */
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease-in;  /* 메시지 나타날 때 애니메이션 */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }  /* 아래에서 위로 나타남 */
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-message.user {
+    justify-content: flex-end;  /* 오른쪽 정렬 (사용자) */
+}
+
+.chat-message.bot {
+    justify-content: flex-start;  /* 왼쪽 정렬 (AI) */
+}
+
+.message-content {
+    max-width: 70%;  /* 메시지 최대 너비 */
+    padding: 15px 20px;
+    border-radius: 18px;
+    font-size: 15px;
+    line-height: 1.6;
+    white-space: pre-wrap;  /* 줄바꿈 유지 */
+    word-wrap: break-word;  /* 긴 단어 자동 줄바꿈 */
+}
+
+.chat-message.user .message-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom-right-radius: 4px;  /* 오른쪽 아래 모서리 살짝 각지게 */
+}
+
+.chat-message.bot .message-content {
+    background: white;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-bottom-left-radius: 4px;  /* 왼쪽 아래 모서리 살짝 각지게 */
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;  /* 원형 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.chat-message.user .message-avatar {
+    margin-left: 12px;  /* 사용자 아바타는 오른쪽에 */
+}
+
+.chat-message.bot .message-avatar {
+    margin-right: 12px;  /* AI 아바타는 왼쪽에 */
+}
+
+.chat-input-area {
+    display: flex;
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    gap: 12px;
+}
+
+.chat-input {
+    flex: 1;  /* 나머지 공간 모두 차지 */
+    padding: 15px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;  /* 둥근 입력창 */
+    font-size: 15px;
+    outline: none;  /* 포커스 시 기본 테두리 제거 */
+}
+
+.chat-input:focus {
+    border-color: #667eea;  /* 포커스 시 보라색 테두리 */
+}
+
+.send-button {
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;  /* 마우스 커서 모양 변경 */
+}
+
+.send-button:hover {
+    transform: translateY(-2px);  /* 위로 살짝 올라감 */
+}
+
+.send-button:disabled {
+    opacity: 0.6;  /* 비활성화 시 투명하게 */
+    cursor: not-allowed;
+}
+
+.typing-indicator {
+    display: none;  /* 기본적으로 숨김 */
+    padding: 15px 20px;
+}
+
+.typing-indicator span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #999;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typing 1.4s infinite;  /* 점이 위아래로 움직임 */
+}
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+}
+
+.welcome-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.quick-questions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.quick-question-btn {
+    padding: 10px 20px;
+    background: white;
+    border: 2px solid #667eea;
+    color: #667eea;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.quick-question-btn:hover {
+    background: #667eea;
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chatbot-container">
+    <!-- 🤖 챗봇 헤더 -->
+    <div class="chatbot-header">
+        <h1>🤖 SafeMap AI 챗봇</h1>
+        <p>궁금한 것을 물어보세요! 24시간 친절하게 답변해드립니다.</p>
+    </div>
+
+    <div class="chat-window">
+        <!-- 💬 채팅 메시지 영역 -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- 환영 메시지 -->
+            <div class="welcome-message">
+                <h3>👋 안녕하세요!</h3>
+                <p>SafeMap AI 챗봇입니다.<br>무엇을 도와드릴까요?</p>
+                
+                <!-- 빠른 질문 버튼 -->
+                <div class="quick-questions">
+                    <button class="quick-question-btn" onclick="sendQuickQuestion('기능이 뭐야?')">
+                        🔍 기능 안내
+                    </button>
+                    <button class="quick-question-btn" onclick="sendQuickQuestion('신고는 어떻게 해?')">
+                        📢 신고 방법
+                    </button>
+                    <button class="quick-question-btn" onclick="sendQuickQuestion('게시판 사용법')">
+                        📝 게시판 안내
+                    </button>
+                    <button class="quick-question-btn" onclick="sendQuickQuestion('지도 사용법')">
+                        🗺️ 지도 사용법
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⌨️ 메시지 입력 영역 -->
+        <div class="chat-input-area">
+            <input 
+                type="text" 
+                class="chat-input" 
+                id="chatInput" 
+                placeholder="메시지를 입력하세요..."
+                maxlength="500"
+            >
+            <button class="send-button" id="sendButton" onclick="sendMessage()">전송</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 🚀 챗봇 JavaScript - 채팅 기능 구현
+
+// HTML 요소 가져오기
+const chatMessages = document.getElementById('chatMessages');  // 채팅 메시지 영역
+const chatInput = document.getElementById('chatInput');  // 입력창
+const sendButton = document.getElementById('sendButton');  // 전송 버튼
+
+// Enter 키로도 전송 가능
+chatInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {  // Enter 키 (Shift 키 안 눌림)
+        e.preventDefault();  // 기본 동작 취소 (줄바꿈 방지)
+        sendMessage();  // 메시지 전송
+    }
+});
+
+// 빠른 질문 버튼 클릭
+function sendQuickQuestion(question) {
+    chatInput.value = question;  // 입력창에 질문 넣기
+    sendMessage();  // 메시지 전송
+}
+
+// 메시지 전송 함수 (핵심 기능!)
+async function sendMessage() {
+    const message = chatInput.value.trim();  // 입력값 가져오기 (공백 제거)
+    
+    // 빈 메시지는 전송 안 함
+    if (!message) {
+        return;
+    }
+    
+    // 환영 메시지 숨기기
+    const welcomeMsg = chatMessages.querySelector('.welcome-message');
+    if (welcomeMsg) {
+        welcomeMsg.style.display = 'none';
+    }
+    
+    // 사용자 메시지 화면에 추가
+    addMessage(message, 'user');
+    
+    // 입력창 비우기
+    chatInput.value = '';
+    
+    // 버튼 비활성화 (중복 전송 방지)
+    sendButton.disabled = true;
+    sendButton.textContent = '전송 중...';
+    
+    // 타이핑 인디케이터 표시 (AI가 답변 중...)
+    showTypingIndicator();
+    
+    try {
+        // 서버에 메시지 전송 (AJAX 요청)
+        const response = await fetch('{% url "pages:chatbot_api" %}', {
+            method: 'POST',  // POST 방식
+            headers: {
+                'Content-Type': 'application/json',  // JSON 형식
+            },
+            body: JSON.stringify({ message: message })  // 메시지를 JSON으로 변환
+        });
+        
+        const data = await response.json();  // 응답을 JSON으로 파싱
+        
+        // 타이핑 인디케이터 숨기기
+        hideTypingIndicator();
+        
+        if (data.success) {
+            // AI 응답을 화면에 추가
+            addMessage(data.response, 'bot');
+        } else {
+            // 에러 메시지
+            addMessage('죄송합니다. 오류가 발생했습니다: ' + (data.error || '알 수 없는 오류'), 'bot');
+        }
+    } catch (error) {
+        hideTypingIndicator();
+        addMessage('죄송합니다. 서버와 통신 중 오류가 발생했습니다. 😥', 'bot');
+        console.error('Error:', error);  // 콘솔에 오류 출력
+    } finally {
+        // 버튼 다시 활성화
+        sendButton.disabled = false;
+        sendButton.textContent = '전송';
+        
+        // 입력창에 포커스
+        chatInput.focus();
+    }
+}
+
+// 메시지를 화면에 추가하는 함수
+function addMessage(text, type) {
+    const messageDiv = document.createElement('div');  // div 요소 생성
+    messageDiv.className = `chat-message ${type}`;  // 클래스 추가 (user 또는 bot)
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = type === 'user' ? '👤' : '🤖';  // 아바타 아이콘
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.textContent = text;  // 메시지 내용
+    
+    // 사용자 메시지: 메시지 + 아바타 순서
+    // AI 메시지: 아바타 + 메시지 순서
+    if (type === 'user') {
+        messageDiv.appendChild(content);
+        messageDiv.appendChild(avatar);
+    } else {
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(content);
+    }
+    
+    chatMessages.appendChild(messageDiv);  // 채팅 영역에 추가
+    
+    // 스크롤을 최신 메시지로 이동
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// 타이핑 인디케이터 표시 (AI가 답변 중...)
+function showTypingIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'chat-message bot';
+    indicator.id = 'typingIndicator';
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = '🤖';
+    
+    const typing = document.createElement('div');
+    typing.className = 'typing-indicator';
+    typing.style.display = 'block';
+    typing.innerHTML = '<span></span><span></span><span></span>';  // 점 3개
+    
+    indicator.appendChild(avatar);
+    indicator.appendChild(typing);
+    chatMessages.appendChild(indicator);
+    
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// 타이핑 인디케이터 숨기기
+function hideTypingIndicator() {
+    const indicator = document.getElementById('typingIndicator');
+    if (indicator) {
+        indicator.remove();  // 제거
+    }
+}
+
+// 페이지 로드 시 입력창에 포커스
+window.addEventListener('load', () => {
+    chatInput.focus();
+});
+</script>
+{% endblock %}
+
+
+================================================================================
+📄 [5단계] templates/base.html - 메뉴에 챗봇 링크 추가
+================================================================================
+위치: c:\workspace\dijango7\d1224\safemap1111\templates\base.html
+역할: 모든 페이지 상단 메뉴에 챗봇 링크 추가
+
+----- 수정한 부분 (nav 태그 안) -----
+
+<nav class="navlinks">
+  <a class="pill" href="{% url 'pages:board_list' %}">게시판</a>
+  <a class="pill" href="{% url 'reports:map' %}">지도</a>
+  <a class="pill" href="{% url 'reports:new' %}">제보하기</a>
+  <a class="pill" href="{% url 'pages:chatbot' %}">💬 AI 챗봇</a>  ← 이 줄 추가!
+  <a class="pill" href="{% url 'pages:about' %}">서비스 소개</a>
+  ...
+</nav>
+
+
+================================================================================
+🚀 [6단계] 챗봇 사용 방법
+================================================================================
+
+1. 서버 실행
+   터미널에서:
+   cd c:\workspace\dijango7\d1224\safemap1111
+   python manage.py runserver
+
+2. 챗봇 접속
+   브라우저에서:
+   http://localhost:8000/chatbot/
+   
+   또는 상단 메뉴에서 "💬 AI 챗봇" 클릭
+
+3. 채팅 시작
+   - 입력창에 메시지 입력
+   - "전송" 버튼 클릭 또는 Enter 키
+   - AI가 자동으로 답변
+
+4. 빠른 질문
+   - "🔍 기능 안내" 클릭 → 사이트 기능 설명
+   - "📢 신고 방법" 클릭 → 신고 방법 안내
+   - "📝 게시판 안내" 클릭 → 게시판 사용법
+   - "🗺️ 지도 사용법" 클릭 → 지도 기능 설명
+
+
+================================================================================
+📝 [7단계] 작동 원리 (초보자용 설명)
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│  1. 사용자가 메시지 입력                                         │
+│     예: "안녕하세요"                                             │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  2. JavaScript가 서버에 메시지 전송 (AJAX)                      │
+│     POST /chatbot/api/                                           │
+│     {"message": "안녕하세요"}                                    │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  3. Django 서버가 메시지 받음 (views.py의 chatbot_api 함수)    │
+│     - 메시지 파싱                                                │
+│     - generate_ai_response() 함수 호출                          │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  4. AI 응답 생성 (generate_ai_response 함수)                    │
+│     - 키워드 검사 ("안녕" → 인사말 응답)                        │
+│     - 응답 텍스트 생성                                           │
+│     예: "안녕하세요! 😊 SafeMap 챗봇입니다."                    │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  5. JSON 형식으로 응답 반환                                      │
+│     {"success": true, "response": "안녕하세요! ..."}            │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  6. JavaScript가 응답 받아서 화면에 표시                        │
+│     - AI 말풍선 추가                                             │
+│     - 스크롤 자동 이동                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+🔧 [8단계] 향후 업그레이드 (선택 사항)
+================================================================================
+
+현재는 "규칙 기반 챗봇" (키워드 매칭)
+→ 미리 정해진 키워드에만 반응
+
+업그레이드: "OpenAI GPT API 연동" (진짜 AI)
+→ 어떤 질문이든 자연스럽게 답변
+
+방법:
+1. OpenAI API 키 발급 (https://openai.com)
+2. pip install openai
+3. settings.py에 API 키 추가:
+   OPENAI_API_KEY = 'sk-...'
+4. views.py의 주석 처리된 generate_ai_response_openai() 함수 활성화
+
+
+================================================================================
+❓ [9단계] 자주 묻는 질문 (FAQ)
+================================================================================
+
+Q1. 챗봇이 응답을 안 해요
+A1. 다음을 확인하세요:
+    - 서버가 실행 중인지 (python manage.py runserver)
+    - 브라우저 콘솔에 오류가 있는지 (F12 → Console 탭)
+    - 메시지가 빈 문자열이 아닌지
+
+Q2. "CSRF token missing" 오류가 나요
+A2. views.py의 chatbot_api 함수에 @csrf_exempt 데코레이터가 있는지 확인
+
+Q3. 챗봇이 멍청해요 (키워드만 인식)
+A3. 현재는 규칙 기반 챗봇입니다. OpenAI API를 연동하면 더 똑똑해집니다.
+
+Q4. 메뉴에 챗봇 링크가 안 보여요
+A4. base.html을 수정했는지 확인하세요.
+
+Q5. 채팅 기록이 저장되나요?
+A5. 아니요, 새로고침하면 초기화됩니다. 
+    저장하려면 데이터베이스 모델을 만들어야 합니다.
+
+
+================================================================================
+✅ 완료! 이제 AI 챗봇을 사용할 수 있습니다!
+================================================================================
+
+궁금한 점이 있으면 챗봇에게 물어보세요! 😊

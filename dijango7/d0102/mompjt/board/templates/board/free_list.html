@@ -1,0 +1,320 @@
+<!--
+═══════════════════════════════════════════════════════════════════════
+free_list.html - 자유게시판 목록
+═══════════════════════════════════════════════════════════════════════
+작성일: 2025-12-29
+기능: 자유게시판 목록 표시, 글쓰기
+26-01-02 혜은 추가: 카테고리 기능 (육아수다, 남편뒷담화, 시댁/친정, 임신출산)
+-->
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width: 900px; margin: 50px auto; padding: 20px;">
+<style>
+    /* 카테고리 탭 */
+    .category-tabs { 
+        display: flex; 
+        gap: 8px; 
+        align-items: center; 
+        padding: 16px 0 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+    .category-tabs::-webkit-scrollbar {
+        height: 6px;
+    }
+    .category-tabs::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 3px;
+    }
+    .category-tabs .tab { 
+        display: inline-block; 
+        padding: 10px 18px; 
+        border: 1px solid #ddd; 
+        border-radius: 999px; 
+        background: #fff; 
+        color: #333; 
+        font-size: 14px; 
+        text-decoration: none; 
+        transition: .15s;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .category-tabs .tab:hover { 
+        border-color: #ff6b6b; 
+        color: #ff6b6b; 
+    }
+    .category-tabs .tab.active { 
+        background: #ff6b6b; 
+        border-color: #ff6b6b; 
+        color: #fff; 
+        font-weight: 600; 
+    }
+
+    /* 모바일 최적화 */
+    @media (max-width: 768px) {
+        .free-list-container {
+            margin: 20px auto !important;
+            padding: 10px !important;
+        }
+        
+        .free-list-title {
+            font-size: 20px !important;
+            margin-bottom: 15px !important;
+        }
+
+        .category-tabs {
+            gap: 6px;
+            padding: 12px 0 8px;
+        }
+
+        .category-tabs .tab {
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+
+        /* 테이블을 카드 형태로 변경 */
+        .post-table {
+            border: none !important;
+        }
+        
+        .post-table thead {
+            display: none;
+        }
+        
+        .post-table tbody tr {
+            display: block;
+            margin-bottom: 15px;
+            border: 1px solid #ddd !important;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .post-table tbody td {
+            display: block;
+            padding: 5px 0 !important;
+            border: none !important;
+            text-align: left !important;
+        }
+        
+        .post-table tbody td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            margin-right: 10px;
+            color: #666;
+        }
+        
+        .post-table tbody td:first-child {
+            display: none;
+        }
+        
+        .post-table tbody td:nth-child(2) {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding-bottom: 8px !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+        }
+        
+        .post-table tbody td:nth-child(2)::before {
+            display: none;
+        }
+        
+        .post-table tbody td:nth-child(2) a {
+            color: #333 !important;
+            line-height: 1.4;
+        }
+
+        /* 페이지네이션 */
+        .pagination-wrap {
+            margin-top: 15px !important;
+        }
+        
+        .pagination-wrap a,
+        .pagination-wrap span {
+            padding: 8px 12px !important;
+            margin: 0 3px !important;
+            font-size: 14px !important;
+            min-width: 36px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        /* 글쓰기 버튼 */
+        .write-btn {
+            position: fixed !important;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px !important;
+            border-radius: 50px !important;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+            z-index: 100;
+            font-size: 15px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .category-tabs .tab {
+            padding: 7px 12px;
+            font-size: 12px;
+        }
+        
+        .post-table tbody td:nth-child(2) {
+            font-size: 15px;
+        }
+        
+        .write-btn {
+            padding: 12px 20px !important;
+            font-size: 14px !important;
+        }
+    }
+</style>
+    <h2 class="free-list-title" style="text-align: center; margin-bottom: 10px; font-weight: 800;">
+        <a href="{% url 'board:free_list' %}?category={{ selected_category }}&page={{ page_obj.number }}"
+        style="text-decoration: none; color: #333;">
+            {{ category_title }}
+        </a>
+    </h2>
+
+    <!-- 카테고리 탭 -->
+    <div class="category-tabs">
+        <a href="?category=all" class="tab {% if selected_category == 'all' %}active{% endif %}">전체보기</a>
+        <a href="?category=mom" class="tab {% if selected_category == 'mom' %}active{% endif %}">육아수다</a>
+        <a href="?category=husband" class="tab {% if selected_category == 'husband' %}active{% endif %}">남편뒷담화</a>
+        <a href="?category=family" class="tab {% if selected_category == 'family' %}active{% endif %}">시댁/친정</a>
+        <a href="?category=preg" class="tab {% if selected_category == 'preg' %}active{% endif %}">임신출산</a>
+        <a href="?category=bamboo" class="tab {% if selected_category == 'bamboo' %}active{% endif %}">대나무숲</a>
+    </div>
+    
+    <table class="post-table" style="width: 100%; border-collapse: collapse; border-top: 2px solid #333;">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 1px solid #ddd;">
+                <th style="padding: 15px; width: 10%;">번호</th>
+                <th style="padding: 15px; text-align: left;">제목</th>
+                <th style="padding: 15px; width: 15%;">작성자</th>
+                <th style="padding: 15px; width: 15%;">날짜</th>
+                <th style="padding: 15px; width: 10%;">조회</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if posts %}
+                {% for post in posts %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <!-- 리스트 번호 (views.py에서 post.number 세팅) -->
+                    <td style="padding: 15px; text-align: center;">
+                        {{ post.number }}
+                    </td>
+
+                    <!-- 제목 (카테고리 + 페이지 유지) -->
+                    <td style="padding: 15px;" data-label="제목">
+                        <a href="{% url 'board:free_detail' post.pk %}?category={{ selected_category }}&page={{ page_obj.number }}"
+                           style="text-decoration: none; color: #333; font-weight: 500;">
+                            {{ post.title }}
+                        </a>
+                    </td>
+
+                    <!-- 작성자 -->
+                    <td style="padding: 15px; text-align: center; color: #666;" data-label="작성자">
+                        {% if post.is_anonymous %}
+                            익명 
+                        {% else %}
+                            {{ post.author.nickname|default:post.author.username }}
+                        {% endif %}
+                    </td>
+
+                    <!-- 작성일 -->
+                    <td style="padding: 15px; text-align: center; color: #666;" data-label="날짜">
+                        {{ post.created_at|date:"Y-m-d" }}
+                    </td>
+
+                    <!-- 조회수 -->
+                    <td style="padding: 15px; text-align: center; color: #666;" data-label="조회">
+                        {{ post.views }}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:30px;">
+                        등록된 게시글이 없습니다.
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <!-- 페이지네이션 (카테고리 유지) -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="pagination-wrap" style="text-align:center; margin-top:20px;">
+        <div style="display:inline-block;">
+
+            <!-- 처음 -->
+            {% if page_obj.number > 1 %}
+            <a href="?category={{ selected_category }}&page=1"
+               style="margin:0 5px; padding:6px 10px; border:1px solid #ddd; 
+                      border-radius:4px; text-decoration:none; color:#333;">
+                &laquo;
+            </a>
+            {% endif %}
+
+            <!-- 이전 -->
+            {% if page_obj.has_previous %}
+            <a href="?category={{ selected_category }}&page={{ page_obj.previous_page_number }}"
+               style="margin:0 5px; padding:6px 10px; border:1px solid #ddd; 
+                      border-radius:4px; text-decoration:none; color:#333;">
+                &lt;
+            </a>
+            {% endif %}
+
+            <!-- 페이지 번호 (5개만 표시) -->
+            {% for num in page_obj.paginator.page_range %}
+                {% if num >= start_page and num <= end_page %}
+                    {% if num == page_obj.number %}
+                    <span style="margin:0 5px; padding:6px 10px; 
+                                 border-radius:4px; background:#495057; color:#fff;">
+                        {{ num }}
+                    </span>
+                    {% else %}
+                    <a href="?category={{ selected_category }}&page={{ num }}"
+                       style="margin:0 5px; padding:6px 10px; border:1px solid #ddd; 
+                              border-radius:4px; text-decoration:none; color:#333;">
+                        {{ num }}
+                    </a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            <!-- 다음 -->
+            {% if page_obj.has_next %}
+            <a href="?category={{ selected_category }}&page={{ page_obj.next_page_number }}"
+               style="margin:0 5px; padding:6px 10px; border:1px solid #ddd; 
+                      border-radius:4px; text-decoration:none; color:#333;">
+                &gt;
+            </a>
+            {% endif %}
+
+            <!-- 끝 -->
+            {% if page_obj.number < page_obj.paginator.num_pages %}
+            <a href="?category={{ selected_category }}&page={{ page_obj.paginator.num_pages }}"
+               style="margin:0 5px; padding:6px 10px; border:1px solid #ddd; 
+                      border-radius:4px; text-decoration:none; color:#333;">
+                &raquo;
+            </a>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 글쓰기 버튼 -->
+    <div style="text-align: right; margin-top: 20px;">
+        <a href="{% url 'board:free_create' %}" class="write-btn"
+           style="display: inline-block; padding: 10px 20px; background: #ff6b6b; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            글쓰기
+        </a>
+    </div>
+
+</div>
+{% endblock %}

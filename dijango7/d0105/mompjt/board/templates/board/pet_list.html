@@ -1,0 +1,150 @@
+<!--
+═══════════════════════════════════════════════════════════════════════
+pet_list.html - 반려동물 게시판 목록
+═══════════════════════════════════════════════════════════════════════
+작성일: 2025-12-30 작성자 손민혁 + 짱짱 멋진 성훈님
+기능: 반려동물 게시판 목록 표시, 글쓰기
+-->
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    * {
+        box-sizing: border-box;
+    }
+    
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .pet-container {
+        max-width: 900px;
+        margin: 50px auto;
+        padding: 20px;
+        width: 100%;
+    }
+    
+    .pet-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-top: 2px solid #333;
+    }
+    
+    @media (max-width: 768px) {
+        .pet-container {
+            margin: 20px auto;
+            padding: 15px;
+        }
+        
+        .pet-table thead {
+            display: none;
+        }
+        
+        .pet-table tbody tr {
+            display: block;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .pet-table tbody td {
+            display: block;
+            padding: 5px 0;
+            border: none;
+            text-align: left !important;
+        }
+        
+        .pet-table tbody td:before {
+            content: attr(data-label);
+            font-weight: 600;
+            margin-right: 10px;
+            color: #666;
+        }
+        
+        .pet-table tbody td:nth-child(1) {
+            display: none;
+        }
+        
+        .pet-table tbody td:nth-child(2) {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .pet-table tbody td:nth-child(2):before {
+            display: none;
+        }
+    }
+</style>
+<div class="pet-container">
+
+    <h2 style="text-align: center; margin-bottom: 30px; font-weight: 800;">
+        <a href="{% url 'board:pet_list' %}" style="text-decoration: none; color: #333;">
+            🐾 반려동물 게시판
+        </a>
+    </h2>
+    
+    <table class="pet-table">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 1px solid #ddd;">
+                <th style="padding: 15px; width: 10%;">번호</th>
+                <th style="padding: 15px; text-align: left;">제목</th>
+                <th style="padding: 15px; width: 15%;">작성자</th>
+                <th style="padding: 15px; width: 15%;">날짜</th>
+                <th style="padding: 15px; width: 10%;">조회</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if posts %}
+                {% for post in posts %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px; text-align: center;">
+                        {{ forloop.revcounter }}
+                    </td>
+                    <td style="padding: 15px;">
+                        <a href="{% url 'board:pet_detail' post.id %}"
+                        style="text-decoration: none; color: #333; font-weight: 500;">
+                         {{ post.title }}
+                        </a>
+                    </td>
+                    <td style="padding: 15px; text-align: center; color: #666;" data-label="작성자">
+                        {% if post.author %}
+                            {{ post.author.nickname|default:post.author.username }}
+                        {% else %}
+                            탈퇴한 사용자
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px; text-align: center; color: #666;" data-label="날짜">
+                        {{ post.created_at|date:"Y-m-d" }}
+                    </td>
+                    <td style="padding: 15px; text-align: center; color: #666;">
+                        {{ post.views }}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:30px;">
+                        아직 등록된 반려동물 글이 없습니다 🐶🐱
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    {% if user.is_authenticated %}
+    <div style="text-align: right; margin-top: 20px;">
+        <a href="{% url 'board:pet_write' %}" 
+           style="display: inline-block; padding: 10px 20px; background: #ff6b6b; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            글쓰기
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

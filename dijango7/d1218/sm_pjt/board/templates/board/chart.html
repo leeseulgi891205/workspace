@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Document</title>
+    <style>
+        div{width: 800px; height: 900px; border:1px solid black;}
+    </style>
+    <script>
+        function cBtn(){
+            alert("데이터 가져오기");
+
+            // 데이터 가져오기
+
+            let label_data = ['1월매출', '2월매출', '3월매출', '4월매출', '5월매출', '6월매출'];
+            let datas = [120, 190, 30, 50, 20, 30];
+
+            const ctx = document.getElementById('myChart');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: label_data,
+                    datasets: [{
+                        label: '2025년 판매 그래프',
+                        data: datas,
+                        borderWidth: 5
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)'
+                        ],
+                        
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <button onclick='cBtn()'>데이터 가져오기</button>
+
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
+</body>
+</html>

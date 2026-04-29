@@ -1,0 +1,830 @@
+{
+  "성훈": {
+    "new": [],
+    "modified": [
+      {
+        "path": "accounts\\points.py",
+        "성훈_size": 1152,
+        "main_size": 364,
+        "size_diff": 788
+      },
+      {
+        "path": "accounts\\views.py",
+        "성훈_size": 36823,
+        "main_size": 36685,
+        "size_diff": 138
+      },
+      {
+        "path": "accounts\\templates\\accounts\\profile_auth.html",
+        "성훈_size": 1162,
+        "main_size": 1089,
+        "size_diff": 73
+      },
+      {
+        "path": "accounts\\templates\\accounts\\login\\login.html",
+        "성훈_size": 1126,
+        "main_size": 1277,
+        "size_diff": -151
+      },
+      {
+        "path": "board\\admin.py",
+        "성훈_size": 9102,
+        "main_size": 10207,
+        "size_diff": -1105
+      },
+      {
+        "path": "board\\forms.py",
+        "성훈_size": 5437,
+        "main_size": 5444,
+        "size_diff": -7
+      },
+      {
+        "path": "board\\models.py",
+        "성훈_size": 26767,
+        "main_size": 33526,
+        "size_diff": -6759
+      },
+      {
+        "path": "board\\urls.py",
+        "성훈_size": 6820,
+        "main_size": 9665,
+        "size_diff": -2845
+      },
+      {
+        "path": "board\\views.py",
+        "성훈_size": 62211,
+        "main_size": 81523,
+        "size_diff": -19312
+      },
+      {
+        "path": "board\\templates\\board\\development_chart.html",
+        "성훈_size": 54159,
+        "main_size": 55191,
+        "size_diff": -1032
+      },
+      {
+        "path": "board\\templates\\board\\flea_comment_form.html",
+        "성훈_size": 1082,
+        "main_size": 1187,
+        "size_diff": -105
+      },
+      {
+        "path": "board\\templates\\board\\flea_list.html",
+        "성훈_size": 8065,
+        "main_size": 11945,
+        "size_diff": -3880
+      },
+      {
+        "path": "board\\templates\\board\\free_detail.html",
+        "성훈_size": 18921,
+        "main_size": 23155,
+        "size_diff": -4234
+      },
+      {
+        "path": "board\\templates\\board\\free_list.html",
+        "성훈_size": 10122,
+        "main_size": 16317,
+        "size_diff": -6195
+      },
+      {
+        "path": "board\\templates\\board\\free_write.html",
+        "성훈_size": 6173,
+        "main_size": 7263,
+        "size_diff": -1090
+      },
+      {
+        "path": "board\\templates\\board\\hotdeal_list.html",
+        "성훈_size": 9309,
+        "main_size": 9314,
+        "size_diff": -5
+      },
+      {
+        "path": "board\\templates\\board\\parenting_detail.html",
+        "성훈_size": 6281,
+        "main_size": 27418,
+        "size_diff": -21137
+      },
+      {
+        "path": "board\\templates\\board\\parenting_form.html",
+        "성훈_size": 5882,
+        "main_size": 9456,
+        "size_diff": -3574
+      },
+      {
+        "path": "board\\templates\\board\\parenting_list.html",
+        "성훈_size": 10280,
+        "main_size": 8524,
+        "size_diff": 1756
+      },
+      {
+        "path": "board\\templates\\board\\pet_detail.html",
+        "성훈_size": 14159,
+        "main_size": 8377,
+        "size_diff": 5782
+      },
+      {
+        "path": "board\\templates\\board\\pet_edit.html",
+        "성훈_size": 14662,
+        "main_size": 14657,
+        "size_diff": 5
+      },
+      {
+        "path": "board\\templates\\board\\pet_list.html",
+        "성훈_size": 8336,
+        "main_size": 8336,
+        "size_diff": 0
+      },
+      {
+        "path": "board\\templates\\board\\pet_write.html",
+        "성훈_size": 11035,
+        "main_size": 11034,
+        "size_diff": 1
+      },
+      {
+        "path": "chat\\urls.py",
+        "성훈_size": 1193,
+        "main_size": 1672,
+        "size_diff": -479
+      },
+      {
+        "path": "chat\\views.py",
+        "성훈_size": 8395,
+        "main_size": 10888,
+        "size_diff": -2493
+      },
+      {
+        "path": "chatbot\\templates\\chatbot\\chatbot_widget.html",
+        "성훈_size": 7567,
+        "main_size": 9587,
+        "size_diff": -2020
+      },
+      {
+        "path": "main\\models.py",
+        "성훈_size": 859,
+        "main_size": 1550,
+        "size_diff": -691
+      },
+      {
+        "path": "main\\urls.py",
+        "성훈_size": 458,
+        "main_size": 815,
+        "size_diff": -357
+      },
+      {
+        "path": "main\\views.py",
+        "성훈_size": 27422,
+        "main_size": 34308,
+        "size_diff": -6886
+      },
+      {
+        "path": "main\\templates\\base.html",
+        "성훈_size": 22241,
+        "main_size": 38398,
+        "size_diff": -16157
+      },
+      {
+        "path": "main\\templates\\main\\index.html",
+        "성훈_size": 42088,
+        "main_size": 78434,
+        "size_diff": -36346
+      },
+      {
+        "path": "map\\templates\\map\\map.html",
+        "성훈_size": 17828,
+        "main_size": 20593,
+        "size_diff": -2765
+      },
+      {
+        "path": "recipes\\models.py",
+        "성훈_size": 3810,
+        "main_size": 3918,
+        "size_diff": -108
+      },
+      {
+        "path": "recipes\\urls.py",
+        "성훈_size": 1459,
+        "main_size": 1934,
+        "size_diff": -475
+      },
+      {
+        "path": "recipes\\views.py",
+        "성훈_size": 11332,
+        "main_size": 17593,
+        "size_diff": -6261
+      },
+      {
+        "path": "recipes\\templates\\recipes\\recipe_detail.html",
+        "성훈_size": 6219,
+        "main_size": 24705,
+        "size_diff": -18486
+      },
+      {
+        "path": "recipes\\templates\\recipes\\recipe_list.html",
+        "성훈_size": 10229,
+        "main_size": 12500,
+        "size_diff": -2271
+      },
+      {
+        "path": "static\\css\\flea_detail.css",
+        "성훈_size": 13176,
+        "main_size": 13178,
+        "size_diff": -2
+      },
+      {
+        "path": "static\\css\\flea_list.css",
+        "성훈_size": 3056,
+        "main_size": 4261,
+        "size_diff": -1205
+      },
+      {
+        "path": "static\\css\\index.css",
+        "성훈_size": 17201,
+        "main_size": 35699,
+        "size_diff": -18498
+      },
+      {
+        "path": "static\\css\\local_market.css",
+        "성훈_size": 2871,
+        "main_size": 5626,
+        "size_diff": -2755
+      },
+      {
+        "path": "static\\css\\style.css",
+        "성훈_size": 22271,
+        "main_size": 22271,
+        "size_diff": 0
+      },
+      {
+        "path": "static\\js\\local_market_map.js",
+        "성훈_size": 21678,
+        "main_size": 25254,
+        "size_diff": -3576
+      }
+    ],
+    "identical": [
+      "add_coordinates.py",
+      "clear_address_detail.py",
+      "create_empathy_posts.py",
+      "create_notice_posts.py",
+      "create_sample_posts.py",
+      "create_test_posts.py",
+      "delete_unused_templates.py",
+      "fix_address_suffix.py",
+      "generate_parenting_info.py",
+      "manage.py",
+      "migrate_address_detail.py",
+      "set_pinned_post.py",
+      "accounts\\admin.py",
+      "accounts\\apps.py",
+      "accounts\\constants.py",
+      "accounts\\forms.py",
+      "accounts\\models.py",
+      "accounts\\services.py",
+      "accounts\\tests.py",
+      "accounts\\tokens.py",
+      "accounts\\urls.py",
+      "accounts\\__init__.py",
+      "accounts\\templates\\accounts\\admin_dashboard.html",
+      "accounts\\templates\\accounts\\find_id.html",
+      "accounts\\templates\\accounts\\find_pw.html",
+      "accounts\\templates\\accounts\\profile.html",
+      "accounts\\templates\\accounts\\resend_verification.html",
+      "accounts\\templates\\accounts\\signup_done.html",
+      "accounts\\templates\\accounts\\verify_failed.html",
+      "accounts\\templates\\accounts\\mypage\\account_delete.html",
+      "accounts\\templates\\accounts\\mypage\\base.html",
+      "accounts\\templates\\accounts\\mypage\\grade_exp.html",
+      "accounts\\templates\\accounts\\mypage\\home.html",
+      "accounts\\templates\\accounts\\mypage\\my_posts.html",
+      "accounts\\templates\\accounts\\mypage\\password_change.html",
+      "accounts\\templates\\accounts\\mypage\\profile.html",
+      "accounts\\templates\\accounts\\signup\\signup.html",
+      "accounts\\templatetags\\custom_filters.py",
+      "accounts\\templatetags\\__init__.py",
+      "board\\apps.py",
+      "board\\tests.py",
+      "board\\utils.py",
+      "board\\views_temp.py",
+      "board\\__init__.py",
+      "board\\management\\commands\\create_all_posts.py",
+      "board\\management\\commands\\create_empathy_posts.py",
+      "board\\templates\\board\\bamboo_diary_list.html",
+      "board\\templates\\board\\flea_comment_delete.html",
+      "board\\templates\\board\\flea_delete.html",
+      "board\\templates\\board\\flea_detail.html",
+      "board\\templates\\board\\flea_detail_new.html",
+      "board\\templates\\board\\flea_write.html",
+      "board\\templates\\board\\hotdeal_delete.html",
+      "board\\templates\\board\\hotdeal_detail.html",
+      "board\\templates\\board\\hotdeal_form.html",
+      "board\\templates\\board\\notice_detail.html",
+      "board\\templates\\board\\notice_list.html",
+      "board\\templates\\board\\notice_write.html",
+      "board\\templates\\board\\notification_list.html",
+      "board\\templates\\board\\upload_example.html",
+      "board\\templatetags\\diary_filters.py",
+      "board\\templatetags\\__init__.py",
+      "chat\\admin.py",
+      "chat\\apps.py",
+      "chat\\consumers.py",
+      "chat\\models.py",
+      "chat\\routing.py",
+      "chat\\tests.py",
+      "chat\\__init__.py",
+      "chat\\management\\commands\\create_default_chatrooms.py",
+      "chat\\templates\\chat\\chat_lobby.html",
+      "chat\\templates\\chat\\chat_midnight.html",
+      "chat\\templates\\chat\\chat_room.html",
+      "chatbot\\admin.py",
+      "chatbot\\apps.py",
+      "chatbot\\models.py",
+      "chatbot\\tests.py",
+      "chatbot\\urls.py",
+      "chatbot\\views.py",
+      "chatbot\\__init__.py",
+      "main\\admin.py",
+      "main\\apps.py",
+      "main\\forms.py",
+      "main\\tests.py",
+      "main\\__init__.py",
+      "main\\templates\\main\\map.html",
+      "main\\templates\\main\\realtime_feed.html",
+      "main\\templates\\main\\search_result.html",
+      "map\\admin.py",
+      "map\\apps.py",
+      "map\\models.py",
+      "map\\tests.py",
+      "map\\urls.py",
+      "map\\views.py",
+      "map\\views_old.py",
+      "map\\__init__.py",
+      "map\\templates\\map\\_map_widget.html",
+      "mompjt\\asgi.py",
+      "mompjt\\settings.py",
+      "mompjt\\urls.py",
+      "mompjt\\wsgi.py",
+      "mompjt\\__init__.py",
+      "quests\\admin.py",
+      "quests\\apps.py",
+      "quests\\context_processors.py",
+      "quests\\models.py",
+      "quests\\services.py",
+      "quests\\tests.py",
+      "quests\\urls.py",
+      "quests\\views.py",
+      "quests\\__init__.py",
+      "recipes\\admin.py",
+      "recipes\\apps.py",
+      "recipes\\forms.py",
+      "recipes\\tests.py",
+      "recipes\\__init__.py",
+      "recipes\\management\\__init__.py",
+      "recipes\\management\\commands\\__init__.py",
+      "recipes\\templates\\recipes_main.html",
+      "recipes\\templates\\recipes_stage_1.html",
+      "recipes\\templates\\recipes_stage_2.html",
+      "recipes\\templates\\recipes_stage_3.html",
+      "recipes\\templates\\recipe_detail.html",
+      "recipes\\templates\\recipe_form.html",
+      "recipes\\templates\\recipes\\recipe_form.html",
+      "static\\css\\banner.css",
+      "static\\css\\board.css",
+      "static\\css\\chatbot.css",
+      "static\\css\\darkmode.css",
+      "static\\css\\dropdown.css",
+      "static\\css\\form.css",
+      "static\\css\\map.css",
+      "static\\css\\mobile.css",
+      "static\\css\\multi-upload.css",
+      "static\\css\\mypage.css",
+      "static\\css\\profile.css",
+      "static\\css\\profile_additional.css",
+      "static\\css\\recipes.css",
+      "static\\css\\search.css",
+      "static\\css\\search_result.css",
+      "static\\css\\signup.css",
+      "static\\js\\flea_location_picker.js",
+      "static\\js\\multi-upload.js",
+      "static\\js\\mypage_delete.js",
+      "static\\js\\mypage_password.js",
+      "static\\js\\mypage_profile.js",
+      "static\\js\\signup.js",
+      "staticfiles\\css\\banner.css",
+      "staticfiles\\css\\board.css",
+      "staticfiles\\css\\chatbot.css",
+      "staticfiles\\css\\dropdown.css",
+      "staticfiles\\css\\flea_list.css",
+      "staticfiles\\css\\form.css",
+      "staticfiles\\css\\map.css",
+      "staticfiles\\css\\profile.css",
+      "staticfiles\\css\\profile_additional.css",
+      "staticfiles\\css\\recipes.css",
+      "staticfiles\\css\\search.css",
+      "staticfiles\\css\\search_result.css",
+      "staticfiles\\css\\signup.css",
+      "staticfiles\\css\\style.css",
+      "staticfiles\\js\\signup.js"
+    ]
+  },
+  "혜은": {
+    "new": [
+      "static\\css\\banner-slider.css",
+      "static\\js\\banner-slider.js"
+    ],
+    "modified": [
+      {
+        "path": "accounts\\views.py",
+        "혜은_size": 36034,
+        "main_size": 36685,
+        "size_diff": -651
+      },
+      {
+        "path": "accounts\\templates\\accounts\\login\\login.html",
+        "혜은_size": 1126,
+        "main_size": 1277,
+        "size_diff": -151
+      },
+      {
+        "path": "board\\admin.py",
+        "혜은_size": 9086,
+        "main_size": 10207,
+        "size_diff": -1121
+      },
+      {
+        "path": "board\\forms.py",
+        "혜은_size": 4692,
+        "main_size": 5444,
+        "size_diff": -752
+      },
+      {
+        "path": "board\\models.py",
+        "혜은_size": 26330,
+        "main_size": 33526,
+        "size_diff": -7196
+      },
+      {
+        "path": "board\\urls.py",
+        "혜은_size": 7423,
+        "main_size": 9665,
+        "size_diff": -2242
+      },
+      {
+        "path": "board\\views.py",
+        "혜은_size": 62883,
+        "main_size": 81523,
+        "size_diff": -18640
+      },
+      {
+        "path": "board\\templates\\board\\development_chart.html",
+        "혜은_size": 54159,
+        "main_size": 55191,
+        "size_diff": -1032
+      },
+      {
+        "path": "board\\templates\\board\\flea_detail.html",
+        "혜은_size": 15581,
+        "main_size": 16281,
+        "size_diff": -700
+      },
+      {
+        "path": "board\\templates\\board\\flea_list.html",
+        "혜은_size": 11831,
+        "main_size": 11945,
+        "size_diff": -114
+      },
+      {
+        "path": "board\\templates\\board\\flea_write.html",
+        "혜은_size": 7970,
+        "main_size": 11262,
+        "size_diff": -3292
+      },
+      {
+        "path": "board\\templates\\board\\parenting_detail.html",
+        "혜은_size": 6281,
+        "main_size": 27418,
+        "size_diff": -21137
+      },
+      {
+        "path": "board\\templates\\board\\parenting_form.html",
+        "혜은_size": 5882,
+        "main_size": 9456,
+        "size_diff": -3574
+      },
+      {
+        "path": "board\\templates\\board\\parenting_list.html",
+        "혜은_size": 10285,
+        "main_size": 8524,
+        "size_diff": 1761
+      },
+      {
+        "path": "board\\templates\\board\\pet_detail.html",
+        "혜은_size": 14159,
+        "main_size": 8377,
+        "size_diff": 5782
+      },
+      {
+        "path": "board\\templates\\board\\pet_edit.html",
+        "혜은_size": 14662,
+        "main_size": 14657,
+        "size_diff": 5
+      },
+      {
+        "path": "board\\templates\\board\\pet_list.html",
+        "혜은_size": 8341,
+        "main_size": 8336,
+        "size_diff": 5
+      },
+      {
+        "path": "board\\templates\\board\\pet_write.html",
+        "혜은_size": 11048,
+        "main_size": 11034,
+        "size_diff": 14
+      },
+      {
+        "path": "chat\\urls.py",
+        "혜은_size": 1193,
+        "main_size": 1672,
+        "size_diff": -479
+      },
+      {
+        "path": "chat\\views.py",
+        "혜은_size": 8395,
+        "main_size": 10888,
+        "size_diff": -2493
+      },
+      {
+        "path": "chatbot\\templates\\chatbot\\chatbot_widget.html",
+        "혜은_size": 7567,
+        "main_size": 9587,
+        "size_diff": -2020
+      },
+      {
+        "path": "main\\models.py",
+        "혜은_size": 859,
+        "main_size": 1550,
+        "size_diff": -691
+      },
+      {
+        "path": "main\\urls.py",
+        "혜은_size": 570,
+        "main_size": 815,
+        "size_diff": -245
+      },
+      {
+        "path": "main\\views.py",
+        "혜은_size": 32417,
+        "main_size": 34308,
+        "size_diff": -1891
+      },
+      {
+        "path": "main\\templates\\base.html",
+        "혜은_size": 48499,
+        "main_size": 38398,
+        "size_diff": 10101
+      },
+      {
+        "path": "main\\templates\\main\\index.html",
+        "혜은_size": 59719,
+        "main_size": 78434,
+        "size_diff": -18715
+      },
+      {
+        "path": "recipes\\models.py",
+        "혜은_size": 3810,
+        "main_size": 3918,
+        "size_diff": -108
+      },
+      {
+        "path": "recipes\\urls.py",
+        "혜은_size": 1459,
+        "main_size": 1934,
+        "size_diff": -475
+      },
+      {
+        "path": "recipes\\views.py",
+        "혜은_size": 11332,
+        "main_size": 17593,
+        "size_diff": -6261
+      },
+      {
+        "path": "recipes\\templates\\recipe_detail.html",
+        "혜은_size": 1068,
+        "main_size": 5429,
+        "size_diff": -4361
+      },
+      {
+        "path": "recipes\\templates\\recipes\\recipe_detail.html",
+        "혜은_size": 6219,
+        "main_size": 24705,
+        "size_diff": -18486
+      },
+      {
+        "path": "recipes\\templates\\recipes\\recipe_list.html",
+        "혜은_size": 9888,
+        "main_size": 12500,
+        "size_diff": -2612
+      },
+      {
+        "path": "static\\css\\banner.css",
+        "혜은_size": 7624,
+        "main_size": 6244,
+        "size_diff": 1380
+      },
+      {
+        "path": "static\\css\\index.css",
+        "혜은_size": 33912,
+        "main_size": 35699,
+        "size_diff": -1787
+      },
+      {
+        "path": "static\\css\\mindcheck-modal.css",
+        "혜은_size": 19103,
+        "main_size": 18607,
+        "size_diff": 496
+      },
+      {
+        "path": "static\\css\\style.css",
+        "혜은_size": 22271,
+        "main_size": 22271,
+        "size_diff": 0
+      },
+      {
+        "path": "static\\js\\mindcheck.js",
+        "혜은_size": 7564,
+        "main_size": 6207,
+        "size_diff": 1357
+      }
+    ],
+    "identical": [
+      "add_coordinates.py",
+      "clear_address_detail.py",
+      "create_comments.py",
+      "create_empathy_posts.py",
+      "create_notice_posts.py",
+      "create_sample_posts.py",
+      "create_test_posts.py",
+      "delete_unused_templates.py",
+      "fix_address_suffix.py",
+      "fix_base.py",
+      "generate_parenting_info.py",
+      "insert_avg_cognitive.py",
+      "insert_avg_data.py",
+      "manage.py",
+      "migrate_address_detail.py",
+      "set_pinned_post.py",
+      "accounts\\admin.py",
+      "accounts\\apps.py",
+      "accounts\\constants.py",
+      "accounts\\forms.py",
+      "accounts\\models.py",
+      "accounts\\points.py",
+      "accounts\\services.py",
+      "accounts\\tests.py",
+      "accounts\\tokens.py",
+      "accounts\\urls.py",
+      "accounts\\__init__.py",
+      "accounts\\templates\\accounts\\admin_dashboard.html",
+      "accounts\\templates\\accounts\\find_id.html",
+      "accounts\\templates\\accounts\\find_pw.html",
+      "accounts\\templates\\accounts\\profile.html",
+      "accounts\\templates\\accounts\\profile_auth.html",
+      "accounts\\templates\\accounts\\resend_verification.html",
+      "accounts\\templates\\accounts\\signup_done.html",
+      "accounts\\templates\\accounts\\verify_failed.html",
+      "accounts\\templates\\accounts\\mypage\\account_delete.html",
+      "accounts\\templates\\accounts\\mypage\\base.html",
+      "accounts\\templates\\accounts\\mypage\\grade_exp.html",
+      "accounts\\templates\\accounts\\mypage\\my_posts.html",
+      "accounts\\templates\\accounts\\mypage\\password_change.html",
+      "accounts\\templates\\accounts\\mypage\\profile.html",
+      "accounts\\templates\\accounts\\signup\\signup.html",
+      "accounts\\templatetags\\custom_filters.py",
+      "accounts\\templatetags\\__init__.py",
+      "board\\apps.py",
+      "board\\tests.py",
+      "board\\utils.py",
+      "board\\views_temp.py",
+      "board\\__init__.py",
+      "board\\management\\commands\\create_all_posts.py",
+      "board\\management\\commands\\create_empathy_posts.py",
+      "board\\templates\\board\\flea_comment_delete.html",
+      "board\\templates\\board\\flea_comment_form.html",
+      "board\\templates\\board\\flea_delete.html",
+      "board\\templates\\board\\flea_detail_new.html",
+      "board\\templates\\board\\free_detail.html",
+      "board\\templates\\board\\free_list.html",
+      "board\\templates\\board\\free_update.html",
+      "board\\templates\\board\\free_write.html",
+      "board\\templates\\board\\hotdeal_delete.html",
+      "board\\templates\\board\\hotdeal_detail.html",
+      "board\\templates\\board\\hotdeal_form.html",
+      "board\\templates\\board\\hotdeal_list.html",
+      "board\\templates\\board\\notice_detail.html",
+      "board\\templates\\board\\notice_list.html",
+      "board\\templates\\board\\notice_write.html",
+      "board\\templates\\board\\notification_list.html",
+      "board\\templates\\board\\upload_example.html",
+      "board\\templatetags\\diary_filters.py",
+      "board\\templatetags\\__init__.py",
+      "chat\\admin.py",
+      "chat\\apps.py",
+      "chat\\consumers.py",
+      "chat\\models.py",
+      "chat\\routing.py",
+      "chat\\tests.py",
+      "chat\\__init__.py",
+      "chat\\management\\commands\\create_default_chatrooms.py",
+      "chat\\templates\\chat\\chat_lobby.html",
+      "chat\\templates\\chat\\chat_midnight.html",
+      "chat\\templates\\chat\\chat_room.html",
+      "chatbot\\admin.py",
+      "chatbot\\apps.py",
+      "chatbot\\models.py",
+      "chatbot\\tests.py",
+      "chatbot\\urls.py",
+      "chatbot\\views.py",
+      "chatbot\\__init__.py",
+      "main\\admin.py",
+      "main\\apps.py",
+      "main\\forms.py",
+      "main\\tests.py",
+      "main\\__init__.py",
+      "main\\templates\\main\\map.html",
+      "main\\templates\\main\\realtime_feed.html",
+      "main\\templates\\main\\search_result.html",
+      "map\\admin.py",
+      "map\\apps.py",
+      "map\\models.py",
+      "map\\tests.py",
+      "map\\urls.py",
+      "map\\views.py",
+      "map\\views_old.py",
+      "map\\__init__.py",
+      "map\\templates\\map\\map.html",
+      "mompjt\\asgi.py",
+      "mompjt\\settings.py",
+      "mompjt\\urls.py",
+      "mompjt\\wsgi.py",
+      "mompjt\\__init__.py",
+      "quests\\admin.py",
+      "quests\\apps.py",
+      "quests\\context_processors.py",
+      "quests\\models.py",
+      "quests\\services.py",
+      "quests\\tests.py",
+      "quests\\urls.py",
+      "quests\\views.py",
+      "quests\\__init__.py",
+      "recipes\\admin.py",
+      "recipes\\apps.py",
+      "recipes\\forms.py",
+      "recipes\\tests.py",
+      "recipes\\__init__.py",
+      "recipes\\management\\__init__.py",
+      "recipes\\management\\commands\\__init__.py",
+      "recipes\\templates\\recipes_main.html",
+      "recipes\\templates\\recipes_stage_1.html",
+      "recipes\\templates\\recipes_stage_2.html",
+      "recipes\\templates\\recipes_stage_3.html",
+      "recipes\\templates\\recipe_form.html",
+      "recipes\\templates\\recipes\\recipe_form.html",
+      "static\\css\\board.css",
+      "static\\css\\chatbot.css",
+      "static\\css\\darkmode.css",
+      "static\\css\\dropdown.css",
+      "static\\css\\flea_list.css",
+      "static\\css\\form.css",
+      "static\\css\\map.css",
+      "static\\css\\mobile.css",
+      "static\\css\\multi-upload.css",
+      "static\\css\\mypage.css",
+      "static\\css\\premium-finish.css",
+      "static\\css\\profile.css",
+      "static\\css\\profile_additional.css",
+      "static\\css\\recipes.css",
+      "static\\css\\search.css",
+      "static\\css\\search_result.css",
+      "static\\css\\signup.css",
+      "static\\js\\multi-upload.js",
+      "static\\js\\mypage_delete.js",
+      "static\\js\\mypage_password.js",
+      "static\\js\\mypage_profile.js",
+      "static\\js\\signup.js",
+      "staticfiles\\css\\banner.css",
+      "staticfiles\\css\\board.css",
+      "staticfiles\\css\\chatbot.css",
+      "staticfiles\\css\\dropdown.css",
+      "staticfiles\\css\\flea_list.css",
+      "staticfiles\\css\\form.css",
+      "staticfiles\\css\\map.css",
+      "staticfiles\\css\\profile.css",
+      "staticfiles\\css\\profile_additional.css",
+      "staticfiles\\css\\recipes.css",
+      "staticfiles\\css\\search.css",
+      "staticfiles\\css\\search_result.css",
+      "staticfiles\\css\\signup.css",
+      "staticfiles\\css\\style.css",
+      "staticfiles\\js\\signup.js"
+    ]
+  }
+}

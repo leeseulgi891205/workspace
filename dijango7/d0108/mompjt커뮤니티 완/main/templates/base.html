@@ -1,0 +1,420 @@
+<!--
+═══════════════════════════════════════════════════════════════════════
+base.html - 맘스로그 프로젝트 전체 레이아웃 베이스 템플릿
+═══════════════════════════════════════════════════════════════════════
+작성일: 2025-12-29
+용도:
+  - 전체 프로젝트의 공통 레이아웃 (헤더, 네비게이션, 푸터)
+  - 모든 페이지에서 extends하여 사용
+  - 통합 검색창, 로그인/로그아웃 버튼 포함
+포함 요소:
+  - 헤더: 로고, 검색창, 로그인/로그아웃
+  - 네비게이션: 공지사항, 자유게시판, 벼룩시장, 지도, 챗봇
+  - 푸터: 저작권 정보
+  - block content: 각 페이지 콘텐츠 영역
+═══════════════════════════════════════════════════════════════════════
+-->{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>맘스로그 - 엄마들의 따뜻한 공간</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/dropdown.css' %}">
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mobile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/darkmode.css' %}">
+    <style>
+        * {
+            font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+        }
+    </style>
+    {% block head %}
+    {% endblock %}
+</head>
+<link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
+<body class="light-mode">
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <h1 class="logo">
+                <a href="{% url 'main:index' %}">
+                    <img src="{% static 'images/logo7.png' %}" alt="맘스로그 로고" style="height: 100px; width: auto;">
+                </a>
+            </h1>
+                <form class="search-bar" method="get" action="{% url 'main:search' %}">
+                    <input type="text" name="q" placeholder="궁금한 정보를 검색해보세요." value="{{ q|default:'' }}">
+                    <button type="submit">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                </form>
+                <div class="top-links">
+                    <!-- 다크모드 토글 버튼 -->
+                    <button id="darkModeToggle" class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="다크모드 전환">
+                        <span class="icon-sun">☀️</span>
+                        <span class="icon-moon">🌙</span>
+                    </button>
+                    
+                    {% if user.is_authenticated %}
+                        <!-- 알림 아이콘 -->
+                        <a href="{% url 'board:notification_list' %}" class="notification-icon" id="notificationLink">
+                            🔔
+                            {% with unread_count=user.notifications.count %}
+                            {% if unread_count > 0 %}
+                                <span class="notification-badge" id="notifBadge" data-count="{{ unread_count }}">{{ unread_count }}</span>
+                            {% endif %}
+                            {% endwith %}
+                        </a>
+                        <span class="grade-badge">{{ user.get_grade_display }}</span>
+                        <span> <b>{% if user.is_superuser %}관리자{% else %}{{ user.nickname }}{% endif %}</b>님 환영합니다!</span>
+                        | <a href="{% url 'accounts:profile_auth' %}">마이페이지</a>
+                        | <a href="{% url 'accounts:logout' %}">로그아웃</a>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}">로그인</a>
+                        | <a href="{% url 'accounts:signup' %}">회원가입</a>
+                        | <a href="/admin/">관리자</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <div class="container">
+                <ul id="mainMenu">
+                    <li><a href="{% url 'board:notice_list' %}">공지사항</a></li>
+                    
+
+                    <li class="has-sub">
+                        <a href="{% url 'board:free_list' %}?category=all" onclick="toggleMenu(this)">커뮤니티</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'board:free_list' %}?category=all">전체보기</a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=mom">육아 수다</a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=husband">남편 뒷담화</a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=family">시댁/친정</a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=preg">임신출산</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-sub">
+                        <!-- 26-01-02 슬기 추가 -->
+                        <a href="javascript:void(0)" onclick="toggleMenu(this)">핫딜공유</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'board:hotdeal_list' %}">전체보기</a></li>
+                            <li><a href="{% url 'board:hotdeal_list' %}?category=baby">육아용품 핫딜</a></li>
+                            <li><a href="{% url 'board:hotdeal_list' %}?category=life">생활용품 핫딜</a></li>
+                            <li><a href="{% url 'board:hotdeal_list' %}?category=event">이벤트/체험단</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-sub">
+                        <!-- 26-01-06 수정: 요리레시피 하위 메뉴 변경 -->
+                        <a href="javascript:void(0)" onclick="toggleMenu(this)">요리레시피</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'recipes:recipe_list' %}?category=all">전체보기</a></li>
+                            <li><a href="{% url 'recipes:recipe_list' %}?category=korean">한식</a></li>
+                            <li><a href="{% url 'recipes:recipe_list' %}?category=chinese">중식</a></li>
+                            <li><a href="{% url 'recipes:recipe_list' %}?category=japanese">일식</a></li>
+                            <li><a href="{% url 'recipes:recipe_list' %}?category=western">양식</a></li>
+                            <li><a href="{% url 'recipes:recipe_list' %}?category=snack">간식/디저트</a></li>
+                            <li><a href="{% url 'recipes:recipe_list' %}?category=baby">아기 이유식</a></li>
+                            <li><a href="{% url 'recipes:recipe_list' %}?category=diet">다이어트</a></li>
+                            <li><a href="{% url 'recipes:recipe_list' %}?category=simple">간단요리</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="{% url 'board:pet_list' %}">반려동물</a></li>
+
+                    <li class="has-sub">
+                        <!-- 26-01-02 슬기 추가 -->
+                        <a href="javascript:void(0)" onclick="toggleMenu(this)">육아정보</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'board:parenting_list' %}">전체보기</a></li>
+                            <li><a href="{% url 'board:parenting_list' %}?category=development">월령별 발달</a></li>
+                            <li><a href="{% url 'board:parenting_list' %}?category=sleep">수면교육</a></li>
+                            <li><a href="{% url 'board:parenting_list' %}?category=discipline">훈육 노하우</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="{% url 'board:flea_list' %}">벼룩시장</a></li>
+                    <li><a href="/map/">우리동네지도</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    {% if messages %}
+        <div class="msg-wrap" id="msgWrap">
+            {% for message in messages %}
+            <div class="msg
+                {% if message.tags == 'success' %}msg-success{% endif %}
+                {% if message.tags == 'error' %}msg-error{% endif %}
+                {% if message.tags == 'info' %}msg-info{% endif %}
+            ">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <script>
+            setTimeout(() => {
+                const wrap = document.getElementById('msgWrap');
+                if (!wrap) return;
+                wrap.style.opacity = '0';
+                setTimeout(() => wrap.remove(), 400);
+            }, 2500);
+        </script>
+    {% endif %}
+
+    <main class="container main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <style>
+            footer { background: #f9f9f9; padding: 40px 0; border-top: 1px solid #eee; font-size: 13px; color: #888; margin-top: 50px; }
+            .footer-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+            .footer-links { margin-bottom: 15px; }
+            .footer-links a { color: #555; text-decoration: none; margin: 0 15px; font-weight: bold; }
+            .footer-links a:hover { color: #ff6b6b; }
+            .company-info { margin-top: 15px; line-height: 1.8; }
+            
+            /* 다크모드 푸터 스타일 */
+            .dark-mode footer {
+                background: #1a1a24;
+                border-top-color: #3a3f4a;
+                color: #a0a0a8;
+            }
+            .dark-mode .footer-links a {
+                color: #c0c0c8;
+            }
+            .dark-mode .footer-links a:hover {
+                color: #ff6b6b;
+            }
+            .dark-mode .company-info {
+                color: #a0a0a8;
+            }
+        </style>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{% static 'images/logo7.png' %}" style="height: 35px; opacity: 0.6; filter: grayscale(100%); margin-bottom: 20px;">
+            </div>
+            <div class="footer-links">
+                <a href="#">회사소개</a>
+                <a href="#">이용약관</a>
+                <a href="#">개인정보처리방침</a>
+                <a href="#">제휴문의</a>
+            </div>
+            <div class="company-info">
+                (주)맘스로그 | 대표: 홍길동 | 사업자등록번호: 123-45-67890<br>
+                주소: 서울특별시 강남구 테헤란로 123 맘스빌딩 5층<br>
+                고객센터: 1588-0000 (평일 09:00~18:00) | 이메일: help@momslog.com<br>
+                <br>Copyright © 2026 MomsLog. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    {% include 'chatbot/chatbot_widget.html' %}
+
+    <script>
+        // 페이지 로드 시 모든 드롭다운 메뉴 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdowns = document.querySelectorAll('.dropdown-menu');
+            const items = document.querySelectorAll('.has-sub');
+
+            dropdowns.forEach(menu => {
+                menu.classList.remove('show');
+            });
+            items.forEach(item => {
+                item.classList.remove('active');
+            });
+        });
+
+        function toggleMenu(element) {
+            // 1. 클릭한 메뉴의 부모 li 찾기
+            const parentLi = element.parentElement;
+
+            // 2. 그 안에 있는 드롭다운 메뉴 찾기
+            const dropdown = parentLi.querySelector('.dropdown-menu');
+
+            // 3. 이미 열려있는 다른 메뉴들은 닫기 (하나만 열리게)
+            const allDropdowns = document.querySelectorAll('.dropdown-menu');
+            const allItems = document.querySelectorAll('.has-sub');
+
+            allDropdowns.forEach(menu => {
+                if (menu !== dropdown) {
+                    menu.classList.remove('show');
+                }
+            });
+            allItems.forEach(item => {
+                if (item !== parentLi) {
+                    item.classList.remove('active');
+                }
+            });
+
+            // 4. 클릭한 메뉴 토글 (열기/닫기)
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+                parentLi.classList.toggle('active');
+            }
+        }
+
+        // 화면의 빈 곳을 클릭하면 메뉴 닫기
+        window.onclick = function(event) {
+            // 메뉴 토글 버튼 클릭이 아닌 경우 모든 메뉴 닫기
+            if (!event.target.closest('.has-sub > a')) {
+                const dropdowns = document.getElementsByClassName("dropdown-menu");
+                const items = document.getElementsByClassName("has-sub");
+
+                for (let i = 0; i < dropdowns.length; i++) {
+                    if (dropdowns[i].classList.contains('show')) {
+                        dropdowns[i].classList.remove('show');
+                    }
+                }
+                for (let i = 0; i < items.length; i++) {
+                    items[i].classList.remove('active');
+                }
+            }
+        }
+
+        /* =====================================
+           알림 배지 관리 함수
+           ===================================== */
+        
+        // 글을 읽을 때 호출 (상세페이지에서)
+        function markNotificationAsRead(notificationId) {
+            const badge = document.getElementById('notifBadge');
+            if (!badge) return;
+            
+            // 서버에 읽음 표시 요청
+            fetch(`/board/notification/mark-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.unread_count !== undefined) {
+                    updateNotificationBadge(data.unread_count);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // 새 댓글 등록 시 호출
+        function incrementNotificationBadge() {
+            const badge = document.getElementById('notifBadge');
+            
+            if (!badge) {
+                // 배지가 없으면 생성
+                const link = document.getElementById('notificationLink');
+                if (link) {
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'notification-badge';
+                    newBadge.id = 'notifBadge';
+                    newBadge.setAttribute('data-count', '1');
+                    newBadge.textContent = '1';
+                    link.appendChild(newBadge);
+                }
+            } else {
+                // 배지가 있으면 숫자 증가
+                const currentCount = parseInt(badge.getAttribute('data-count') || badge.textContent, 10) || 0;
+                const newCount = currentCount + 1;
+                updateNotificationBadge(newCount);
+            }
+        }
+
+        // 배지 업데이트 함수
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notifBadge');
+            
+            if (count <= 0) {
+                // 숫자가 0 이하면 배지 제거
+                if (badge) {
+                    badge.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => badge.remove(), 300);
+                }
+            } else {
+                // 숫자 업데이트
+                if (!badge) {
+                    const link = document.getElementById('notificationLink');
+                    if (link) {
+                        const newBadge = document.createElement('span');
+                        newBadge.className = 'notification-badge';
+                        newBadge.id = 'notifBadge';
+                        newBadge.setAttribute('data-count', count.toString());
+                        newBadge.textContent = count;
+                        link.appendChild(newBadge);
+                    }
+                } else {
+                    badge.setAttribute('data-count', count.toString());
+                    badge.textContent = count;
+                }
+            }
+        }
+
+        // CSS 애니메이션 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; transform: scale(1); }
+                to { opacity: 0; transform: scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // CSRF 토큰 가져오기
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        /* =====================================
+           다크모드 토글 함수
+           ===================================== */
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDark = body.classList.contains('dark-mode');
+            
+            if (isDark) {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // 페이지 로드 시 저장된 테마 적용
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            
+            if (savedTheme === 'dark') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+            }
+        })();
+    </script>
+</body>
+</html>

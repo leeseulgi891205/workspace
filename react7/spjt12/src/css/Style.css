@@ -1,0 +1,22 @@
+.root{
+    width: 500px; height: 100%;
+    border: solid black;
+    margin: 10px auto;
+    padding: 20px;
+}
+
+.root h2{
+    text-align: center;
+}
+
+.root .card{
+    margin: 20px 0;
+}
+
+.root button{
+    margin-right: 10px;
+}
+
+.root .d-flex{
+    margin: 50px 0;
+}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>메인페이지</title>
+</head>
+<body>
+    <h2>메인페이지</h2>
+
+    <ul>
+        <!-- 그냥 /student/list 주소로 바로 이동 -->
+        <li><a href="/student/list">학생 리스트</a></li>
+
+        <!-- 장고 방식 URL: student 앱의 'write' 라는 이름을 가진 path 로 이동 -->
+        <li><a href="{% url 'student:write' %}">학생 등록</a></li>
+
+        <!-- 성적 입력 페이지 -->
+        <li><a href="/stuscore/write">학생 성적 등록</a></li>
+
+        <!-- 관리자 페이지로 이동 -->
+        <li><a href="/admin">admin 관리자 페이지</a></li>
+    </ul>
+</body>
+</html>

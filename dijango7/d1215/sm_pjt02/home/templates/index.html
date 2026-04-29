@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메인페이지</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ffffffff 0%, #ffffffff 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-top: 50px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        .search-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .search-title {
+            font-size: 20px;
+            color: #555;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-box input:focus {
+            border-color: #000000ff;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+        .search-box button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #000000ff 0%rgba(0, 0, 0, 1)a2 100%);
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .search-box button:hover {
+            transform: scale(1.05);
+        }
+        .search-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .search-options label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            color: #666;
+        }
+        .menu-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .menu-section a {
+            display: block;
+            padding: 15px;
+            background: linear-gradient(135deg, #000000ff 0%, #000000ff 100%);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .menu-section a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>슬구 홈페이지</h2>
+        
+        <!-- 이미지 검색 섹션 -->
+        <div class="search-section">
+            <div class="search-title">이미지 게시글 검색</div>
+            <form action="/search/" method="get">
+                <div class="search-box">
+                    <input type="text" name="keyword" placeholder="검색어를 입력하세요..." required>
+                    <button type="submit">검색</button>
+                </div>
+                <div class="search-options">
+                    <label><input type="radio" name="search_type" value="all" checked> 제목+내용</label>
+                    <label><input type="radio" name="search_type" value="title"> 제목만</label>
+                    <label><input type="radio" name="search_type" value="content"> 내용만</label>
+                    <label><input type="checkbox" name="image_only" value="1" checked> 이미지 있는 글만</label>
+                </div>
+            </form>
+        </div>
+
+        <!-- 메뉴 섹션 -->
+        <div class="menu-section">
+            {% if not request.session.session_id %}
+                <a href='/member/login/'>로그인</a>
+                <a href='/member/join/'>회원가입</a>
+                <a href='/member/list/'>회원목록</a>
+                <a href='/admin/'>관리자</a>
+            {% else %}
+                <a href='{% url "member:logout" %}'>로그아웃</a>
+                <a href='/board/list/'>게시판</a>
+                <a href='/member/list/'>회원목록</a>
+                <a href='/admin/'>관리자</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

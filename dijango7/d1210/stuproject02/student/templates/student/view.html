@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학생 상세보기</title>
+    <style>
+        table {border-collapse: collapse;
+            margin: 20px auto;
+            width: 50%;}
+            
+        th, td {border: 1px solid black;
+            padding: 10px;
+            text-align: left;}
+
+        th {background-color: #f0f0f0;
+            width: 30%;}
+    </style>
+</head>
+<body>
+    <h2>학생 상세 정보</h2>
+    <table>
+        <tr>
+            <th>순번</th>
+            <td>{{ student.sno }}</td>
+        </tr>
+        <tr>
+            <th>아이디</th>
+            <td>{{ student.user_id }}</td>
+        </tr>
+        <tr>
+            <th>이름</th>
+            <td>{{ student.name }}</td>
+        </tr>
+        <tr>
+            <th>닉네임</th>
+            <td>{{ student.nickname }}</td>
+        </tr>
+        <tr>
+            <th>이메일</th>
+            <td>{{ student.email }}</td>
+        </tr>
+        <tr>
+            <th>전화번호</th>
+            <td>{{ student.phone }}</td>
+        </tr>
+        <tr>
+            <th>성별</th>
+            <td>{{ student.gender }}</td>
+        </tr>
+        <tr>
+            <th>나이</th>
+            <td>{{ student.age }}</td>
+        </tr>
+        <tr>
+            <th>학년</th>
+            <td>{{ student.grade }}</td>
+        </tr>
+        <tr>
+            <th>취미</th>
+            <td>{{ student.hobby }}</td>
+        </tr>
+    </table>
+    <ul>
+        <li><a href="/student/list/">학생 리스트</a></li>
+        <li><a href="/">홈으로</a></li>
+    </ul>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VLAST Shop - 회원목록</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #1A1A1A;
+    }
+    /* Header */
+    .header {
+      width: 100%;
+      height: 60px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 40px;
+      box-sizing: border-box;
+      border-bottom: 1px solid #F0F0F0;
+    }
+    .top-menu {
+      display: flex;
+      gap: 15px;
+      font-size: 13px;
+      color: #636363;
+      margin-right: 20px;
+    }
+    .top-menu a {
+      text-decoration: none;
+      color: #636363;
+    }
+    .top-menu a:hover {
+      color: #035FE0;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1000px;
+      margin: 80px auto;
+      padding: 0 20px;
+    }
+    .page-title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* Table */
+    table.member-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .member-table th,
+    .member-table td {
+      border-bottom: 1px solid #E0E0E0;
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .member-table th {
+      background-color: #F9F9F9;
+      font-weight: 600;
+      border-top: 1px solid #848484;
+    }
+    .member-table td.name,
+    .member-table td.id {
+      text-align: left;
+      padding-left: 20px;
+    }
+    .member-table td.name a,
+    .member-table td.id a {
+      color: #1A1A1A;
+      text-decoration: none;
+    }
+    .member-table td.name a:hover,
+    .member-table td.id a:hover {
+      text-decoration: underline;
+      color: #035FE0;
+    }
+
+    /* Buttons */
+    .btn-box {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 8px 18px;
+      background-color: #035FE0;
+      color: #fff;
+      font-size: 14px;
+      border-radius: 4px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #0046B3;
+    }
+
+    footer {
+      margin-top: 50px;
+      border-top: 1px solid #ccc;
+      padding: 30px;
+      text-align: center;
+      font-size: 13px;
+      color: #A0A0A0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="top-menu">
+      <a href="/">홈</a> |
+      <a href="/member/login/">로그인</a> |
+      <a href="/board/list/">게시판</a>
+    </div>
+  </div>
+
+  <!-- Member List -->
+  <div class="container">
+    <div class="page-title">회원 목록</div>
+    <table class="member-table">
+      <colgroup>
+        <col width='10%'>
+        <col width='15%'>
+        <col width='15%'>
+        <col width='15%'>
+        <col width='10%'>
+        <col width='15%'>
+        <col width='20%'>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>번호</th>
+          <th>아이디</th>
+          <th>이름</th>
+          <th>전화번호</th>
+          <th>성별</th>
+          <th>이메일</th>
+          <th>가입일</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if members %}
+          {% for member in members %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td class="id"><a href="{% url 'member:view' member.id %}">{{ member.id }}</a></td>
+              <td class="name"><a href="{% url 'member:view' member.id %}">{{ member.name }}</a></td>
+              <td>{{ member.phone }}</td>
+              <td>{{ member.gender }}</td>
+              <td>{{ member.email|default:"-" }}</td>
+              <td>{{ member.mdate|date:'Y-m-d H:i' }}</td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan='7'>회원 데이터가 없습니다.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+    <div class="btn-box">
+      <a href="/" class="btn">메인으로</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    Copyright © VLAST Shop. All rights reserved.
+  </footer>
+</body>
+</html>

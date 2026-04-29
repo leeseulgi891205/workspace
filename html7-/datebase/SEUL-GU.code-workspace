@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../SEUL-GU"
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "workspace"
+	}
+}

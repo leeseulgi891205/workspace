@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울시 신림동 슬구 초딩학교</title>
+    <script>
+        function confirmSubmit() {
+            if(confirm('수정을 완료하시겠습니까?')) {
+                alert('수정되었습니다.');
+                window.location.href = '/student/list';
+                return true;
+            }
+            return false;
+        }
+        
+        function confirmCancel() {
+            if(confirm('수정을 취소하시겠습니까?')) {
+                window.location.href = '/student/view';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>학생 정보 수정</h2>
+    <form onsubmit="return confirmSubmit()">
+        <label>이름:</label>
+        <input type="text" name="name" required><br><br>
+        
+        <label>학번:</label>
+        <input type="text" name="student_id" required><br><br>
+        
+        <label>학과:</label>
+        <input type="text" name="major" required><br><br>
+        
+        <label>학년:</label>
+        <input type="number" name="grade" min="1" max="4" required><br><br>
+        
+        <button type="submit">수정완료</button>
+        <button type="button" onclick="confirmCancel()">취소</button>
+    </form>
+</body>
+</html>

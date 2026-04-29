@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>VLAST Shop - 회원리스트</title>
+  <script>
+    {% if delete_state == "1" %}
+      alert("회원이 삭제되었습니다.");
+    {% endif %}
+  </script>
+  <style>
+    table {
+      width: 100%;
+      max-width: 1200px;
+      margin: 30px auto;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #035fe0;
+      color: white;
+      font-weight: 600;
+    }
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+    .btn-group {
+      text-align: center;
+      margin: 20px auto;
+      max-width: 1200px;
+    }
+    .btn-add {
+      background-color: #035fe0;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="top-menu">
+      <a href="{% url 'member:join' %}">회원가입</a> |
+      <a href="{% url 'member:login' %}">로그인</a> |
+      <a href="{% url 'member:list' %}">회원리스트</a> |
+      <a href="{% url 'member:logout' %}">로그아웃</a>
+    </div>
+    <div class="icons">
+      <i class="fas fa-search"></i>
+      <i class="fas fa-user"></i>
+      <i class="fas fa-shopping-bag"></i>
+    </div>
+  </div>
+  <div class="container">
+    <h1 style="text-align: center; margin-top: 20px; margin-bottom: 30px;">회원 리스트</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>프로필</th>
+          <th>아이디</th>
+          <th>이름</th>
+          <th>전화번호</th>
+          <th>주소</th>
+          <th>성별</th>
+          <th>취미</th>
+          <th>가입일</th>
+          <th>관리</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if list %}
+          {% for member in list %}
+          <tr>
+            <td>
+              {% if member.profile_image %}
+                <a href="{% url 'member:detail' member.id %}">
+                  <img src="{{member.profile_image.url}}" alt="프로필" style="width:50px; height:50px; border-radius:50%; object-fit:cover; cursor:pointer;">
+                </a>
+              {% else %}
+                <a href="{% url 'member:detail' member.id %}" style="color:#999; text-decoration:none;">상세보기</a>
+              {% endif %}
+            </td>
+            <td>{{member.id}}</td>
+            <td>{{member.name}}</td>
+            <td>{{member.phone}}</td>
+            <td>{{member.address}} {{member.addressdetail}}</td>
+            <td>{{member.gender}}</td>
+            <td>{{member.hobby}}</td>
+            <td>{{member.mdate|date:"Y-m-d H:i"}}</td>
+            <td>
+              <a href="{% url 'member:update' member.id %}" style="color:#007bff; text-decoration:none;">수정</a> | 
+              <a href="{% url 'member:delete' member.id %}" onclick="return confirm('정말 삭제하시겠습니까?')" style="color:#dc3545; text-decoration:none;">삭제</a>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="9">등록된 회원이 없습니다.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+    <div class="btn-group">
+      <a href="{% url 'member:excel_download' %}" class="btn-add" style="background:#28a745;">엑셀 다운로드</a>
+      <a href="{% url 'member:join' %}" class="btn-add">회원가입</a>
+      <a href="/" class="btn-add" style="background:#666;">메인으로</a>
+    </div>
+  </div>
+  <footer>
+    Copyright © VLAST Shop. All rights reserved.
+  </footer>
+</body>
+</html>

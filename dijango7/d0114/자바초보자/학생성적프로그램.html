@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>자바 학생성적프로그램(C04) - 초보자 퀴즈</title>
+  <style>
+    /* ✅ 요청사항: 배경 흰색, 글씨 검은색 */
+    body { background:#fff; color:#000; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif; margin:0; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 24px; }
+    h1 { margin: 0 0 10px; font-size: 22px; }
+    p { line-height: 1.6; }
+    .card { border: 1px solid #000; border-radius: 12px; padding: 16px; margin: 14px 0; }
+    .badge { display:inline-block; border:1px solid #000; border-radius: 999px; padding: 2px 10px; font-size: 12px; margin-right: 8px; }
+    .q-title { font-weight: 800; margin: 0 0 10px; }
+    .code {
+      border: 1px solid #000; border-radius: 12px;
+      padding: 12px; white-space: pre; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px; line-height: 1.5;
+    }
+    .options label { display:block; padding: 8px 10px; border: 1px solid #000; border-radius: 10px; margin: 8px 0; cursor: pointer; }
+    .options input { margin-right: 10px; }
+    input[type="text"] {
+      width: 100%; box-sizing: border-box;
+      padding: 10px 12px; border: 1px solid #000; border-radius: 10px;
+      font-size: 14px;
+    }
+    .btns { display:flex; gap:10px; flex-wrap: wrap; margin-top: 12px; }
+    button {
+      background:#fff; color:#000; border:1px solid #000; border-radius: 10px;
+      padding: 10px 14px; cursor:pointer; font-weight: 700;
+    }
+    button:hover { background:#000; color:#fff; }
+    .result { margin-top: 10px; padding: 10px 12px; border:1px dashed #000; border-radius: 10px; }
+    .ok { font-weight: 800; }
+    .hint { margin-top: 8px; font-size: 13px; }
+    .footer { margin-top: 18px; font-size: 12px; opacity: .9; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>자바 학생성적프로그램(C04) — 초보자 퀴즈</h1>
+    <p>
+      목표: 네 코드가 <b>무슨 일을 하는지</b> 머릿속에 그림이 그려지면 끝.
+      퀴즈는 총 7문제. 다 풀면 점수 나옴.
+    </p>
+
+    <div class="card">
+      <div><span class="badge">코드 요약</span></div>
+      <p class="q-title">네 C04 코드 핵심 흐름</p>
+      <div class="code">// 학생성적프로그램 - 이름,국어,영어,수학,합계
+String[] name = new String[2];   // 학생이름 2명
+int[][] score = new int[2][4];   // 국어,영어,수학,합계(4칸)
+String[] title = {"이름","국어","영어","수학","합계"};
+
+// 1) 입력: 2명 반복 (while)
+while(i<2){
+  name[i] = scanner.next();      // 이름 저장
+  total = 0;
+  for(j=0; j<3; j++){
+    score[i][j] = scanner.nextInt(); // 국/영/수 저장
+    total += score[i][j];            // 합계 누적
+  }
+  score[i][3] = total;           // 합계 저장(4번째 칸)
+}
+
+// 2) 출력: 제목 출력 -> 학생별 점수 출력</div>
+      <p class="hint">
+        포인트: <b>score[i][3]</b>이 “합계 칸”이라는 것만 확실히 기억해도 반은 성공.
+      </p>
+    </div>
+
+    <!-- 퀴즈 1 -->
+    <div class="card quiz" data-answer="B">
+      <p class="q-title">Q1. name 배열은 몇 명의 학생 이름을 저장할 수 있어?</p>
+      <div class="options">
+        <label><input type="radio" name="q1" value="A"> 1명</label>
+        <label><input type="radio" name="q1" value="B"> 2명</label>
+        <label><input type="radio" name="q1" value="C"> 4명</label>
+        <label><input type="radio" name="q1" value="D"> 제한 없음</label>
+      </div>
+      <div class="result" id="r1">아직 채점 안 함</div>
+    </div>
+
+    <!-- 퀴즈 2 -->
+    <div class="card quiz" data-answer="C">
+      <p class="q-title">Q2. score 배열에서 <code>score[i][3]</code> 은 무엇을 저장해?</p>
+      <div class="options">
+        <label><input type="radio" name="q2" value="A"> 국어점수</label>
+        <label><input type="radio" name="q2" value="B"> 수학점수</label>
+        <label><input type="radio" name="q2" value="C"> 합계</label>
+        <label><input type="radio" name="q2" value="D"> 평균</label>
+      </div>
+      <div class="result" id="r2">아직 채점 안 함</div>
+    </div>
+
+    <!-- 퀴즈 3 -->
+    <div class="card quiz" data-answer="A">
+      <p class="q-title">Q3. 점수 입력 for문이 <code>j&lt;3</code> 인 이유는?</p>
+      <div class="options">
+        <label><input type="radio" name="q3" value="A"> 국/영/수 3과목만 입력하기 때문</label>
+        <label><input type="radio" name="q3" value="B"> 합계까지 4과목이라서</label>
+        <label><input type="radio" name="q3" value="C"> 학생이 3명이기 때문</label>
+        <label><input type="radio" name="q3" value="D"> 그냥 습관</label>
+      </div>
+      <div class="result" id="r3">아직 채점 안 함</div>
+    </div>
+
+    <!-- 퀴즈 4 -->
+    <div class="card quiz" data-answer="D">
+      <p class="q-title">Q4. 아래 중 입력 반복(while) 조건이 의미하는 것은?</p>
+      <div class="code">int i = 0;
+while(i < 2) {
+  // 학생 2명 입력
+  i++;
+}</div>
+      <div class="options">
+        <label><input type="radio" name="q4" value="A"> 점수를 2번 입력한다</label>
+        <label><input type="radio" name="q4" value="B"> 과목을 2개만 입력한다</label>
+        <label><input type="radio" name="q4" value="C"> 합계를 2번 계산한다</label>
+        <label><input type="radio" name="q4" value="D"> 학생을 2명 입력한다</label>
+      </div>
+      <div class="result" id="r4">아직 채점 안 함</div>
+    </div>
+
+    <!-- 퀴즈 5 (단답) -->
+    <div class="card short" data-answer="title.length">
+      <p class="q-title">Q5. 제목을 출력할 때 반복문 조건으로 가장 자연스러운 것은? (단답)</p>
+      <p>힌트: title 배열 크기만큼 반복해야 함</p>
+      <input type="text" id="q5" placeholder='예: title.length' />
+      <div class="result" id="r5">아직 채점 안 함</div>
+    </div>
+
+    <!-- 퀴즈 6 -->
+    <div class="card quiz" data-answer="B">
+      <p class="q-title">Q6. 아래 출력부에서 바깥 for문(j)은 무엇을 기준으로 돈다?</p>
+      <div class="code">for(int j=0; j<score.length; j++) {
+  System.out.print(name[j] + "\t");
+  for(int k=0; k<score[j].length; k++) {
+    System.out.print(score[j][k] + "\t");
+  }
+}</div>
+      <div class="options">
+        <label><input type="radio" name="q6" value="A"> 과목 수(국/영/수)</label>
+        <label><input type="radio" name="q6" value="B"> 학생 수</label>
+        <label><input type="radio" name="q6" value="C"> 합계만 출력</label>
+        <label><input type="radio" name="q6" value="D"> 랜덤 수</label>
+      </div>
+      <div class="result" id="r6">아직 채점 안 함</div>
+    </div>
+
+    <!-- 퀴즈 7 (단답) -->
+    <div class="card short" data-answer="4">
+      <p class="q-title">Q7. score 배열의 두 번째 크기(열)는 왜 4야? (숫자만)</p>
+      <p>힌트: 국어/영어/수학/합계 = ?칸</p>
+      <input type="text" id="q7" placeholder="예: 4" />
+      <div class="result" id="r7">아직 채점 안 함</div>
+    </div>
+
+    <div class="card">
+      <p class="q-title">채점</p>
+      <div class="btns">
+        <button onclick="gradeAll()">전체 채점하기</button>
+        <button onclick="resetAll()">초기화</button>
+      </div>
+      <div class="result" id="final">점수: - / 7</div>
+      <p class="hint">
+        ✅ 목표는 “점수”가 아니라 <b>score[i][3]이 합계</b>, <b>바깥 for는 학생</b> 이런 구조가 자동으로 떠오르는 것.
+      </p>
+    </div>
+
+    <div class="footer">
+      만든 이유: “코드를 손으로 따라치고 → 퀴즈로 개념 박기”가 초보자 성장 속도 제일 빠름. (진짜임)
+    </div>
+  </div>
+
+  <script>
+    // ✅ 퀴즈 채점용 JS (초보자라도 읽기 쉬운 형태로)
+    function pickValue(name) {
+      const checked = document.querySelector('input[name="' + name + '"]:checked');
+      return checked ? checked.value : "";
+    }
+
+    function setResult(el, ok, msg) {
+      el.innerHTML = (ok ? "✅ <span class='ok'>정답</span> - " : "❌ <span class='ok'>오답</span> - ") + msg;
+    }
+
+    function gradeAll() {
+      let scorePoint = 0;
+
+      // 객관식 Q1~Q4, Q6
+      const multi = [
+        { q: "q1", ans: "B", rid: "r1", exp: "name = new String[2] → 2명 저장" },
+        { q: "q2", ans: "C", rid: "r2", exp: "score[i][3]은 4번째 칸 → 합계 저장" },
+        { q: "q3", ans: "A", rid: "r3", exp: "j<3 → 국/영/수 3과목 입력" },
+        { q: "q4", ans: "D", rid: "r4", exp: "i<2 → 학생 2명 입력 반복" },
+        { q: "q6", ans: "B", rid: "r6", exp: "score.length는 학생 수(행) 의미" }
+      ];
+
+      multi.forEach(item => {
+        const v = pickValue(item.q);
+        const el = document.getElementById(item.rid);
+        if (!v) {
+          el.textContent = "⚠️ 선택 안 함";
+          return;
+        }
+        if (v === item.ans) {
+          scorePoint++;
+          setResult(el, true, item.exp);
+        } else {
+          setResult(el, false, item.exp);
+        }
+      });
+
+      // 단답 Q5
+      const q5 = document.getElementById("q5").value.trim().replace(/\s+/g, "");
+      const r5 = document.getElementById("r5");
+      if (!q5) {
+        r5.textContent = "⚠️ 입력 안 함";
+      } else if (q5 === "title.length") {
+        scorePoint++;
+        setResult(r5, true, "title 배열 크기만큼 반복 → title.length");
+      } else {
+        setResult(r5, false, "정답은 title.length (title 배열 길이만큼 반복)");
+      }
+
+      // 단답 Q7
+      const q7 = document.getElementById("q7").value.trim();
+      const r7 = document.getElementById("r7");
+      if (!q7) {
+        r7.textContent = "⚠️ 입력 안 함";
+      } else if (q7 === "4") {
+        scorePoint++;
+        setResult(r7, true, "국어/영어/수학/합계 = 4칸");
+      } else {
+        setResult(r7, false, "정답은 4 (국/영/수/합계 4칸)");
+      }
+
+      document.getElementById("final").innerHTML = "점수: <b>" + scorePoint + "</b> / 7";
+    }
+
+    function resetAll() {
+      // 라디오 초기화
+      document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+      // 텍스트 초기화
+      document.getElementById("q5").value = "";
+      document.getElementById("q7").value = "";
+
+      // 결과 초기화
+      ["r1","r2","r3","r4","r5","r6","r7"].forEach(id => {
+        document.getElementById(id).textContent = "아직 채점 안 함";
+      });
+      document.getElementById("final").textContent = "점수: - / 7";
+    }
+  </script>
+</body>
+</html>

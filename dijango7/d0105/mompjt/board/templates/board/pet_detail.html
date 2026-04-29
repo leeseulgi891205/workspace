@@ -1,0 +1,364 @@
+<!--
+═══════════════════════════════════════════════════════════════════════
+pet_detail.html - 반려동물 게시판 상세보기
+═══════════════════════════════════════════════════════════════════════
+-->
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="max-width:900px; margin:50px auto; padding:20px;">
+
+    <!-- ================= 제목 ================= -->
+    <h2 style="font-weight:800; margin-bottom:10px;">
+        {{ post.title }}
+    </h2>
+
+    <!-- ================= 메타 정보 ================= -->
+    <div style="color:#777; font-size:14px; margin-bottom:25px;">
+        작성자 {{ post.author.nickname|default:post.author.username }}
+        | {{ post.created_at|date:"Y-m-d H:i" }}
+        | 조회 {{ post.views }}
+    </div>
+
+    <!-- ================= 이미지 ================= -->
+    {% if post.image %}
+    <div style="margin:20px 0; text-align:center;">
+        <img src="{{ post.image.url }}" style="max-width:100%; border-radius:12px;">
+    </div>
+    {% endif %}
+
+    <!-- ================= 본문 ================= -->
+    <div style="min-height:200px; padding:20px; border-top:2px solid #333;">
+        {{ post.content|linebreaks }}
+    </div>
+
+    <!-- ================= 게시글 버튼 ================= -->
+    <div style="display:flex; justify-content:space-between; margin-top:30px;">
+        <a href="{% url 'board:pet_list' %}"
+           style="padding:10px 20px; background:#aaa; color:white; border-radius:5px;">
+            목록
+        </a>
+
+        {% if user == post.author %}
+        <div>
+            <a href="{% url 'board:pet_edit' post.id %}"
+               style="padding:10px 20px; background:#4f9cff; color:white; border-radius:5px;">
+                수정
+            </a>
+            <button type="button"
+                    onclick="openPostDeleteModal()"
+                    style="padding:10px 20px; background:#ff6b6b; color:white; border:none; border-radius:5px;">
+                삭제
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ================= 게시글 삭제 모달 ================= -->
+<div id="postDeleteModal" class="modal">
+    <div class="modal-box">
+        <h3>정말 삭제하시겠습니까?</h3>
+        <p>삭제된 글은 복구할 수 없습니다.</p>
+        <form method="post" action="{% url 'board:pet_delete' post.id %}">
+            {% csrf_token %}
+            <div class="modal-btns">
+                <button type="button" onclick="closePostDeleteModal()">취소</button>
+                <button type="submit" class="danger">삭제</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ================= 댓글 영역 ================= -->
+<div style="max-width:900px; margin:50px auto; padding:20px;">
+
+    <h3 style="font-weight:800;">
+        댓글 {{ post.comments.count }}개
+    </h3>
+
+    {% for comment in post.comments.all %}
+        {% if not comment.parent %}
+        <!-- ===== 부모 댓글 ===== -->
+        <div style="padding:15px 0; border-bottom:1px solid #eee;">
+
+            <div style="font-size:14px; color:#555;">
+                <b>{{ comment.author.nickname|default:comment.author.username }}</b>
+                · {{ comment.created_at|date:"Y-m-d H:i" }}
+            </div>
+
+            <div style="margin-top:5px;">
+                {{ comment.content|linebreaks }}
+            </div>
+
+            <!-- ===== 댓글 액션 버튼 ===== -->
+            {% if user == comment.author %}
+            <div class="comment-actions">
+                <button type="button"
+                        class="comment-btn edit"
+                        onclick="openCommentEditModal('{{ comment.id }}', `{{ comment.content|escapejs }}`)">
+                    수정
+                </button>
+
+                <button type="button"
+                        class="comment-btn delete"
+                        onclick="openCommentDeleteModal('{{ comment.id }}')">
+                    삭제
+                </button>
+            </div>
+            {% endif %}
+
+            <!-- ===== 답글 버튼 ===== -->
+            <button type="button"
+                    class="comment-btn reply"
+                    onclick="toggleReplyForm('{{ comment.id }}')">
+                답글
+            </button>
+
+            <!-- ===== 대댓글 목록 ===== -->
+            {% for reply in comment.replies.all %}
+            <div class="reply-box">
+                ↳ <b>{{ reply.author.nickname|default:reply.author.username }}</b>
+                · {{ reply.created_at|date:"Y-m-d H:i" }}
+                <div>{{ reply.content|linebreaks }}</div>
+            </div>
+            {% endfor %}
+
+            <!-- ===== 대댓글 작성폼 ===== -->
+            {% if user.is_authenticated %}
+            <form method="post"
+                  action="{% url 'board:pet_comment_create' post.id %}"
+                  id="replyForm{{ comment.id }}"
+                  style="display:none; margin-top:10px;"
+                  class="reply-box">
+                {% csrf_token %}
+                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                <textarea name="content"
+                          required
+                          style="width:100%; min-height:60px; border-radius:8px; border:1px solid #ddd;"></textarea>
+                <div style="text-align:right; margin-top:6px;">
+                    <button type="submit" class="comment-btn edit">등록</button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% empty %}
+        <p style="color:#888;">아직 댓글이 없습니다.</p>
+    {% endfor %}
+
+    <!-- ===== 일반 댓글 작성 ===== -->
+    {% if user.is_authenticated %}
+    <form method="post"
+          action="{% url 'board:pet_comment_create' post.id %}"
+          style="margin-top:25px;">
+        {% csrf_token %}
+        <textarea name="content"
+                  required
+                  placeholder="댓글을 입력하세요"
+                  style="width:100%; min-height:80px; border-radius:8px; border:1px solid #ddd;"></textarea>
+        <div style="text-align:right; margin-top:10px;">
+            <button type="submit" class="comment-btn edit">댓글 등록</button>
+        </div>
+    </form>
+    {% endif %}
+</div>
+<!-- ================= 댓글 삭제 모달 ================= -->
+<div id="commentDeleteModal" class="modal">
+    <div class="modal-box">
+        <h3 style="margin-bottom:8px;">댓글을 삭제할까요?</h3>
+        <p style="color:#666; font-size:14px; margin-bottom:18px;">
+            삭제된 댓글은 복구할 수 없습니다.
+        </p>
+
+        <form id="commentDeleteForm" method="post">
+            {% csrf_token %}
+            <div class="modal-btns">
+                <button type="button" onclick="closeCommentDeleteModal()">취소</button>
+                <button type="submit" class="danger">삭제</button>
+            </div>
+        </form>
+    </div>
+    <!-- ================= 댓글 삭제 모달 ================= -->
+<div id="commentDeleteModal" class="modal">
+    <div class="modal-box">
+        <h3 style="margin-bottom:8px;">댓글을 삭제할까요?</h3>
+        <p style="color:#666; font-size:14px; margin-bottom:18px;">
+            삭제된 댓글은 복구할 수 없습니다.
+        </p>
+
+        <form id="commentDeleteForm" method="post">
+            {% csrf_token %}
+            <div class="modal-btns">
+                <button type="button" onclick="closeCommentDeleteModal()">취소</button>
+                <button type="submit" class="danger">삭제</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ================= 댓글 수정 모달 ================= -->
+<div id="commentEditModal" class="modal">
+    <div class="modal-box">
+        <h3 style="margin-bottom:10px;">댓글 수정</h3>
+
+        <form id="commentEditForm" method="post">
+            {% csrf_token %}
+            <textarea id="commentEditTextarea"
+                      name="content"
+                      required
+                      style="
+                        width:100%;
+                        min-height:100px;
+                        padding:10px;
+                        border:1px solid #ddd;
+                        border-radius:6px;
+                        resize:vertical;
+                      "></textarea>
+
+            <div class="modal-btns" style="margin-top:15px;">
+                <button type="button" onclick="closeCommentEditModal()">취소</button>
+                <button type="submit" style="background:#4f9cff; color:white;">수정</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+<!-- ================= 스크립트 ================= -->
+<script>
+/* ===== 게시글 삭제 ===== */
+function openPostDeleteModal() {
+    document.getElementById('postDeleteModal').style.display = 'flex';
+}
+function closePostDeleteModal() {
+    document.getElementById('postDeleteModal').style.display = 'none';
+}
+
+/* ===== 댓글 삭제 ===== */
+function openCommentDeleteModal(commentId) {
+    const form = document.getElementById('commentDeleteForm');
+    const modal = document.getElementById('commentDeleteModal');
+
+    if (!form || !modal) return;
+
+    form.action = "{% url 'board:pet_comment_delete' post.id 0 %}"
+                    .replace('/0/', '/' + commentId + '/');
+    modal.style.display = 'flex';
+}
+function closeCommentDeleteModal() {
+    const modal = document.getElementById('commentDeleteModal');
+    if (!modal) return;
+    modal.style.display = 'none';
+}
+
+/* ===== 댓글 수정 ===== */
+function openCommentEditModal(commentId, content) {
+    const modal = document.getElementById('commentEditModal');
+    const form = document.getElementById('commentEditForm');
+    const textarea = document.getElementById('commentEditTextarea');
+
+    if (!modal || !form || !textarea) return;
+
+    textarea.value = content;
+    form.action = "{% url 'board:pet_comment_edit' post.id 0 %}"
+                    .replace('/0/', '/' + commentId + '/');
+    modal.style.display = 'flex';
+}
+function closeCommentEditModal() {
+    document.getElementById('commentEditModal').style.display = 'none';
+}
+
+/* ===== 답글 토글 ===== */
+function toggleReplyForm(commentId) {
+    const form = document.getElementById('replyForm' + commentId);
+    if (!form) return;
+    form.style.display = (form.style.display === 'none') ? 'block' : 'none';
+}
+</script>
+
+<!-- ================= 모달 공통 스타일 ================= -->
+<style>
+.modal {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+    z-index:9999;
+    align-items:center;
+    justify-content:center;
+}
+.modal-box {
+    background:white;
+    width:340px;
+    padding:25px;
+    border-radius:12px;
+    text-align:center;
+}
+.modal-btns {
+    display:flex;
+    gap:10px;
+}
+.modal-btns button {
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+}
+.modal-btns .danger {
+    background:#ff6b6b;
+    color:white;
+}
+/* ===== 댓글 액션 버튼 ===== */
+.comment-actions {
+    margin-top: 6px;
+    display: flex;
+    gap: 8px;
+}
+
+.comment-btn {
+    background: #f1f3f5;
+    color: #555;
+    border: none;
+    padding: 4px 12px;
+    font-size: 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.comment-btn:hover {
+    background: #e9ecef;
+}
+
+/* 수정 */
+.comment-btn.edit {
+    color: #4f9cff;
+}
+
+/* 삭제 */
+.comment-btn.delete {
+    color: #ff6b6b;
+}
+
+/* 답글 */
+.comment-btn.reply {
+    background: transparent;
+    color: #888;
+    padding-left: 0;
+}
+.comment-btn.reply:hover {
+    color: #4f9cff;
+}
+
+/* 대댓글 들여쓰기 */
+.reply-box {
+    margin-left: 36px;
+    margin-top: 10px;
+    padding-left: 12px;
+    border-left: 2px solid #f0f0f0;
+}
+
+</style>
+
+{% endblock %}

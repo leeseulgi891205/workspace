@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+{# 26-01-02 슬기 추가: 육아정보 게시판 목록 페이지 #}
+{% block content %}
+<style>
+    .parenting-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .category-filter {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #333;
+    }
+    
+    .category-btn {
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+        display: inline-block;
+    }
+    
+    .category-btn:hover {
+        background: #f8f9fa;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .category-btn:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+    
+    .category-btn.active {
+        background: #74b9ff;
+        color: white;
+        border-color: #74b9ff;
+        font-weight: bold;
+    }
+    
+    .write-btn {
+        float: right;
+        padding: 10px 20px;
+        background: #74b9ff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    
+    .parenting-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .parenting-table thead {
+        background: #f8f9fa;
+    }
+    
+    .parenting-table th {
+        padding: 15px;
+        text-align: center;
+        font-weight: bold;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .parenting-table td {
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+        text-align: center;
+        white-space: nowrap;
+    }
+    
+    .parenting-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .parenting-title {
+        text-align: left;
+        font-weight: bold;
+    }
+    
+    .parenting-title a {
+        color: #333;
+        text-decoration: none;
+    }
+    
+    .parenting-title a:hover {
+        color: #74b9ff;
+    }
+    
+    .category-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .category-development { background: #e3f2fd; color: #1976d2; }
+    .category-sleep { background: #f3e5f5; color: #7b1fa2; }
+    .category-discipline { background: #fff3e0; color: #f57c00; }
+</style>
+
+<div class="parenting-container">
+    <h2>👶 육아정보</h2>
+    
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'board:parenting_create' %}" class="write-btn">글쓰기</a>
+        <a href="{% url 'board:development_chart' %}" class="write-btn" style="background: #28a745; margin-right: 10px;">월령별 발달 차트</a>
+        <div style="clear: both;"></div>
+    </div>
+    
+    <div class="category-filter">
+        <a href="{% url 'board:parenting_list' %}" class="category-btn {% if category == 'all' %}active{% endif %}">전체보기</a>
+        <a href="?category=development" class="category-btn {% if category == 'development' %}active{% endif %}">월령별 발달</a>
+        <a href="?category=sleep" class="category-btn {% if category == 'sleep' %}active{% endif %}">수면교육</a>
+        <a href="?category=discipline" class="category-btn {% if category == 'discipline' %}active{% endif %}">훈육 노하우</a>
+    </div>
+    
+    <table class="parenting-table">
+        <thead>
+            <tr>
+                <th style="width: 8%;">번호</th>
+                <th style="width: 12%;">카테고리</th>
+                <th style="width: 50%;">제목</th>
+                <th style="width: 12%;">작성자</th>
+                <th style="width: 8%;">조회</th>
+                <th style="width: 15%;">작성일</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <td>{{ post.number }}</td>
+                <td>
+                    <span class="category-badge 
+                        {% if post.category == 'development' %}category-development
+                        {% elif post.category == 'sleep' %}category-sleep
+                        {% elif post.category == 'discipline' %}category-discipline
+                        {% endif %}">
+                        {{ post.get_category_display }}
+                    </span>
+                </td>
+                <td class="parenting-title">
+                    <a href="{% url 'board:parenting_detail' post.pk %}">{{ post.title }}</a>
+                </td>
+                <td>{{ post.author.nickname }}</td>
+                <td>{{ post.views }}</td>
+                <td>{{ post.created_at|date:"Y.m.d" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="padding: 40px; color: #999;">
+                    등록된 글이 없습니다.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- 페이지네이션 -->
+    {% if posts.has_other_pages %}
+    <div style="text-align: center; margin-top: 30px;">
+        {% if posts.has_previous %}
+            <a href="?page={{ posts.previous_page_number }}&category={{ category }}" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: #333;">이전</a>
+        {% endif %}
+        
+        <span style="padding: 8px 12px;">{{ posts.number }} / {{ posts.paginator.num_pages }}</span>
+        
+        {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}&category={{ category }}" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: #333;">다음</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

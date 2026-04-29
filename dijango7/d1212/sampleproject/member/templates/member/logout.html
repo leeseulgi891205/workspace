@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그아웃</title>
+  <script>
+    {% if state_code %}
+    if ('{{state_code}}'=="-1"){
+      alert("로그아웃 되었습니다.");
+      location.href="/member/login/";
+    }
+    {% endif %}
+  </script>
+</head>
+<body>
+  <h2>로그아웃</h2>
+</body>
+</html>

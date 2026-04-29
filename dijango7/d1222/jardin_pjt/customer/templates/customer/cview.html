@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block script %}
+<script>
+	if('{{request.session.session_id}}' == ''){
+		alert('로그인 후 이용해 주세요.');
+		location.href='/customer/clist/';
+	}
+</script>
+{% endblock script %}
+
+{% block body %}
+
+    <!-- container -->
+    <div id="container">
+
+        <div id="location">
+            <ol>
+                <li><a href="#">HOME</a></li>
+                <li><a href="#">CUSTOMER</a></li>
+                <li class="last">NOTICE</li>
+            </ol>
+        </div>
+
+        <div id="outbox">
+            <div id="left">
+                <div id="title2">CUSTOMER<span>고객센터</span></div>
+                <ul>
+                    <li><a href="#" id="leftNavi1">NOTICE</a></li>
+                    <li><a href="#" id="leftNavi2">1:1문의</a></li>
+                    <li><a href="#" id="leftNavi3">FAQ</span></a></li>
+                    <li class="last"><a href="#" id="leftNavi4">이용안내</a></li>
+                </ul>
+            </div><script type="text/javascript">initSubmenu(1,0);</script>
+
+
+            <!-- contents -->
+            <div id="contents">
+                <div id="customer">
+                    <h2><strong>NOTICE</strong><span>쟈뎅샵 소식을 전해드립니다.</span></h2>
+                    <script>
+                        function likeBoard(bno){
+                            fetch(`/customer/like/${bno}/`, {
+                                method: 'POST',
+                                headers: {'X-CSRFToken': '{{ csrf_token }}',
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({})
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if(data.status === 'success'){
+                                    alert('좋아요가 반영되었습니다.');
+                                    location.reload();
+                                } else {
+                                    alert('좋아요 반영에 실패했습니다.');
+                                }
+                                $('#like-count').text(data.like_count);
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('서버 오류로 인해 좋아요 반영에 실패했습니다.');
+                            });
+                        }
+                    </script>
+
+                    <div class="viewDivMt">
+                        <div class="viewHead">
+                            <div class="subject">
+                                <ul>
+                                    <li>{{c.btitle}}</li>
+                                    <li style='padding-left:450px;'>좋아요: 
+                                        <a style='color:black;'>
+                                            {% if c.member in c.likes.all %}
+                                            <i class="fa fa-heart"></i>({{c.likes.count}})
+                                            {% else %}
+                                            <i class="fa-solid fa-heart"></i>({{c.likes.count}})
+                                            {% endif %}
+                                        </a>
+                                    <li>
+                                </ul>
+                            </div>
+                            <div class="day">
+                                <p class="txt">작성일<span>{{c.bdate|date:"Y-m-d H:i"}}</span></p>
+                            </div>
+                        </div>
+
+                        <div class="viewContents">
+                            {{c.bcontent|linebreaksbr}}
+                        </div>
+                    </div>
+
+
+                    <!-- 이전다음글 -->
+                    <div class="pnDiv web">
+                        <table summary="이전다음글을 선택하여 보실 수 있습니다." class="preNext" border="1" cellspacing="0">
+                            <caption>이전다음글</caption>
+                            <colgroup>
+                            <col width="100px" />
+                            <col width="*" />
+                            </colgroup>
+                            <tbody>
+                                {% if pre_c %}
+                                <tr>
+                                    <th class="pre">PREV</th>
+                                    <td><a href="/customer/cview/{{pre_c.bno}}/">{{pre_c.btitle}}</a></td>
+                                </tr>
+                                {% endif %}
+
+                                {% if next_c %}
+                                <tr>
+                                    <th class="next">NEXT</th>
+                                    <td><a href="/customer/cview/{{next_c.bno}}/">{{next_c.btitle}}</a></td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- //이전다음글 -->
+
+
+                    <!-- Btn Area -->
+                    <div class="btnArea btline">
+                        <div class="bRight">
+                            <ul>
+                                <li><a href="/customer/clist/" class="sbtnMini mw">목록</a></li>
+                                <li><a href="#" class="sbtnMini mw">답글</a></li>
+                                <li><a href="#" class="sbtnMini mw">수정</a></li>
+                                <li><a href="#" class="sbtnMini mw">삭제</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- //Btn Area -->
+                    
+                </div>
+            </div>
+            <!-- //contents -->
+
+        </div>
+    </div>
+    <!-- //container -->
+{% endblock body %}

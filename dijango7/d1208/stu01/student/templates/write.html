@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울시 신림동 슬구 초딩학교</title>
+    <script>
+        function confirmRegister() {
+            if(confirm('등록하시겠습니까?')) {
+                window.location.href = '/student/list';
+            }
+        }
+        
+        function confirmCancel() {
+            if(confirm('취소하시겠습니까?')) {
+                window.location.href = '/student/list';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>초딩학생 등록페이지</h2>
+    <ul>
+        <li><button onclick="confirmRegister()">등록합니다.</button></li>
+        <li><button onclick="confirmCancel()">취소합니다.</button></li>
+    </ul>
+</body>
+</html>

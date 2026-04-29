@@ -1,0 +1,489 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+<!-- 26-01-06 표준화: 요리레시피 스타일로 리뉴얼 -->
+<!-- CSS: static/css/flea_list.css -->
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/flea_list.css' %}">
+
+<style>
+.flea-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.flea-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ff6b6b;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.flea-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+}
+
+.flea-header-form-div {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    min-width: 250px;
+}
+
+.flea-header input[type="text"] {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.flea-header button {
+    padding: 10px 24px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+    white-space: nowrap;
+}
+
+.flea-header button:hover {
+    background: #ff5252;
+}
+
+.flea-header a {
+    padding: 10px 16px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    transition: .2s;
+}
+
+.flea-header a:hover {
+    background: #5a6268;
+}
+
+.flea-create-btn {
+    padding: 10px 20px;
+    background: #ff6b6b;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: .2s;
+    white-space: nowrap;
+}
+
+.flea-create-btn:hover {
+    background: #ff5252;
+}
+
+.search-result-info {
+    color: #495057;
+    margin: 16px 0;
+    font-size: 14px;
+}
+
+.flea-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.flea-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: .3s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.flea-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.flea-card.flea-sold {
+    opacity: 0.6;
+}
+
+.flea-thumb {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: #f0f0f0;
+}
+
+.flea-thumb.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+}
+
+.flea-sold-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.flea-body {
+    padding: 12px;
+    position: relative;
+}
+
+.flea-card a {
+    position: relative;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.flea-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #333;
+}
+
+.flea-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ff6b6b;
+    margin: 0 0 6px 0;
+}
+
+.flea-meta {
+    font-size: 12px;
+    color: #999;
+    margin: 0;
+}
+
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.pagination-container {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 30px;
+}
+
+.pagination-btn {
+    display: inline-block;
+    margin: 0 5px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: .2s;
+    min-width: 36px;
+    text-align: center;
+}
+
+.pagination-btn:hover {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+    background: #fff5f5;
+}
+
+.pagination-btn.active {
+    background: #495057;
+    color: white;
+    border-color: #495057;
+}
+
+.pagination-btn.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.flea-actions {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 100;
+}
+
+.btn-login-submit {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #ff6b6b;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    transition: .2s;
+}
+
+.btn-login-submit:hover {
+    background: #ff5252;
+}
+
+@media (max-width: 768px) {
+    .flea-container {
+        padding: 15px;
+    }
+
+    .flea-header {
+        flex-direction: column;
+        align-items: stretch;
+        border-bottom: 2px solid #ff6b6b;
+    }
+
+    .flea-header h2 {
+        margin-bottom: 10px;
+    }
+
+    .flea-header-form-div {
+        flex-direction: column;
+        min-width: 100%;
+    }
+
+    .flea-header input[type="text"] {
+        width: 100%;
+    }
+
+    .flea-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+    }
+
+    .flea-liked-floating {
+        position: static;
+        width: 100%;
+        box-shadow: none;
+        margin-top: 16px;
+    }
+
+    .flea-liked-body {
+        max-height: none;
+    }
+}
+</style>
+
+<div class="flea-container">
+    <div class="flea-header">
+        <h2>벼룩시장</h2>
+        <form method="get">
+            <div class="flea-header-form-div">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="제목, 내용, 작성자로 검색..." class="search-input">
+                <button type="submit">검색</button>
+                {% if search_query %}
+                <a href="{% url 'board:flea_list' %}">전체보기</a>
+                {% endif %}
+            </div>
+        </form>
+        {% if user.is_authenticated %}
+        <a class="flea-create-btn" href="{% url 'board:flea_create' %}">상품 작성</a>
+        {% endif %}
+    </div>
+
+    {% if search_query %}
+    <p class="search-result-info">
+        "<strong>{{ search_query }}</strong>" 검색 결과: <strong>{{ items.count }}</strong>건
+    </p>
+    {% endif %}
+
+    {% if items %}
+    <div class="flea-grid">
+        {% for item in items %}
+        <article class="flea-card {% if item.status == 'sold' %}flea-sold{% endif %}">
+            <a href="{% url 'board:flea_detail' item.pk %}">
+                <div style="position: relative;">
+                    {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="{{ item.title }}" class="flea-thumb {% if item.status == 'sold' %}flea-sold-img{% endif %}">
+                    {% else %}
+                    <div class="flea-thumb placeholder">이미지 없음</div>
+                    {% endif %}
+                    
+                    {% if item.status == 'sold' %}
+                    <div class="flea-sold-badge">SOLD OUT</div>
+                    {% endif %}
+                </div>
+                
+                <div class="flea-body">
+                    <h3>{{ item.title }}</h3>
+                    <p class="flea-price">{{ item.price|intcomma }}원</p>
+                    <p class="flea-meta">{{ item.author.nickname|default:item.author.username }} · {{ item.created_at|date:"Y.m.d" }}</p>
+                </div>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="no-results">
+        {% if search_query %}
+        검색 결과가 없습니다.
+        {% else %}
+        등록된 상품이 없습니다.
+        {% endif %}
+    </p>
+    {% endif %}
+
+    <!-- 페이지네이션 -->
+    {% if items.has_other_pages %}
+    <div class="pagination-container">
+        {% if items.has_previous %}
+            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" class="pagination-btn">«</a>
+        {% else %}
+            <span class="pagination-btn disabled">«</span>
+        {% endif %}
+
+        {% if items.has_previous %}
+            <a href="?page={{ items.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="pagination-btn">‹</a>
+        {% else %}
+            <span class="pagination-btn disabled">‹</span>
+        {% endif %}
+
+        {% for page_num in items.paginator.page_range %}
+            {% if page_num == items.number %}
+                <span class="pagination-btn active">{{ page_num }}</span>
+            {% else %}
+                <a href="?page={{ page_num }}{% if search_query %}&search={{ search_query }}{% endif %}" class="pagination-btn">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if items.has_next %}
+            <a href="?page={{ items.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="pagination-btn">›</a>
+        {% else %}
+            <span class="pagination-btn disabled">›</span>
+        {% endif %}
+
+        {% if items.has_next %}
+            <a href="?page={{ items.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" class="pagination-btn">»</a>
+        {% else %}
+            <span class="pagination-btn disabled">»</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <div class="flea-liked-floating">
+        <div class="flea-liked-header">내 찜 목록</div>
+        <div class="flea-liked-body">
+            {% if liked_items %}
+                {% for item in liked_items %}
+                <a class="flea-liked-item" href="{% url 'board:flea_detail' item.pk %}">
+                    <div class="flea-liked-title">{{ item.title }}</div>
+                    <div class="flea-liked-meta">{{ item.price|intcomma }}원 · {{ item.author.nickname|default:item.author.username }}</div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <p class="flea-liked-empty">아직 찜한 상품이 없습니다.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.flea-liked-floating {
+    position: fixed;
+    right: 24px;
+    bottom: 230px;
+    width: 260px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    z-index: 900;
+}
+
+.flea-liked-header {
+    background: #ffb6c1;
+    color: #4a4a4a;
+    font-weight: 800;
+    padding: 12px 14px;
+    font-size: 15px;
+}
+
+.flea-liked-body {
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 10px 12px;
+    background: #fffafc;
+}
+
+.flea-liked-item {
+    display: block;
+    padding: 10px 8px;
+    border-radius: 10px;
+    color: #212529;
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.flea-liked-item:hover {
+    background: #ffe7ef;
+    transform: translateY(-1px);
+}
+
+.flea-liked-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #343a40;
+}
+
+.flea-liked-meta {
+    font-size: 12px;
+    color: #868e96;
+}
+
+.flea-liked-empty {
+    margin: 6px 0;
+    color: #adb5bd;
+    font-size: 13px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .flea-liked-floating {
+        position: static;
+        width: 100%;
+        box-shadow: none;
+        margin-top: 16px;
+    }
+
+    .flea-liked-body {
+        max-height: none;
+    }
+}
+</style>
+{% endblock %}

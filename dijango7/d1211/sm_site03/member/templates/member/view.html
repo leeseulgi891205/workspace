@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 상세정보</title>
+    <style>
+        body {font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px;}
+
+        h2 {text-align: center;
+            color: #333;}
+
+        .member-info {
+            border: 1px solid #ddd; padding: 30px; border-radius: 8px; background-color: #f9f9f9;}
+
+        .info-row {display: flex; margin-bottom: 15px; padding: 10px; background-color: white; border-radius: 4px;}
+
+        .info-label {
+            font-weight: bold;
+            width: 120px;
+            color: #555;
+        }
+        .info-value {
+            flex: 1;
+            color: #333;
+        }
+        .member-image {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .member-image img {
+            max-width: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 5px;
+            text-decoration: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+        }
+        .btn-list {
+            background-color: #000000ff;
+        }
+        .btn-update {
+            background-color: #000000ff;
+        }
+        .btn-delete {
+            background-color: #000000ff;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <h2>회원 상세정보</h2>
+    
+    <div class="member-info">
+        <div class="info-row">
+            <div class="info-label">아이디:</div>
+            <div class="info-value">{{member.id}}</div>
+        </div>
+        
+        <div class="info-row">
+            <div class="info-label">이름:</div>
+            <div class="info-value">{{member.name}}</div>
+        </div>
+        
+        <div class="info-row">
+            <div class="info-label">전화번호:</div>
+            <div class="info-value">{{member.phone}}</div>
+        </div>
+        
+        <div class="info-row">
+            <div class="info-label">성별:</div>
+            <div class="info-value">{{member.gender}}</div>
+        </div>
+        
+        <div class="info-row">
+            <div class="info-label">취미:</div>
+            <div class="info-value">{{member.hobby}}</div>
+        </div>
+        
+        <div class="info-row">
+            <div class="info-label">가입일:</div>
+            <div class="info-value">{{member.mdate|date:"Y-m-d H:i:s"}}</div>
+        </div>
+        
+        {% if member.image %}
+        <div class="member-image">
+            <div class="info-label" style="text-align: center; margin-bottom: 10px;">회원 이미지:</div>
+            <img src="{{member.image.url}}" alt="회원 이미지">
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="button-group">
+        <a href="{% url 'member:list' %}" class="btn btn-list">목록으로</a>
+        <a href="{% url 'member:update' member.id %}" class="btn btn-update">수정하기</a>
+        <a href="{% url 'member:delete' member.id %}" class="btn btn-delete" onclick="return confirm('정말 삭제하시겠습니까?')">삭제하기</a>
+    </div>
+</body>
+</html>

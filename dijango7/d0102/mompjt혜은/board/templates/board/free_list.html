@@ -1,0 +1,182 @@
+<!--
+═══════════════════════════════════════════════════════════════════════
+free_list.html - 자유게시판 목록
+═══════════════════════════════════════════════════════════════════════
+작성일: 2025-12-29
+기능: 자유게시판 목록 표시, 글쓰기
+-->
+
+
+
+
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width: 900px; margin: 50px auto; padding: 20px;">
+<style>
+    .category-tabs{ display: flex; gap: 12px; align-items: center; padding: 16px 0 10px; }
+    .category-tabs .tab{ display: inline-block; padding: 10px 18px; border: 1px solid #ddd; border-radius: 999px; background: #fff; color: #333; font-size: 14px; text-decoration: none; transition: .15s; }
+    .category-tabs .tab:hover{ border-color: #ff6b6b; color: #ff6b6b; }
+    .category-tabs .tab.active{ background: #ff6b6b; border-color: #ff6b6b; color: #fff; font-weight: 600; }
+</style>
+    <!-- 제목 -->
+    <h2 style="text-align: center; margin-bottom: 10px; font-weight: 800;">
+        <a href="{% url 'board:free_list' %}?category={{ selected_category }}&page={{ page_obj.number }}"
+        style="text-decoration: none; color: #333;">
+            {{ category_title }}
+        </a>
+    </h2>
+
+    <!-- ✅ 카테고리 가로 메뉴 -->
+    <div class="category-tabs">
+
+  <a href="?category=all"
+     class="tab {% if selected_category == 'all' %}active{% endif %}">
+    전체보기
+  </a>
+
+  <a href="?category=mom"
+     class="tab {% if selected_category == 'mom' %}active{% endif %}">
+    육아수다
+  </a>
+
+  <a href="?category=husband"
+     class="tab {% if selected_category == 'husband' %}active{% endif %}">
+    남편뒷담화
+  </a>
+
+  <a href="?category=family"
+     class="tab {% if selected_category == 'family' %}active{% endif %}">
+    시댁/친정
+  </a>
+
+  <a href="?category=preg"
+     class="tab {% if selected_category == 'preg' %}active{% endif %}">
+    임신출산
+  </a>
+
+</div>
+
+
+    <table style="width: 100%; border-collapse: collapse; border-top: 2px solid #333;">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 1px solid #ddd;">
+                <th style="padding: 15px; width: 10%;">번호</th>
+                <th style="padding: 15px; text-align: left;">제목</th>
+                <th style="padding: 15px; width: 15%;">작성자</th>
+                <th style="padding: 15px; width: 15%;">날짜</th>
+                <th style="padding: 15px; width: 10%;">조회</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if posts %}
+                {% for post in posts %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px; text-align: center;">
+                        {{ post.number }}
+                    </td>
+
+                    <!-- 제목 (현재 페이지 + 카테고리 함께 전달) -->
+                    <td style="padding: 15px;">
+                        <a href="{% url 'board:free_detail' post.pk %}?category={{ selected_category }}&page={{ page_obj.number }}"
+                        style="text-decoration: none; color: #333; font-weight: 500;">
+                            {{ post.title }}
+                        </a>
+                    </td>
+
+                    <td style="padding: 15px; text-align: center; color: #666;">
+                        {{ post.author.nickname|default:post.author.username }}
+                    </td>
+
+                    <td style="padding: 15px; text-align: center; color: #666;">
+                        {{ post.created_at|date:"Y-m-d" }}
+                    </td>
+
+                    <td style="padding: 15px; text-align: center; color: #666;">
+                        {{ post.views }}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:30px;">
+                        등록된 게시글이 없습니다.
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <!-- ✅ 페이지네이션 (5개만 표시 + 처음/끝 + 카테고리 유지 + 카테고리별 제목 유지) -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div style="text-align:center; margin-top:20px;">
+        <div style="display:inline-block;">
+
+            <!-- ⏮ 처음 -->
+            {% if page_obj.number > 1 %}
+            <a href="?category={{ selected_category }}&page=1"
+            style="margin:0 5px; padding:6px 10px; border:1px solid #ddd;
+                    border-radius:4px; text-decoration:none; color:#333;">
+                &laquo;
+            </a>
+            {% endif %}
+
+            <!-- ◀ 이전 -->
+            {% if page_obj.has_previous %}
+            <a href="?category={{ selected_category }}&page={{ page_obj.previous_page_number }}"
+            style="margin:0 5px; padding:6px 10px; border:1px solid #ddd;
+                    border-radius:4px; text-decoration:none; color:#333;">
+                &lt;
+            </a>
+            {% endif %}
+
+            <!-- 숫자 5개 -->
+            {% for num in page_obj.paginator.page_range %}
+                {% if num >= start_page and num <= end_page %}
+                    {% if num == page_obj.number %}
+                    <span style="margin:0 5px; padding:6px 10px;
+                                border-radius:4px; background:#495057; color:#fff;">
+                        {{ num }}
+                    </span>
+                    {% else %}
+                    <a href="?category={{ selected_category }}&page={{ num }}"
+                    style="margin:0 5px; padding:6px 10px; border:1px solid #ddd;
+                            border-radius:4px; text-decoration:none; color:#333;">
+                        {{ num }}
+                    </a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            <!-- ▶ 다음 -->
+            {% if page_obj.has_next %}
+            <a href="?category={{ selected_category }}&page={{ page_obj.next_page_number }}"
+            style="margin:0 5px; padding:6px 10px; border:1px solid #ddd;
+                    border-radius:4px; text-decoration:none; color:#333;">
+                &gt;
+            </a>
+            {% endif %}
+
+            <!-- ⏭ 끝 -->
+            {% if page_obj.number < page_obj.paginator.num_pages %}
+            <a href="?category={{ selected_category }}&page={{ page_obj.paginator.num_pages }}"
+            style="margin:0 5px; padding:6px 10px; border:1px solid #ddd;
+                    border-radius:4px; text-decoration:none; color:#333;">
+                &raquo;
+            </a>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- 글쓰기 버튼 -->
+    <div style="text-align: right; margin-top: 20px;">
+        <a href="{% url 'board:free_create' %}"
+           style="display: inline-block; padding: 10px 20px; background: #ff6b6b; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            글쓰기
+        </a>
+    </div>
+
+</div>
+{% endblock %}

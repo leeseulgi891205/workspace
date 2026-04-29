@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학생 상세보기</title>
+    <style>
+        table {border-collapse: collapse;
+            margin: 20px auto;
+            width: 50%;}
+            
+        th, td {border: 1px solid black;
+            padding: 10px;
+            text-align: left;}
+
+        th {background-color: #f0f0f0;
+            width: 30%;}
+        
+        .btn-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 5px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+
+    </style>
+    <script>
+        function confirmDelete() {
+            if (confirm('{{ student.name }} 정말 삭제하시겠습니까?'))
+            location.href = '/student/delete/{{ student.pk }}/';
+        }
+    </script>
+</head>
+<body>
+    <h2>학생 상세 정보</h2>
+    <table>
+        <tr>
+            <th>순번</th>
+            <td>{{ student.pk }}</td>
+        </tr>
+        <tr>
+            <th>이름</th>
+            <td>{{ student.name }}</td>
+        </tr>
+        <tr>
+            <th>전공</th>
+            <td>{{ student.major }}</td>
+        </tr>
+        <tr>
+            <th>나이</th>
+            <td>{{ student.age }}</td>
+        </tr>
+        <tr>
+            <th>학년</th>
+            <td>{{ student.grade }}</td>
+        </tr>
+        <tr>
+            <th>주소</th>
+            <td>{{ student.address }}</td>
+        </tr>
+        <tr>
+            <th>등록일</th>
+            <td>{{ student.created_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+    </table>
+    
+    <div class="btn-container">
+        <a href="/student/update/{{ student.pk }}/" class="btn btn-edit" onclick="return confirm('수정할까요말까요?헤헤');">수정</a>
+        <a href="/student/delete/{{ student.pk }}/" class="btn btn-delete" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+        <a href="/student/list/" class="btn btn-list">목록</a>
+    </div>
+    
+    <ul>
+        <li><a href="/">홈으로</a></li>
+    </ul>
+</body>
+</html>
+

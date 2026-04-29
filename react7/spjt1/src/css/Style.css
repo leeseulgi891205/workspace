@@ -1,0 +1,7 @@
+/*외부링크 장점: css문법과 동일*/
+/*단점: .css 파일을 별도로 만들어야함.*/
+.main{
+    text-align: left;
+    background-color: aqua;
+    font-size: 50px;
+}

@@ -1,0 +1,8 @@
+*.zip
+*.pyc
+**/.git.codex-temp/
+**/__pycache__/
+**/.venv/
+**/node_modules/
+**/.metadata/
+**/.metadata/.plugins/org.eclipse.swt/EBWebView/

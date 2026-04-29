@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>맘프로젝트</title>
+    <style>
+        /* 공통 스타일 */
+        body { margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; background-color: #f9f9f9; }
+        a { text-decoration: none; color: inherit; }
+        
+        /* 헤더 */
+        header { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px 40px; border-bottom: 1px solid #eee; }
+        .logo { font-size: 24px; font-weight: bold; color: #ff6b6b; }
+        
+        /* 메뉴 영역 */
+        .top-menu { display: flex; gap: 20px; align-items: center; }
+        .top-menu a { font-size: 15px; color: #555; transition: color 0.3s; }
+        .top-menu a:hover { color: #ff6b6b; font-weight: bold; }
+        
+        /* 회원가입/로그인 버튼 스타일 */
+        .btn-login { border: 1px solid #ddd; padding: 5px 15px; border-radius: 20px; }
+
+        /* [NEW] 메인 배너 디자인 */
+        .hero-section {
+            background-color: #fff0f0; /* 연한 분홍 배경 */
+            text-align: center;
+            padding: 100px 20px;
+            margin-bottom: 50px;
+        }
+        .hero-title { font-size: 32px; color: #333; margin-bottom: 15px; }
+        .hero-desc { font-size: 16px; color: #666; margin-bottom: 30px; }
+        .btn-start {
+            background-color: #ff6b6b; color: white; padding: 12px 30px; 
+            border-radius: 5px; font-weight: bold; font-size: 16px;
+        }
+        .btn-start:hover { background-color: #ff5252; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="{% url 'board:main' %}" class="logo">MomProject</a>
+        <div class="top-menu">
+            <a href="{% url 'board:notice_list' %}">공지사항</a>
+            <span style="color:#ddd">|</span>
+            <a href="#">회원가입</a>
+            <a href="#" class="btn-login">로그인</a>
+            <a href="/admin/">관리자</a>
+        </div>
+    </header>
+
+    <div class="hero-section">
+        <h1 class="hero-title">엄마들의 따뜻한 소통 공간, 맘프로젝트</h1>
+        <p class="hero-desc">
+            육아 정보 공유부터 중고 거래까지,<br>
+            우리 동네 엄마들과 함께 이야기를 나누어보세요.
+        </p>
+        <a href="{% url 'board:notice_list' %}" class="btn-start">커뮤니티 시작하기</a>
+    </div>
+
+</body>
+</html>

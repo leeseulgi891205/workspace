@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeMap - 안전을 잇다</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root { --primary-color: #2c3e50; --accent-color: #3498db; --bg-color: #f8f9fa; }
+        body { font-family: 'Noto Sans KR', sans-serif; overflow: hidden; height: 100vh; margin: 0; }
+        .navbar { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1000; height: 70px; }
+        .nav-link { font-weight: 500; color: #555 !important; margin-left: 15px; transition: color 0.3s; }
+        .nav-link:hover { color: var(--accent-color) !important; }
+        .btn-login { border-radius: 20px; padding: 5px 20px; border: 1px solid #ddd; }
+        .main-wrapper { display: flex; height: calc(100vh - 70px); }
+        .left-panel { width: 40%; background: white; display: flex; flex-direction: column; justify-content: center; padding: 60px; position: relative; z-index: 2; }
+        .brand-title { font-size: 3.5rem; font-weight: 800; color: var(--primary-color); margin-bottom: 20px; line-height: 1.2; }
+        .brand-desc { font-size: 1.2rem; color: #666; margin-bottom: 40px; }
+        .divider { height: 5px; width: 80px; background: var(--accent-color); margin-bottom: 30px; border-radius: 5px; }
+        .right-panel { width: 60%; position: relative; background-color: #e9ecef; overflow: hidden; }
+        .map-background { width: 100%; height: 100%; background-image: radial-gradient(#cbd5e0 1px, transparent 1px); background-size: 20px 20px; background-color: #f0f4f8; display: flex; align-items: center; justify-content: center; color: #8898aa; }
+        
+        /* Floating Card Design */
+        .region-card { position: absolute; top: 20px; left: 20px; width: 300px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 20px; max-height: 85%; overflow-y: auto; z-index: 10; }
+        .region-card h5 { font-weight: 700; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f1f1f1; color: var(--primary-color); }
+        .region-list { list-style: none; padding: 0; margin: 0; }
+        .region-item { cursor: pointer; padding: 12px 10px; border-radius: 8px; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; color: #444; }
+        .region-item:hover { background-color: #f8f9fa; color: var(--accent-color); transform: translateX(5px); }
+        .sub-list { list-style: none; padding-left: 15px; display: none; margin-top: 5px; border-left: 2px solid #eee; margin-left: 10px; }
+        .sub-item { padding: 8px 10px; font-size: 0.9rem; color: #666; cursor: pointer; }
+        .sub-item:hover { color: var(--accent-color); font-weight: bold; }
+        .active-list { display: block; animation: slideDown 0.3s ease-out; }
+        .rotate-icon { transform: rotate(90deg); color: var(--accent-color) !important; }
+        .region-card::-webkit-scrollbar { width: 6px; }
+        .region-card::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 10px; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-dark" href="#"><i class="fas fa-shield-alt text-primary"></i> SafeMap</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="#">게시판</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">공지사항</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">관리자</a></li>
+                    <li class="nav-item ms-3"><a class="nav-link text-dark" href="#">회원가입</a></li>
+                    <li class="nav-item"><a class="nav-link btn-login" href="#">로그인</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div class="left-panel">
+            <div class="divider"></div>
+            <h1 class="brand-title">대한민국<br>안전지동여지도</h1>
+            <p class="brand-desc">우리 동네 안전 정보를 한눈에 확인하세요.<br>지역을 선택하면 상세 정보를 볼 수 있습니다.</p>
+            <div class="mt-4"><button class="btn btn-primary btn-lg rounded-pill px-5 shadow">자세히 보기</button></div>
+        </div>
+
+        <div class="right-panel">
+            <div class="map-background" id="map-area">
+                <div class="text-center"><i class="fas fa-map-marked-alt fa-3x mb-3"></i><h4>지도 영역</h4><p>API 연동 대기중...</p></div>
+            </div>
+            <div class="region-card">
+                <h5><i class="fas fa-map-marker-alt me-2"></i>지역 선택</h5>
+                <ul class="region-list">
+                    <li>
+                        <div class="region-item" onclick="toggleMenu('seoul', this)"><span>서울특별시</span><i class="fas fa-chevron-right"></i></div>
+                        <ul id="seoul" class="sub-list">
+                            <li>
+                                <div class="region-item" onclick="toggleMenu('gangnam', this)"><span>강남구</span><i class="fas fa-chevron-right"></i></div>
+                                <ul id="gangnam" class="sub-list">
+                                    <li class="sub-item" onclick="moveToLocation('삼성동')">삼성동</li>
+                                    <li class="sub-item" onclick="moveToLocation('역삼동')">역삼동</li>
+                                    <li class="sub-item" onclick="moveToLocation('청담동')">청담동</li>
+                                </ul>
+                            </li>
+                            <li><div class="region-item" onclick="toggleMenu('mapo', this)"><span>마포구</span><i class="fas fa-chevron-right"></i></div><ul id="mapo" class="sub-list"><li class="sub-item">망원동</li><li class="sub-item">합정동</li></ul></li>
+                        </ul>
+                    </li>
+                    <li><div class="region-item" onclick="toggleMenu('gyeonggi', this)"><span>경기도</span><i class="fas fa-chevron-right"></i></div><ul id="gyeonggi" class="sub-list"><li><div class="region-item"><span>수원시</span><i class="fas fa-chevron-right"></i></div></li></ul></li>
+                    <li><div class="region-item"><span>인천광역시</span><i class="fas fa-chevron-right"></i></div></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu(id, element) {
+            const subMenu = document.getElementById(id);
+            const icon = element.querySelector('.fa-chevron-right');
+            if (subMenu) {
+                if (subMenu.classList.contains('active-list')) { subMenu.classList.remove('active-list'); icon.classList.remove('rotate-icon'); }
+                else { subMenu.classList.add('active-list'); icon.classList.add('rotate-icon'); }
+            }
+        }
+        function moveToLocation(dongName) { alert(dongName + "(으)로 이동합니다."); }
+    </script>
+</body>
+</html>

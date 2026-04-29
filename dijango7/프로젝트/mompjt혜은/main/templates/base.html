@@ -1,0 +1,1107 @@
+<!--
+═══════════════════════════════════════════════════════════════════════
+base.html - 맘스로그 프로젝트 전체 레이아웃 베이스 템플릿
+═══════════════════════════════════════════════════════════════════════
+작성일: 2025-12-29
+용도:
+  - 전체 프로젝트의 공통 레이아웃 (헤더, 네비게이션, 푸터)
+  - 모든 페이지에서 extends하여 사용
+  - 통합 검색창, 로그인/로그아웃 버튼 포함
+포함 요소:
+  - 헤더: 로고, 검색창, 로그인/로그아웃
+  - 네비게이션: 공지사항, 자유게시판, 벼룩시장, 지도, 챗봇
+  - 푸터: 저작권 정보
+  - block content: 각 페이지 콘텐츠 영역
+═══════════════════════════════════════════════════════════════════════
+-->{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>맘스로그 - 엄마들의 따뜻한 공간</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/dropdown.css' %}">
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mobile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/darkmode.css' %}">
+    <link rel="stylesheet" href="{% static 'css/premium-finish.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mindcheck-modal.css' %}?v=1"> <!-- 26-01-08 혜은 마음체크 모달 -->
+    
+
+    <style>
+        /* =========================
+            Global Font
+        ========================= */
+        * {
+        font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+            "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR",
+            "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+            sans-serif;
+        }
+
+        /* =========================
+        모바일 보강 전용
+        (여기 블록은 모바일 레이아웃 깨짐 방지용)
+        ========================= */
+        @media (max-width: 768px) {
+        html, body { overflow-x: hidden; }
+        img, video { max-width: 100%; height: auto; display: block; }
+        .container { width: 100%; max-width: 100%; padding: 0 12px; }
+        .layout { display: flex; gap: 16px; flex-direction: column; }
+        .layout .left { flex: 2; }
+        .layout .right { flex: 1; }
+
+        .header-top .container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .search-bar { flex: 1 1 240px; min-width: 220px; width: 100%; max-width: 100%; }
+        .search-bar input { width: 100%; }
+
+        .top-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 13px;
+        }
+        .top-links a,
+        .top-links span.grade-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 18px;
+            background: #f7f7f9;
+            border: 1px solid #ededf2;
+        }
+
+        .notification-icon { display: inline-flex; align-items: center; position: relative; }
+        .notification-badge { position: absolute; top: -6px; right: -8px; }
+
+        .main-nav .container { display: flex; align-items: center; padding: 0 12px; }
+        .main-nav ul { display: flex; gap: 12px; flex-wrap: wrap; width: 100%; }
+        .main-nav li a { padding: 10px 12px; border-radius: 12px; }
+        .main-nav li a:hover { background: #f7f7f9; }
+        }
+
+        /* =========================================================
+        ✅ 마음체크 모달 = (첫번째 사진) 사이트 기본 모달 톤
+        - PC/모바일 공통 적용: @media 밖에 둔다
+        - 중복/충돌 방지: #mindModal 관련 정의는 여기만 둔다
+        ========================================================= */
+
+        /* 모달 컨테이너 */
+        #mindModal.mind-modal {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 999999 !important;
+        display: none !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 24px !important;
+        }
+        #mindModal.mind-modal.is-open { display: flex !important; }
+
+        /* 배경 */
+        #mindModal .mind-modal__backdrop {
+        position: absolute !important;
+        inset: 0 !important;
+        background: rgba(0,0,0,0.45) !important;
+        }
+
+        /* ✅ 큰 카드형(첫번째 모달처럼) */
+        #mindModal .mind-modal__dialog {
+        position: relative !important;
+        z-index: 1 !important;
+
+        width: min(92vw, 760px) !important;
+        max-height: calc(100vh - 80px) !important;
+
+        background: #fff !important;
+        border-radius: 18px !important;
+        box-shadow: 0 18px 60px rgba(0,0,0,0.22) !important;
+        border: 1px solid rgba(0,0,0,0.06) !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        padding: 0 !important;
+        overflow: hidden !important;
+        }
+
+        /* 닫기 버튼(우상단 원형) */
+        #mindModal .mind-modal__close {
+        position: absolute !important;
+        top: 16px !important;
+        right: 16px !important;
+
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 999px !important;
+
+        border: 1px solid rgba(0,0,0,0.10) !important;
+        background: #f6f6f7 !important;
+        color: #666 !important;
+
+        cursor: pointer !important;
+        font-size: 22px !important;
+        line-height: 32px !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        transition: transform .12s ease, background .12s ease !important;
+        }
+        #mindModal .mind-modal__close:hover {
+        background: #eeeeef !important;
+        transform: translateY(-1px) !important;
+        }
+
+        /* 헤더 */
+        #mindModal .mind-modal__header {
+        padding: 22px 26px 14px !important;
+        border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+        }
+        #mindModal .mind-modal__badge {
+        font-size: 13px !important;
+        color: #777 !important;
+        font-weight: 700 !important;
+        margin-bottom: 6px !important;
+
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        }
+        #mindModal .mind-modal__title {
+        margin: 0 44px 6px 0 !important; /* 닫기 버튼 공간 */
+        font-size: 20px !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.4px !important;
+        color: #1f1f1f !important;
+        }
+        #mindModal .mind-modal__sub {
+        margin: 0 !important;
+        font-size: 14px !important;
+        color: #8a8a8a !important;
+        line-height: 1.5 !important;
+        }
+
+        /* 옵션(본문) = 내부 스크롤 */
+        #mindModal .mind-modal__options {
+        padding: 16px 26px 18px !important;
+        display: grid !important;
+        gap: 12px !important;
+
+        overflow: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        }
+
+        /* 옵션 버튼 = 카드 리스트 톤 */
+        #mindModal .mind-chip {
+        width: 100% !important;
+        border-radius: 14px !important;
+
+        background: #ffffff !important;
+        border: 1px solid rgba(0,0,0,0.08) !important;
+
+        padding: 14px 14px !important;
+
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+
+        cursor: pointer !important;
+        transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease !important;
+        }
+        #mindModal .mind-chip:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 12px 26px rgba(0,0,0,0.12) !important;
+        border-color: rgba(255,107,107,0.45) !important;
+        }
+
+        /* 이모지 */
+        #mindModal .mind-chip__emoji {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 999px !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        background: #fff2ef !important;
+        border: 1px solid rgba(255,107,107,0.22) !important;
+        font-size: 18px !important;
+        }
+        #mindModal .mind-chip__text {
+        font-size: 15px !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.2px !important;
+        color: #2b2b2b !important;
+        }
+
+        /* 푸터(하단 고정 버튼 영역) */
+        #mindModal .mind-modal__footer {
+        padding: 16px 26px 18px !important;
+        border-top: 1px solid rgba(0,0,0,0.06) !important;
+        background: #fff !important;
+        }
+
+        /* 하단 버튼(그라데이션 CTA) */
+        #mindModal .mind-modal__ghost {
+            width: 100% !important;
+            height: 48px !important;
+            border-radius: 12px !important;
+
+            background: linear-gradient(180deg, #ff8d8d 0%, #ff6b6b 100%) !important;
+            border: none !important;
+
+            color: #fff !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.2px !important;
+
+            cursor: pointer !important;
+
+            box-shadow: 0 10px 22px rgba(255,107,107,0.30) !important;
+
+            /* 🔥 중요 */
+            opacity: 1 !important;
+            filter: none !important;
+
+            transition: transform 0.15s ease !important;
+        }
+
+        #mindModal .mind-modal__ghost:hover {
+            transform: translateY(-2px) !important;
+
+            /* 🔥 색 변화 완전 차단 */
+            background: linear-gradient(180deg, #ff8d8d 0%, #ff6b6b 100%) !important;
+            opacity: 1 !important;
+            filter: none !important;
+        }
+
+
+        /* 모달 열렸을 때 배경 스크롤 방지 */
+        body.mind-lock { overflow: hidden !important; }
+
+        /* (선택) 모달 자체 모바일 튜닝 */
+        @media (max-width: 520px) {
+        #mindModal.mind-modal { padding: 14px !important; }
+        #mindModal .mind-modal__dialog {
+            width: min(92vw, 520px) !important;
+            max-height: calc(100vh - 40px) !important;
+            border-radius: 16px !important;
+        }
+        #mindModal .mind-modal__header { padding: 18px 16px 12px !important; }
+        #mindModal .mind-modal__options { padding: 14px 16px 16px !important; }
+        #mindModal .mind-modal__footer { padding: 14px 16px 16px !important; }
+        }
+
+        /* ✅ 선택된 항목 강조 */
+        #mindModal .mind-chip.is-active{ border-color: rgba(255,107,107,0.75) !important; box-shadow: 0 14px 28px rgba(255,107,107,0.18) !important; background: #fffafa !important; }
+
+        #mindModal .mind-chip.is-active .mind-chip__emoji{ background: #ffe9e3 !important; border-color: rgba(255,107,107,0.45) !important; }
+
+        /* 모달 하단 버튼 가로 정렬 */
+        #mindModal .mind-modal__footer-actions { display: flex; margin-bottom: 15px; margin-right: 30px; justify-content: flex-end; /* 오른쪽 정렬 */ gap: 15px; /* 버튼 간격 */}
+
+        /* 버튼 크기 통일 (선택) */
+        #mindModal .mind-modal__ghost { min-width: 120px; }
+
+        /* =========================
+        마음체크(5문항) 스타일
+        ========================= */
+
+        /* ===== 라디오 스타일(이미지처럼) ===== */
+        #mindModal .mind-scale{
+        display:flex;
+        gap: 26px;                /* 항목 사이 간격 */
+        align-items:center;
+        flex-wrap: wrap;          /* 화면 좁으면 줄바꿈 */
+        padding: 6px 0;
+        }
+
+        /* 버튼을 라디오처럼 보이게: 배경/테두리 제거 */
+        #mindModal .mind-score{
+        display:inline-flex;
+        align-items:center;
+        gap: 10px;
+
+        border: none;
+        background: transparent;
+
+        padding: 6px 6px;
+        border-radius: 10px;
+
+        cursor: pointer;
+        font-weight: 700;
+        color: #4e4e4eff;
+        transition: transform .12s ease;
+        }
+
+        #mindModal .mind-score:hover{
+        transform: translateY(-1px);
+        }
+
+        /* 동그라미(라디오) */
+        #mindModal .radio-dot{
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        border: 2px solid #7c7c7cff;
+        display:inline-block;
+        box-sizing: border-box;
+        }
+
+        /* 텍스트 */
+        #mindModal .radio-label{
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap; /* "전혀 아니다" 같은 텍스트 줄바꿈 방지 */
+        }
+
+        /* 선택 상태(● 표시) */
+        #mindModal .mind-score.is-active .radio-dot{
+        background: #ff6b6bff;     /* 빨간색 채움 */
+        }
+
+        /* 선택 상태(텍스트 강조 - 원하면 유지, 싫으면 삭제) */
+        #mindModal .mind-score.is-active .radio-label{
+        font-weight: 900;
+        }
+
+        /* ✅ 모달창 - 마음 상태 체크 결과 화면 전환*/
+        #mindModal .mind-view { display: none; }
+        #mindModal .mind-view.is-active { display: block; }
+
+        /* ✅ 결과 화면 스타일 */
+        #mindModal .mind-result{ padding: 18px 26px 20px; }
+
+        #mindModal .mind-result__badge{ display:inline-block; background:#fff2ef; border:1px solid rgba(255,107,107,0.25);
+        color:#ff6b6b; font-weight:900; font-size:12px; padding:6px 10px; border-radius:999px; margin-bottom:10px; }
+
+        #mindModal .mind-result__title{ font-size:22px; font-weight:900; letter-spacing:-0.4px; color:#1f1f1f; margin-bottom:6px; }
+
+        #mindModal .mind-result__score{
+        font-size:14px;
+        color:#777;
+        font-weight:800;
+        margin-bottom:12px;
+        }
+
+        #mindModal .mind-result__desc{
+        font-size:14px;
+        color:#555;
+        line-height:1.6;
+        background:#fafafa;
+        border:1px solid rgba(0,0,0,0.06);
+        border-radius:14px;
+        padding:14px 14px;
+        margin-bottom:14px;
+        }
+
+        #mindModal .mind-result__list{
+        display:grid;
+        gap:10px;
+        }
+
+        #mindModal .mind-result__item{
+        display:flex;
+        justify-content:space-between;
+        gap:12px;
+        padding:12px 14px;
+        border:1px solid rgba(0,0,0,0.06);
+        border-radius:14px;
+        background:#fff;
+        }
+
+        #mindModal .mind-result__q{
+        font-weight:900;
+        color:#2b2b2b;
+        font-size:13px;
+        line-height:1.3;
+        }
+
+        #mindModal .mind-result__ans{
+        font-weight:900;
+        color:#ff6b6b;
+        font-size:13px;
+        white-space:nowrap;
+        }
+
+        /* 마음체크 모달창 - 커뮤니티 가기 텍스트 호버 효과  26-01-09 혜은*/
+        .go-community-text{ cursor: pointer; color: #000; display: inline-block;   /* 중요: 글자 영역만 hover */ transition: color 0.2s ease; }
+        .go-community-text:hover{ color: #ff6b6b; }
+
+
+
+    </style>
+    {% block head %}
+    {% endblock %}
+</head>
+<link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
+<body class="light-mode">
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <h1 class="logo">
+                <a href="{% url 'main:index' %}">
+                    <img src="{% static 'images/logo7.png' %}" alt="맘스로그 로고" style="height: 130px; width: auto;">
+                </a>
+            </h1>
+                <form class="search-bar" method="get" action="{% url 'main:search' %}">
+                    <input type="text" name="q" placeholder="궁금한 정보를 검색해보세요." value="{{ q|default:'' }}">
+                    <button type="submit">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                </form>
+                <div class="top-links">
+                    
+                    {% if user.is_authenticated %}
+                        <!-- 알림 아이콘 -->
+                        <a href="{% url 'board:notification_list' %}" class="notification-icon" id="notificationLink">
+                            🔔
+                            {% with unread_count=user.notifications.count %}
+                            {% if unread_count > 0 %}
+                                <span class="notification-badge" id="notifBadge" data-count="{{ unread_count }}">{{ unread_count }}</span>
+                            {% endif %}
+                            {% endwith %}
+                        </a>
+                        <span> <b>{% if user.is_superuser %}관리자{% else %}{{ user.nickname }}{% endif %}</b>님 환영합니다!</span>
+                        | <a href="{% url 'accounts:profile_auth' %}">마이페이지</a>
+                        | <a href="{% url 'accounts:logout' %}">로그아웃</a>
+                        {% if user.is_staff %}
+                        | <a href="{% url 'accounts:admin_dashboard' %}">관리자 통계</a>
+                        | <a href="/admin/">관리자</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}">로그인</a>
+                        | <a href="{% url 'accounts:signup' %}">회원가입</a>
+                        | <a href="/admin/">관리자</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <div class="container">
+                <ul id="mainMenu">
+                    <li><a href="{% url 'board:notice_list' %}">공지사항/이벤트</a></li>
+                    
+                    
+
+                    <li class="has-sub">
+                        <a href="{% url 'board:free_list' %}?category=all" onclick="toggleMenu(this)">커뮤니티</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'board:free_list' %}?category=all">전체보기</a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=mom">육아 수다</a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=husband">남편 뒷담화</a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=family">시댁/친정</a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=preg">임신출산</a></li>
+                        </ul>
+                    </li>
+
+   
+                    <li><a href="{% url 'recipes:recipe_list' %}">요리레시피</a></li>
+
+                    <li><a href="{% url 'board:pet_list' %}">반려동물</a></li>
+
+                    <li class="has-sub">
+                        <!-- 26-01-02 슬기 추가 -->
+                        <a href="{% url 'board:parenting_list' %}" onclick="toggleMenu(this)">육아정보</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'board:parenting_list' %}">전체보기</a></li>
+                            <li><a href="{% url 'board:parenting_list' %}?category=development">월령별 발달</a></li>
+                            <li><a href="{% url 'board:parenting_list' %}?category=sleep">수면교육</a></li>
+                            <li><a href="{% url 'board:parenting_list' %}?category=discipline">훈육 노하우</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="{% url 'board:flea_list' %}">벼룩시장</a></li>
+                    <li><a href="/map/">우리동네지도</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    {% if messages %}
+        <div class="msg-wrap" id="msgWrap">
+            {% for message in messages %}
+            <div class="msg
+                {% if message.tags == 'success' %}msg-success{% endif %}
+                {% if message.tags == 'error' %}msg-error{% endif %}
+                {% if message.tags == 'info' %}msg-info{% endif %}
+            ">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <script>
+            setTimeout(() => {
+                const wrap = document.getElementById('msgWrap');
+                if (!wrap) return;
+                wrap.style.opacity = '0';
+                setTimeout(() => wrap.remove(), 400);
+            }, 2500);
+        </script>
+    {% endif %}
+
+    <main class="container main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <style>
+            footer { background: #f9f9f9; padding: 40px 0; border-top: 1px solid #eee; font-size: 13px; color: #888; margin-top: 50px; }
+            .footer-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+            .footer-links { margin-bottom: 15px; }
+            .footer-links a { color: #555; text-decoration: none; margin: 0 15px; font-weight: bold; }
+            .footer-links a:hover { color: #ff6b6b; }
+            .company-info { margin-top: 15px; line-height: 1.8; }
+            
+            /* 다크모드 푸터 스타일 */
+            .dark-mode footer {
+                background: #1a1a24;
+                border-top-color: #3a3f4a;
+                color: #a0a0a8;
+            }
+            .dark-mode .footer-links a {
+                color: #c0c0c8;
+            }
+            .dark-mode .footer-links a:hover {
+                color: #ff6b6b;
+            }
+            .dark-mode .company-info {
+                color: #a0a0a8;
+            }
+        </style>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{% static 'images/logo7.png' %}" style="height: 80px; opacity: 0.6; filter: grayscale(100%); margin-bottom: 20px;">
+            </div>
+            <div class="footer-links">
+                <a href="#">회사소개</a>
+                <a href="#">이용약관</a>
+                <a href="#">개인정보처리방침</a>
+                <a href="#">제휴문의</a>
+            </div>
+            <div class="company-info">
+                (주)맘스로그 | 대표: 홍길동 | 사업자등록번호: 123-45-67890<br>
+                주소: 서울특별시 강남구 테헤란로 123 맘스빌딩 5층<br>
+                고객센터: 1588-0000 (평일 09:00~18:00) | 이메일: help@momslog.com<br>
+                <br>Copyright © 2026 MomsLog. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    {% include 'chatbot/chatbot_widget.html' %}
+
+    <script>
+        // 페이지 로드 시 모든 드롭다운 메뉴 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdowns = document.querySelectorAll('.dropdown-menu');
+            const items = document.querySelectorAll('.has-sub');
+
+            dropdowns.forEach(menu => {
+                menu.classList.remove('show');
+            });
+            items.forEach(item => {
+                item.classList.remove('active');
+            });
+        });
+
+        function toggleMenu(element) {
+            // 1. 클릭한 메뉴의 부모 li 찾기
+            const parentLi = element.parentElement;
+
+            // 2. 그 안에 있는 드롭다운 메뉴 찾기
+            const dropdown = parentLi.querySelector('.dropdown-menu');
+
+            // 3. 이미 열려있는 다른 메뉴들은 닫기 (하나만 열리게)
+            const allDropdowns = document.querySelectorAll('.dropdown-menu');
+            const allItems = document.querySelectorAll('.has-sub');
+
+            allDropdowns.forEach(menu => {
+                if (menu !== dropdown) {
+                    menu.classList.remove('show');
+                }
+            });
+            allItems.forEach(item => {
+                if (item !== parentLi) {
+                    item.classList.remove('active');
+                }
+            });
+
+            // 4. 클릭한 메뉴 토글 (열기/닫기)
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+                parentLi.classList.toggle('active');
+            }
+        }
+
+        // 화면의 빈 곳을 클릭하면 메뉴 닫기
+        window.onclick = function(event) {
+            // 메뉴 토글 버튼 클릭이 아닌 경우 모든 메뉴 닫기
+            if (!event.target.closest('.has-sub > a')) {
+                const dropdowns = document.getElementsByClassName("dropdown-menu");
+                const items = document.getElementsByClassName("has-sub");
+
+                for (let i = 0; i < dropdowns.length; i++) {
+                    if (dropdowns[i].classList.contains('show')) {
+                        dropdowns[i].classList.remove('show');
+                    }
+                }
+                for (let i = 0; i < items.length; i++) {
+                    items[i].classList.remove('active');
+                }
+            }
+        }
+
+        /* =====================================
+           알림 배지 관리 함수
+           ===================================== */
+        
+        // 글을 읽을 때 호출 (상세페이지에서)
+        function markNotificationAsRead(notificationId) {
+            const badge = document.getElementById('notifBadge');
+            if (!badge) return;
+            
+            // 서버에 읽음 표시 요청
+            fetch(`/board/notification/mark-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.unread_count !== undefined) {
+                    updateNotificationBadge(data.unread_count);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // 새 댓글 등록 시 호출
+        function incrementNotificationBadge() {
+            const badge = document.getElementById('notifBadge');
+            if (!badge) {
+                // 배지가 없으면 생성
+                const link = document.getElementById('notificationLink');
+                if (link) {
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'notification-badge';
+                    newBadge.id = 'notifBadge';
+                    newBadge.setAttribute('data-count', '1');
+                    newBadge.textContent = '1';
+                    link.appendChild(newBadge);
+                }
+            } else {
+                // 배지가 있으면 숫자 증가
+                let currentCount = 0;
+                if (badge) {
+                    currentCount = parseInt(badge.getAttribute('data-count') || badge.textContent, 10) || 0;
+                }
+                const newCount = currentCount + 1;
+                updateNotificationBadge(newCount);
+            }
+        }
+
+        // 배지 업데이트 함수
+        function updateNotificationBadge(count) {
+            let badge = document.getElementById('notifBadge');
+            const link = document.getElementById('notificationLink');
+            if (count <= 0) {
+                // 숫자가 0 이하면 배지 제거
+                if (badge) {
+                    badge.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => {
+                        if (badge && badge.parentNode) badge.remove();
+                    }, 300);
+                }
+            } else {
+                // 숫자 업데이트 또는 배지 생성
+                if (!badge && link) {
+                    badge = document.createElement('span');
+                    badge.className = 'notification-badge';
+                    badge.id = 'notifBadge';
+                    link.appendChild(badge);
+                }
+                if (badge) {
+                    badge.setAttribute('data-count', count.toString());
+                    badge.textContent = count;
+                }
+            }
+        }
+
+        // CSS 애니메이션 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; transform: scale(1); }
+                to { opacity: 0; transform: scale(0.8); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // CSRF 토큰 가져오기
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        /* =====================================
+           다크모드 토글 함수
+           ===================================== */
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDark = body.classList.contains('dark-mode');
+            
+            if (isDark) {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // 페이지 로드 시 저장된 테마 적용
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            
+            if (savedTheme === 'dark') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+            }
+        })();
+    </script>
+
+
+    <!--======================================================================================================= 
+    2026-01-09 혜은 - 마음체크 모달 HTML 부분 
+    - 모달 구조: 마음체크리스트 화면 / 결과 화면
+    ========================================================================================================-->
+    <div id="mindModal" class="mind-modal" aria-hidden="true">
+        <div class="mind-modal__backdrop" data-mind-close></div>
+
+        <div class="mind-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="mindModalTitle">
+            <button type="button" class="mind-modal__close" aria-label="닫기" data-mind-close>&times;</button>
+
+            <div class="mind-modal__header">
+            <h3 id="mindModalTitle" class="mind-modal__title">지금 내 마음은 어떤 상태인가요?</h3>
+            <p class="mind-modal__sub">말하지 않아도 괜찮아요. 고르기만 해도 충분해요.</p>
+            </div>
+
+            <!-- ✅ 질문 화면 -->
+            <div class="mind-view is-active" id="mindViewQuestions">
+            <div class="mind-modal__options" id="mindOptions">
+
+                <!-- Q1 -->
+                <div class="mind-q" data-q="1">
+                <div class="mind-q__title">
+                    <span class="mind-q__num">1</span>
+                    오늘 하루, 감정적으로 얼마나 안정적이었나요?
+                </div>
+                <div class="mind-scale" role="radiogroup" aria-label="문항 점수 선택">
+                    <button type="button" class="mind-score" data-score="1" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">전혀 아니에요</span></button>
+                    <button type="button" class="mind-score" data-score="2" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">아니에요</span></button>
+                    <button type="button" class="mind-score" data-score="3" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">보통이에요</span></button>
+                    <button type="button" class="mind-score" data-score="4" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">맞아요</span></button>
+                    <button type="button" class="mind-score" data-score="5" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">완전 맞아요</span></button>
+                </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mind-q" data-q="2">
+                <div class="mind-q__title">
+                    <span class="mind-q__num">2</span>
+                    몸의 피로감은 어느 정도였나요?
+                </div>
+                <div class="mind-scale" role="radiogroup" aria-label="문항 점수 선택">
+                    <button type="button" class="mind-score" data-score="1" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">전혀 아니에요</span></button>
+                    <button type="button" class="mind-score" data-score="2" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">아니에요</span></button>
+                    <button type="button" class="mind-score" data-score="3" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">보통이에요</span></button>
+                    <button type="button" class="mind-score" data-score="4" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">맞아요</span></button>
+                    <button type="button" class="mind-score" data-score="5" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">완전 맞아요</span></button>
+                </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mind-q" data-q="3">
+                <div class="mind-q__title">
+                    <span class="mind-q__num">3</span>
+                    육아를 하면서 ‘나도 괜찮다’는 느낌이 있었나요?
+                </div>
+                <div class="mind-scale" role="radiogroup" aria-label="문항 점수 선택">
+                    <button type="button" class="mind-score" data-score="1" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">전혀 아니에요</span></button>
+                    <button type="button" class="mind-score" data-score="2" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">아니에요</span></button>
+                    <button type="button" class="mind-score" data-score="3" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">보통이에요</span></button>
+                    <button type="button" class="mind-score" data-score="4" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">맞아요</span></button>
+                    <button type="button" class="mind-score" data-score="5" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">완전 맞아요</span></button>
+                </div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mind-q" data-q="4">
+                <div class="mind-q__title">
+                    <span class="mind-q__num">4</span>
+                    오늘은 도움/공감을 받을 수 있었나요?
+                </div>
+                <div class="mind-scale" role="radiogroup" aria-label="문항 점수 선택">
+                    <button type="button" class="mind-score" data-score="1" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">전혀 아니에요</span></button>
+                    <button type="button" class="mind-score" data-score="2" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">아니에요</span></button>
+                    <button type="button" class="mind-score" data-score="3" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">보통이에요</span></button>
+                    <button type="button" class="mind-score" data-score="4" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">맞아요</span></button>
+                    <button type="button" class="mind-score" data-score="5" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">완전 맞아요</span></button>
+                </div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mind-q" data-q="5">
+                <div class="mind-q__title">
+                    <span class="mind-q__num">5</span>
+                    내일을 생각했을 때 마음이 어느 정도 가벼운가요?
+                </div>
+                <div class="mind-scale" role="radiogroup" aria-label="문항 점수 선택">
+                    <button type="button" class="mind-score" data-score="1" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">전혀 아니에요</span></button>
+                    <button type="button" class="mind-score" data-score="2" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">아니에요</span></button>
+                    <button type="button" class="mind-score" data-score="3" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">보통이에요</span></button>
+                    <button type="button" class="mind-score" data-score="4" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">맞아요</span></button>
+                    <button type="button" class="mind-score" data-score="5" aria-pressed="false"><span class="radio-dot" aria-hidden="true"></span><span class="radio-label">완전 맞아요</span></button>
+                </div>
+                </div>
+
+            </div>
+            </div>
+
+            <!-- ✅ 2) 결과 화면(View) -->
+            <div class="mind-view" id="mindViewResult" style="display:none;">
+                <div class="mind-result-skin">
+                    <!-- 상단 그라데이션 배경 -->
+                    <div class="mind-result-hero">
+                        <div class="mind-result-hero__ring"></div>
+
+                        <!-- 이모지 -->
+                        <div class="mind-result-emojiBubble" id="mindResultEmoji">😊</div>
+
+                        <!-- 상태 텍스트 -->
+                        <div class="mind-result-titleLine">
+                            <span class="mind-result-titleMain" id="mindResultLevelText">매우 행복</span>
+                        </div>
+
+                        <!-- 점수 -->
+                        <div class="mind-result-scoreLine">
+                            <span class="mind-result-scoreLabel">총점</span>
+                            <strong id="mindResultScore">96</strong>
+                            <span class="mind-result-scoreSlash">/</span>
+                            <span id="mindResultMax">100</span>
+                        </div>
+                        </div>
+
+                        <!-- 내용 카드 -->
+                        <div class="mind-result-card">
+                        <p class="mind-result-sub" id="mindResultSub">마음이 비교적 안정적이에요.</p>
+                        <p class="mind-result-msg" id="mindResultMsg">좋은 리듬이에요. 오늘도 행복한 하루 보내세요!</p>
+
+                        <!-- 커뮤니티 이동 CTA -->
+                        {% comment %} <button
+                            type="button"
+                            class="mind-result-cta"
+                            onclick="location.href='/board/free/'"
+                        >
+                            엄마들 이야기 보러가기 →
+                        </button> {% endcomment %}
+
+
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ✅ footer는 하나만 (id 중복 금지) -->
+            <div class="mind-modal__footer">
+                <!-- 질문용 -->
+                <div class="mind-modal__footer-actions" id="mindFooterQuestions">
+                    <button type="button" class="mind-q-btn" id="mindGoBtn">결과보기</button>
+                    <button type="button" class="mind-q-btn" data-mind-close>나중에 할게요</button>
+                </div>
+
+                <!-- 결과용 -->
+                <div class="mind-modal__footer-actions" id="mindFooterResult" style="display:none;">
+                    <div class="mind-result-actions-row">
+                    <button type="button" class="mind-result-cta" onclick="location.href='/board/free/'">
+                        엄마들 이야기 보러가기 →
+                    </button>
+
+                    <!-- 닫기: 사각형 X -->
+                    {% comment %} <button type="button" class="mind-result-close" data-mind-close aria-label="닫기">닫기</button> {% endcomment %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- 마음체크 모달 끝 -->
+
+
+
+
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const openBtn = document.getElementById("openMindModal");
+        const modal = document.getElementById("mindModal");
+        if (!openBtn || !modal) return;
+
+        // ✅ 닫기 요소들: data-mind-close로 전부 잡기(가장 안전)
+        const closeEls = modal.querySelectorAll("[data-mind-close]");
+        const optionEls = modal.querySelectorAll("[data-mind]");
+
+        const openModal = () => {
+            modal.classList.add("is-open");
+            modal.setAttribute("aria-hidden", "false");
+            document.body.classList.add("mind-lock");
+        };
+
+        const closeModal = () => {
+            modal.classList.remove("is-open");
+            modal.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("mind-lock");
+        };
+
+        openBtn.addEventListener("click", openModal);
+        closeEls.forEach(el => el.addEventListener("click", closeModal));
+
+        // 바깥 클릭 닫기 (백드롭 클릭)
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // ESC 닫기
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
+        });
+
+        // 선택 버튼 처리(원하면 여기서 이동/저장 연결)
+        optionEls.forEach(btn => {
+            btn.addEventListener("click", () => {
+                console.log("선택:", btn.dataset.mind);
+                closeModal();
+            });
+        });
+    });
+    </script>
+
+    <
+    <script>
+    (function () {
+        const modal = document.getElementById("mindModal");
+        if (!modal) return;
+
+        const optionsWrap = modal.querySelector("#mindOptions");
+        if (!optionsWrap) return;
+
+        // ✅ 저장 키
+        const STORAGE_KEY = "mindcheck_5q";
+
+        // ✅ 문항별 점수 저장 객체
+        let state = {};
+        try {
+            state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        } catch (e) {
+            state = {};
+        }
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            localStorage.setItem("mindcheck_at", new Date().toISOString());
+        }
+
+        // ✅ 문항 UI 반영
+        function renderQuestion(qEl) {
+            const q = qEl.getAttribute("data-q"); // "1"~"5"
+            const selected = state[q];            // "1"~"5" 또는 undefined
+            const buttons = Array.from(qEl.querySelectorAll(".mind-score"));
+
+            buttons.forEach(btn => {
+            const s = btn.getAttribute("data-score");
+            const isActive = selected === s;
+            btn.classList.toggle("is-active", isActive);
+            btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+            });
+        }
+
+        // ✅ 초기 렌더
+        const questions = Array.from(optionsWrap.querySelectorAll(".mind-q"));
+        questions.forEach(renderQuestion);
+
+        // ✅ 클릭 처리 (이벤트 전파 차단 → 모달 꺼짐/페이지 이동 방지)
+        questions.forEach(qEl => {
+            qEl.addEventListener("click", (e) => {
+            const btn = e.target.closest(".mind-score");
+            if (!btn) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            const q = qEl.getAttribute("data-q");
+            const score = btn.getAttribute("data-score"); // "1"~"5"
+
+            state[q] = score;
+            saveState();
+            renderQuestion(qEl);
+
+            // ✅ 모달 유지 (닫지 않음)
+            }, true);
+        });
+
+        // 나중에 할게요 버튼은 원래대로 닫거나(혹은 메인 이동)
+        const laterBtn = modal.querySelector("#mindLaterBtn");
+        if (laterBtn) {
+            laterBtn.addEventListener("click", () => {
+            modal.classList.remove("is-open");
+            document.body.classList.remove("mind-lock");
+            });
+        }
+    })();
+    </script>
+
+    <!-- 마음 체크 js  26-01-09 혜은 -->
+    <script src="{% static 'js/mindcheck.js' %}"></script>
+
+    <!-- 배너 슬라이더 js  26-01-15 혜은 -->
+    <script src="{% static 'js/banner-slider.js' %}?v=999"></script>
+
+    
+
+</body>
+</html>

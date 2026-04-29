@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>로또 번호 랜덤 생성기</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      background: #ffffff;
+      max-width: 480px;
+      width: 100%;
+      padding: 20px 24px 28px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 4px;
+      font-size: 22px;
+      text-align: center;
+    }
+
+    .sub {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #777;
+      text-align: center;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .controls label {
+      font-size: 14px;
+    }
+
+    .controls input[type="number"] {
+      width: 70px;
+      padding: 6px 8px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+
+    .controls input[type="number"]:focus {
+      border-color: #007bff;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #007bff;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      opacity: 0.9;
+    }
+
+    .results {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .game {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: #fafafa;
+      border: 1px solid #eee;
+    }
+
+    .game-title {
+      min-width: 60px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .balls {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .ball {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      background: #ffe082;
+      border: 1px solid #ffca28;
+    }
+
+    .footer {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #999;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>로또 번호 생성기</h1>
+    <p class="sub">1 ~ 45 중 중복 없이 6개 번호를 뽑아요</p>
+
+    <div class="controls">
+      <label for="gameCount">게임 수:</label>
+      <input
+        type="number"
+        id="gameCount"
+        min="1"
+        max="20"
+        value="5"
+      />
+      <button id="generateBtn">번호 생성</button>
+    </div>
+
+    <div class="results" id="results"></div>
+    <div class="footer">
+      만든이: 이슬구
+        
+
+    </div>
+  </div>
+
+  <script>
+    // 1~45 랜덤 숫자 6개(중복 없이) 뽑아서 오름차순 배열로 리턴
+    function generateLottoNumbers() {
+      const numbers = new Set();
+
+      while (numbers.size < 6) {
+        const n = Math.floor(Math.random() * 45) + 1; // 1~45
+        numbers.add(n);
+      }
+
+      return Array.from(numbers).sort((a, b) => a - b);
+    }
+
+    // 화면에 게임 결과 그려주는 함수
+    function renderGames(gameCount) {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = ''; // 이전 결과 비우기
+
+      for (let i = 1; i <= gameCount; i++) {
+        const nums = generateLottoNumbers();
+
+        const gameDiv = document.createElement('div');
+        gameDiv.className = 'game';
+
+        const titleSpan = document.createElement('div');
+        titleSpan.className = 'game-title';
+        titleSpan.textContent = i + '게임';
+
+        const ballsDiv = document.createElement('div');
+        ballsDiv.className = 'balls';
+
+        nums.forEach(num => {
+          const ballSpan = document.createElement('div');
+          ballSpan.className = 'ball';
+          ballSpan.textContent = num;
+          ballsDiv.appendChild(ballSpan);
+        });
+
+        gameDiv.appendChild(titleSpan);
+        gameDiv.appendChild(ballsDiv);
+        resultsDiv.appendChild(gameDiv);
+      }
+    }
+
+    // 버튼 이벤트 연결
+    document.getElementById('generateBtn').addEventListener('click', function () {
+      const input = document.getElementById('gameCount');
+      let gameCount = parseInt(input.value, 10);
+
+      if (isNaN(gameCount) || gameCount < 1) {
+        gameCount = 1;
+      } else if (gameCount > 20) {
+        gameCount = 20;
+      }
+
+      renderGames(gameCount);
+    });
+
+    // 페이지 처음 열렸을 때 자동으로 한 번 생성
+    renderGames(5);
+  </script>
+</body>
+</html>

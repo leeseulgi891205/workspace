@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>학생 리스트</title>
+</head>
+<body>
+    <h2>학생 리스트</h2>
+
+    <table border="1">
+        <tr>
+            <th>번호</th>
+            <th>이름</th>
+            <th>나이</th>
+            <th>학년</th>
+            <th>성별</th>
+            <th>취미</th>
+            <th>삭제</th> <!-- 삭제 버튼 컬럼 추가 -->
+        </tr>
+
+        <!-- list 라는 이름의 데이터가 있을 때 -->
+        {% if list %}
+            <!-- list 안에 들어있는 Student 하나씩 꺼내오기 -->
+            {% for s in list %}
+            <tr>
+                <td>{{ s.sno }}</td>
+                <td>
+                    <!-- 이름 클릭하면 상세보기 페이지로 이동 -->
+                    <a href="{% url 'student:view' s.sno %}">{{ s.name }}</a>
+                </td>
+                <td>{{ s.age }}</td>
+                <td>{{ s.grade }}</td>
+                <td>{{ s.gender }}</td>
+                <td>{{ s.hobby }}</td>
+                <td>
+                    <!-- 삭제 링크: student:delete URL에 s.sno를 같이 넘김 -->
+                    <a href="{% url 'student:delete' s.sno %}"
+                       onclick="return confirm('정말 삭제할까요?');">
+                        삭제
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="7">데이터가 존재하지 않습니다.</td>
+            </tr>
+        {% endif %}
+    </table>
+
+    <br>
+    <a href="{% url 'student:write' %}">학생 등록</a> |
+    <a href="/">메인페이지</a>
+</body>
+</html>

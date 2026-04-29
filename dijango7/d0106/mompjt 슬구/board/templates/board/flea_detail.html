@@ -1,0 +1,677 @@
+{% extends 'base.html' %}
+{% load humanize %}
+<!-- 26-01-06 표준화: 요리레시피 스타일로 리뉴얼 -->
+{% block content %}
+<style>
+.flea-detail-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.flea-detail-header {
+    border-bottom: 2px solid #ff6b6b;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.flea-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.flea-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    flex: 1;
+}
+
+.flea-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.status-selling {
+    background-color: #e7f5ff;
+    color: #1971c2;
+}
+
+.status-reserved {
+    background-color: #fff3bf;
+    color: #d39e00;
+}
+
+.status-sold {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-share {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.flea-image {
+    margin: 30px 0;
+    position: relative;
+}
+
+.flea-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.sold-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 12px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.flea-price {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.price-label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.price-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ff6b6b;
+}
+
+.flea-content {
+    line-height: 1.8;
+    font-size: 15px;
+    color: #333;
+    white-space: pre-wrap;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.like-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.like-count {
+    font-weight: 700;
+    color: #ff6b6b;
+    font-size: 16px;
+}
+
+.like-btn {
+    color: #adb5bd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.like-btn:hover {
+    color: #ff6b6b;
+}
+
+.like-btn.liked {
+    color: #ff6b6b;
+}
+
+.report-box {
+    margin: 10px 0 20px;
+    padding: 14px;
+    background: #fff7f7;
+    border: 1px solid #ffdede;
+    border-radius: 10px;
+}
+
+.report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.report-meta {
+    font-size: 13px;
+    color: #666;
+}
+
+.report-toggle {
+    background: #ff6b6b;
+    color: #fff;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.report-toggle:hover {
+    background: #ff5252;
+}
+
+.report-form {
+    display: none;
+    margin-top: 12px;
+    background: #fff;
+    border: 1px solid #f1f1f1;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.report-form.show {
+    display: block;
+}
+
+.report-form .form-group {
+    margin-bottom: 12px;
+}
+
+.flea-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-primary {
+    background: #4f9cff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #3d8ee0;
+}
+
+.btn-danger {
+    background: #ff6b6b;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #ff5252;
+}
+
+.status-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    min-width: 140px;
+    z-index: 1000;
+    margin-top: 4px;
+}
+
+.status-menu.show {
+    display: block;
+}
+
+.status-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-weight: 600;
+}
+
+.status-option:hover {
+    background-color: #f8f9fa;
+}
+
+.comments-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.comments-header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.comment-item {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.comment-meta {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.comment-content {
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin: 10px 0;
+}
+
+.comment-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 10px;
+}
+
+.comment-btn {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.comment-btn:hover {
+    color: #ff6b6b;
+}
+
+.secret-badge {
+    color: #ff6b6b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .flea-meta {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .flea-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .flea-title {
+        font-size: 22px;
+    }
+}
+</style>
+
+<div class="flea-detail-container">
+    <!-- ================= 헤더 ================= -->
+    <div class="flea-detail-header">
+        <div class="flea-title-row">
+            <h1 class="flea-title">{{ item.title }}</h1>
+            <span class="status-badge status-{{ item.status }}" id="statusBadge">
+                {% if item.status == 'selling' %}판매중
+                {% elif item.status == 'reserved' %}예약중
+                {% elif item.status == 'share' %}나눔
+                {% else %}판매완료{% endif %}
+            </span>
+        </div>
+
+        <div class="flea-meta">
+            <div>
+                <span>판매자: <strong>{{ item.author.nickname|default:item.author.username }}</strong></span>
+            </div>
+            <div>
+                <span>{{ item.created_at|date:"Y.m.d H:i" }}</span>
+                <span>조회 {{ item.views }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 이미지 ================= -->
+    {% if item.image %}
+    <div class="flea-image">
+        <img src="{{ item.image.url }}" alt="{{ item.title }}" id="itemImage" {% if item.status == 'sold' %}style="opacity: 0.5;"{% endif %}>
+        {% if item.status == 'sold' %}
+        <div class="sold-overlay">SOLD OUT</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- ================= 가격 ================= -->
+    <div class="flea-price">
+        <div class="price-label">판매 가격</div>
+        <div class="price-value">{{ item.price|intcomma }}원</div>
+    </div>
+
+    <!-- ================= 상품 설명 ================= -->
+    <div class="flea-content">
+        {{ item.description|linebreaks }}
+    </div>
+
+    <!-- ================= 찜하기 ================= -->
+    <div class="like-section">
+        <span class="like-count">❤️ {{ item.liked_by.count|intcomma }}</span>
+        {% if user.is_authenticated %}
+            <a href="{% url 'board:flea_like_toggle' item.pk %}" class="like-btn {% if user in item.liked_by.all %}liked{% endif %}">
+                {% if user in item.liked_by.all %}찜 취소{% else %}찜하기{% endif %}
+            </a>
+        {% else %}
+            <span style="color:#adb5bd; font-size:13px;">로그인 후 찜 가능</span>
+        {% endif %}
+    </div>
+
+    <!-- ================= 신고하기 ================= -->
+    <div class="report-box">
+        <div class="report-header">
+            <div>
+                <div style="font-weight:700; color:#333;">신고하기</div>
+                <div class="report-meta">누적 {{ report_count|default:0 }}건 · 신고 접수 시 운영팀이 확인합니다.</div>
+            </div>
+            {% if user.is_authenticated %}
+            <button type="button" class="report-toggle" onclick="toggleReportForm()">신고하기</button>
+            {% else %}
+            <a href="{% url 'accounts:login' %}" class="report-toggle" style="text-decoration:none; display:inline-block; text-align:center;">로그인 후 신고</a>
+            {% endif %}
+        </div>
+        {% if user.is_authenticated %}
+        <div id="reportForm" class="report-form {% if report_form.errors %}show{% endif %}">
+            <form method="post" action="{% url 'board:flea_report_create' item.pk %}">
+                {% csrf_token %}
+                {% if report_form.non_field_errors %}
+                <div style="color:#e03131; font-size:12px; margin-bottom:8px;">{{ report_form.non_field_errors }}</div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="{{ report_form.reason.id_for_label }}">신고 사유</label>
+                    {{ report_form.reason }}
+                    {% for error in report_form.reason.errors %}
+                    <div style="color:#e03131; font-size:12px;">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ report_form.details.id_for_label }}">추가 설명</label>
+                    {{ report_form.details }}
+                    {% for error in report_form.details.errors %}
+                    <div style="color:#e03131; font-size:12px;">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-danger" style="width: 140px;">신고 제출</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ================= 액션 버튼 ================= -->
+    <div class="flea-actions">
+        <a href="{% url 'board:flea_list' %}" class="btn btn-secondary">목록으로</a>
+        
+        {% if user == item.author %}
+        <div style="position: relative; flex: 1;">
+            <button type="button" class="btn btn-primary" id="statusBtn" onclick="toggleStatusMenu(event)" style="width: 100%;">상태 변경 ▼</button>
+            <div id="statusMenu" class="status-menu">
+                <div class="status-option" onclick="changeStatus('selling', event)">판매중</div>
+                <div class="status-option" onclick="changeStatus('reserved', event)">예약중</div>
+                <div class="status-option" onclick="changeStatus('sold', event)">판매완료</div>
+                <div class="status-option" onclick="changeStatus('share', event)">나눔</div>
+            </div>
+        </div>
+        <a href="{% url 'board:flea_edit' item.pk %}" class="btn btn-primary">수정</a>
+        <button type="button" class="btn btn-danger" onclick="if(confirm('정말 삭제하시겠습니까?')) location.href='{% url 'board:flea_delete' item.pk %}'">삭제</button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ================= 댓글 영역 ================= -->
+<div class="flea-detail-container">
+    <div class="comments-section">
+        <div class="comments-header">댓글 {{ comments|length }}개</div>
+
+        {% for comment in comments %}
+        <div class="comment-item">
+            <div class="comment-author">
+                {{ comment.nickname }}
+                {% if comment.is_secret %}<span class="secret-badge">🔒 비밀글</span>{% endif %}
+            </div>
+
+            <div class="comment-meta">
+                {{ comment.created_at|date:"Y.m.d H:i" }}
+            </div>
+
+            {% if comment.is_secret and user != comment.author %}
+            <div style="color: #999; font-size: 13px;">비밀글입니다.</div>
+            {% else %}
+            <div style="font-weight: 600; margin-bottom: 8px;">{{ comment.title }}</div>
+            <div class="comment-content">{{ comment.content|linebreaks }}</div>
+            {% endif %}
+
+            {% if user == comment.author %}
+            <div class="comment-actions">
+                <a href="{% url 'board:flea_comment_edit' item.pk comment.id %}" class="comment-btn">수정</a>
+                <a href="{% url 'board:flea_comment_delete' item.pk comment.id %}" class="comment-btn" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p style="color: #888; text-align: center; padding: 20px;">아직 댓글이 없습니다.</p>
+        {% endfor %}
+
+        <!-- ================= 댓글 작성 폼 ================= -->
+        {% if user.is_authenticated %}
+        <div class="comment-form" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <form method="post" action="{% url 'board:flea_comment_create' item.pk %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_title">제목</label>
+                    {{ comment_form.title }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_content">댓글</label>
+                    {{ comment_form.content }}
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                    {{ comment_form.is_secret }}
+                    <label style="margin: 0; font-size: 13px; color: #666;">비밀글로 작성</label>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_password">비밀글 비밀번호</label>
+                    {{ comment_form.password }}
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 120px;">댓글 등록</button>
+            </form>
+        </div>
+        {% else %}
+        <p style="color: #999; text-align: center; padding: 20px; margin-top: 30px;">
+            댓글을 작성하려면 <a href="{% url 'accounts:login' %}">로그인</a>해주세요.
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ================= 상태 변경 스크립트 ================= -->
+<script>
+function toggleReportForm() {
+    const panel = document.getElementById('reportForm');
+    if (panel) {
+        panel.classList.toggle('show');
+    }
+}
+
+const statusMap = {
+    'selling': { label: '판매중', class: 'status-selling' },
+    'reserved': { label: '예약중', class: 'status-reserved' },
+    'sold': { label: '판매완료', class: 'status-sold' },
+    'share': { label: '나눔', class: 'status-share' }
+};
+
+function toggleStatusMenu(event) {
+    event.stopPropagation();
+    const menu = document.getElementById('statusMenu');
+    menu.classList.toggle('show');
+}
+
+async function changeStatus(newStatus, event) {
+    event.stopPropagation();
+    
+    const itemPk = {{ item.pk }};
+    
+    try {
+        const formData = new FormData();
+        formData.append('status', newStatus);
+        
+        const response = await fetch(`/board/flea/${itemPk}/status/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const badge = document.getElementById('statusBadge');
+            badge.textContent = statusMap[newStatus].label;
+            badge.className = `status-badge ${statusMap[newStatus].class}`;
+            
+            const img = document.getElementById('itemImage');
+            if (img) {
+                if (newStatus === 'sold') {
+                    img.style.opacity = '0.5';
+                    let overlay = document.querySelector('.sold-overlay');
+                    if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.className = 'sold-overlay';
+                        overlay.textContent = 'SOLD OUT';
+                        img.parentElement.appendChild(overlay);
+                    }
+                } else {
+                    img.style.opacity = '1';
+                    const overlay = document.querySelector('.sold-overlay');
+                    if (overlay) overlay.remove();
+                }
+            }
+            
+            document.getElementById('statusMenu').classList.remove('show');
+            alert(`상태가 ${statusMap[newStatus].label}로 변경되었습니다.`);
+        } else {
+            alert(data.error || '상태 변경에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('오류가 발생했습니다.');
+    }
+}
+
+document.addEventListener('click', function(event) {
+    const menu = document.getElementById('statusMenu');
+    const btn = document.getElementById('statusBtn');
+    if (btn && !btn.contains(event.target) && !menu.contains(event.target)) {
+        menu.classList.remove('show');
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VLAST Shop - 회원 상세보기</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #1a1a1a;
+    }
+    /* Header */
+    .header {
+      width: 100%;
+      height: 60px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 40px;
+      box-sizing: border-box;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .top-menu {
+      display: flex;
+      gap: 15px;
+      font-size: 13px;
+      color: #636363;
+      margin-right: 20px;
+    }
+    .top-menu a {
+      text-decoration: none;
+      color: #636363;
+    }
+    .top-menu a:hover {
+      color: #035fe0;
+    }
+
+    /* Detail Container */
+    .detail-container {
+      max-width: 800px;
+      margin: 80px auto;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+    .detail-title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+    }
+    .info-table th,
+    .info-table td {
+      padding: 15px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: left;
+    }
+    .info-table th {
+      background-color: #f9f9f9;
+      font-weight: 600;
+      width: 30%;
+    }
+    .info-table td {
+      color: #555;
+    }
+    .info-table tr:first-child th,
+    .info-table tr:first-child td {
+      border-top: 2px solid #848484;
+    }
+
+    /* Buttons */
+    .detail-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    .detail-buttons a {
+      text-decoration: none;
+      padding: 10px 25px;
+      font-size: 14px;
+      color: white;
+      background-color: #035fe0;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    .detail-buttons a:hover {
+      background-color: #0046b3;
+    }
+    .detail-buttons a.secondary {
+      background-color: #6c757d;
+    }
+    .detail-buttons a.secondary:hover {
+      background-color: #5a6268;
+    }
+
+    footer {
+      margin-top: 50px;
+      border-top: 1px solid #ccc;
+      padding: 30px;
+      text-align: center;
+      font-size: 13px;
+      color: #A0A0A0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="top-menu">
+      <a href="/">홈</a> |
+      <a href="/member/login/">로그인</a> |
+      <a href="/board/list/">게시판</a>
+    </div>
+  </div>
+
+  <!-- Detail View -->
+  <div class="detail-container">
+    <div class="detail-title">회원 정보</div>
+    
+    <table class="info-table">
+      <tr>
+        <th>아이디</th>
+        <td>{{ member.id }}</td>
+      </tr>
+      <tr>
+        <th>이름</th>
+        <td>{{ member.name }}</td>
+      </tr>
+      <tr>
+        <th>전화번호</th>
+        <td>{{ member.phone }}</td>
+      </tr>
+      <tr>
+        <th>이메일</th>
+        <td>{{ member.email|default:"-" }}</td>
+      </tr>
+      <tr>
+        <th>성별</th>
+        <td>{{ member.gender }}</td>
+      </tr>
+      <tr>
+        <th>취미</th>
+        <td>{{ member.hobby|default:"-" }}</td>
+      </tr>
+      <tr>
+        <th>우편번호</th>
+        <td>{{ member.post|default:"-" }}</td>
+      </tr>
+      <tr>
+        <th>주소</th>
+        <td>{{ member.address|default:"-" }}</td>
+      </tr>
+      <tr>
+        <th>상세주소</th>
+        <td>{{ member.address_detail|default:"-" }}</td>
+      </tr>
+      <tr>
+        <th>가입일</th>
+        <td>{{ member.mdate|date:'Y-m-d H:i:s' }}</td>
+      </tr>
+    </table>
+
+    <div class="detail-buttons">
+      <a href="{% url 'member:list' %}" class="secondary">목록으로</a>
+      <a href="/">메인으로</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    Copyright © VLAST Shop. All rights reserved.
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>학생 관리 프로그램</h2>
+    <table border="1" style="border-collapse: collapse; margin: 20px auto; width: 95%;">
+        <thead>
+            <tr>
+                <th>순번</th>
+                <th>아이디</th>
+                <th>이름</th>
+                <th>닉네임</th>
+                <th>이메일</th>
+                <th>전화번호</th>
+                <th>성별</th>
+                <th>나이</th>
+                <th>학년</th>
+                <th>취미</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if list %}
+                {% for s in list %}
+                <tr>
+                    <td>{{ s.sno }}</td>
+                    <td>{{ s.user_id }}</td>
+                    <td><a href="{% url 'student:view' s.sno %}">{{ s.name }}</a></td>
+                    <td>{{ s.nickname }}</td>
+                    <td>{{ s.email }}</td>
+                    <td>{{ s.phone }}</td>
+                    <td>{{ s.gender }}</td>
+                    <td>{{ s.age }}</td>
+                    <td>{{ s.grade }}</td>
+                    <td>{{ s.hobby }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="10">데이터가 없습니다.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    <ul>
+        <li><a href="/student/write/">학생등록페이지</a></li>
+        <li><a href="/">홈으로</a></li>
+    </ul>
+</body>
+</html>

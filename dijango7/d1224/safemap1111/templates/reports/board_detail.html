@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/board.css' %}">
+
+<div class="board-wrapper">
+
+    <!-- 제목 영역 -->
+    <div class="board-header">
+        <h1>게시판</h1>
+        <p>우리 동네 사건·사고 공유 공간</p>
+    </div>
+
+    <!-- 게시글 카드 -->
+    <div class="board-card board-detail-card">
+
+        <h2 class="detail-title">{{ board.title }}</h2>
+
+        <div class="detail-meta">
+            <span>작성자 {{ board.name }}</span>
+            <span>{{ board.created_at|date:"Y-m-d H:i" }}</span>
+            <span>조회수 {{ board.views }}</span>
+        </div>
+
+        <div class="detail-content">
+            {{ board.content|linebreaks }}
+        </div>
+
+        <div class="detail-actions">
+            <a href="{% url 'pages:board_list' %}" class="back-btn">
+                ← 목록으로
+            </a>
+        </div>
+
+        
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="login-container">
+    <h2>수정하기</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.category.id_for_label }}">카테고리</label>
+            {{ form.category }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">제목</label>
+            {{ form.title }}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.content.id_for_label }}">내용</label>
+
+            <!-- ✅ 가로 고정 + 세로만 조절 -->
+            <style>
+                /* 이 페이지의 textarea만 세로 resize 허용 */
+                .login-container textarea {
+                    resize: vertical;   /* 세로만 */
+                    width: 100%;        /* 가로 고정 */
+                    max-width: 100%;    /* 더 넓어지지 않게 */
+                    box-sizing: border-box;
+                }
+            </style>
+
+            {{ form.content }}
+        </div>
+
+        {% if form.attachment %}
+        <div class="form-group">
+            <label for="{{ form.attachment.id_for_label }}">첨부파일</label>
+            {{ form.attachment }}
+            {% if post.attachment %}
+            <div style="margin-top:8px; font-size:13px; color:#666;">
+                현재 파일: <a href="{{ post.attachment.url }}" target="_blank">{{ post.attachment.name }}</a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn-login-submit">수정하기</button>
+    </form>
+
+    <div class="login-links">
+        <a href="{% url 'board:free_detail' post.pk %}?page={{ request.GET.page }}">상세로 돌아가기</a>
+    </div>
+</div>
+{% endblock %}

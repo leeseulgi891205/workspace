@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울시 신림동 슬구 초딩학교</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px auto;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h2>초딩학생 리스트페이지</h2>
+    
+    <div>
+        <button onclick="showList()">초딩학생 목록 페이지</button>
+    </div>
+    
+    <div id="studentTable" style="display:none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>번호</th>
+                    <th>이름</th>
+                    <th>학년</th>
+                    <th>지역</th>
+                    <th>연락처</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1번</td>
+                <td>이순신</td>
+                <td>5학년</td>
+                <td>서울시 관악구 신림동</td>
+                <td>010-1111-1111</td>
+            </tr>
+            <tr>
+                <td>2번</td>
+                <td>유관순</td>
+                <td>5학년</td>
+                <td>서울시 관악구 신림동</td>
+                <td>010-2222-2222</td>
+            </tr>
+            <tr>
+                <td>3번</td>
+                <td>강감찬</td>
+                <td>5학년</td>
+                <td>서울시 관악구 신림동</td>
+                <td>010-3333-3333</td>
+            </tr>
+            <tr>
+                <td>4번</td>
+                <td>세종대왕</td>
+                <td>5학년</td>
+                <td>서울시 관악구 신림동</td>
+                <td>010-4444-4444</td>
+            </tr>
+            <tr>
+                <td>5번</td>
+                <td>김유신</td>
+                <td>5학년</td>
+                <td>서울시 관악구 신림동</td>
+                <td>010-5555-5555</td>
+            </tr>
+            <tr>
+                <td>6번</td>
+                <td>신사임당</td>
+                <td>5학년</td>
+                <td>서울시 관악구 신림동</td>
+                <td>010-6666-6666</td>
+            </tr>
+            <tr>
+                <td>7번</td>
+                <td>안중근</td>
+                <td>5학년</td>
+                <td>서울시 관악구 신림동</td>
+                <td>010-7777-7777</td>
+            </tr>
+            <tr>
+                <td>8번</td>
+                <td>윤봉길</td>
+                <td>5학년</td>
+                <td>서울시 관악구 신림동</td>
+                <td>010-8888-8888</td>
+            </tr>
+            <tr>
+                <td>9번</td>
+                <td>장보고</td>
+                <td>5학년</td>
+                <td>서울시 관악구 신림동</td>
+                <td>010-9999-9999</td>
+            </tr>
+            <tr>
+                <td>10번</td>
+                <td>광개토대왕</td>
+                <td>5학년</td>
+                <td>서울시 관악구 신림동</td>
+                <td>010-1234-5678</td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+    
+    <script>
+        function showList() {
+            var table = document.getElementById('studentTable');
+            if(table.style.display === 'none') {
+                table.style.display = 'block';
+            } else {
+                table.style.display = 'none';
+            }
+        }
+    </script>
+    
+    <ul>
+        <li><a href="/student/view">초딩학생 뷰페이지</a></li>
+        <li><a href="/student/write">초딩학생 글쓰기페이지</a></li>
+        <li><a href="/student/write">메인페이지</a></li>
+    </ul>
+</body>
+</html>

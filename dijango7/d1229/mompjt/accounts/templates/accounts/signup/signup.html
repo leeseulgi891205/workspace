@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="login-container" style="max-width: 600px;">
+    <h2>회원가입</h2>
+
+    <form method="POST" action="{% url 'accounts:signup' %}" id="signupForm">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>아이디 <span class="text-danger">*</span></label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" name="username" id="username" placeholder="아이디 입력" required oninput="resetUsernameCheck()">
+                <button type="button" onclick="checkId()" class="btn-check" style="background: #495057; color: white; border: none; border-radius: 8px; padding: 0 15px; font-weight: 700; cursor: pointer; white-space: nowrap;">중복확인</button>
+            </div>
+            <small id="id_check_msg" style="font-size: 13px;"></small>
+        </div>
+
+        <div class="form-group">
+            <label>이름 <span class="text-danger">*</span></label>
+            <input type="text" name="real_name" placeholder="실명 입력" required>
+        </div>
+
+        <div class="form-group">
+            <label>닉네임 <span class="text-danger">*</span></label>
+            <input type="text" name="nickname" placeholder="활동명 입력" required>
+        </div>
+
+        <div class="form-group">
+            <label>비밀번호 <span class="text-danger">*</span></label>
+            <input type="password" name="password1" placeholder="비밀번호 입력" required>
+        </div>
+
+        <div class="form-group">
+            <label>비밀번호 확인 <span class="text-danger">*</span></label>
+            <input type="password" name="password2" placeholder="비밀번호 재입력" required>
+        </div>
+
+        <div class="form-group">
+            <label>주민등록번호 <span class="text-danger">*</span></label>
+            <input type="text" name="jumin" placeholder="000000-0000000" maxlength="14" required>
+        </div>
+
+        <div class="form-group">
+            <label>주소 <span class="text-danger">*</span></label>
+            <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                <input type="text" id="address_main" placeholder="주소 검색" readonly required>
+                <button type="button" onclick="execDaumPostcode()" class="btn-check" style="background: #ff6b6b; color: white; border: none; border-radius: 8px; padding: 0 15px; font-weight: 700; cursor: pointer; white-space: nowrap;">🔍 검색</button>
+            </div>
+            <input type="text" id="address_detail" placeholder="상세주소 입력" oninput="mergeAddress()" style="margin-top: 8px;">
+            <input type="hidden" name="address" id="hidden_real_address">
+        </div>
+
+        <div class="form-group">
+            <label>휴대폰 번호 <span class="text-danger">*</span></label>
+            <input type="text" name="phone" placeholder="010-0000-0000" required>
+        </div>
+
+        <div class="form-group">
+            <label>이메일 <span class="text-danger">*</span></label>
+            <input type="email" name="email" placeholder="example@naver.com" required>
+        </div>
+
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #f1f3f5;">
+
+        <div class="form-group">
+            <label style="display:block; margin-bottom: 10px;">성별 <span class="text-danger">*</span></label>
+            <div style="display: flex; gap: 15px; flex-wrap: nowrap;">
+                <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                    <input type="radio" name="gender" value="M"> 남자
+                </label>
+                <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                    <input type="radio" name="gender" value="F" checked> 여자
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label style="display:block; margin-bottom: 10px;">자녀 정보 <span class="text-danger">*</span></label>
+            <div style="display: flex; gap: 10px; flex-wrap: nowrap;">
+                <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 5px; background: #f8f9fa; padding: 10px 15px; border-radius: 20px; border: 1px solid #eee; white-space: nowrap;">
+                    <input type="radio" name="child_school" value="none" checked> 자녀 없음
+                </label>
+                <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 5px; background: #f8f9fa; padding: 10px 15px; border-radius: 20px; border: 1px solid #eee; white-space: nowrap;">
+                    <input type="radio" name="child_school" value="elementary"> 초등학생
+                </label>
+                <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 5px; background: #f8f9fa; padding: 10px 15px; border-radius: 20px; border: 1px solid #eee; white-space: nowrap;">
+                    <input type="radio" name="child_school" value="middle"> 중학생
+                </label>
+                <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 5px; background: #f8f9fa; padding: 10px 15px; border-radius: 20px; border: 1px solid #eee; white-space: nowrap;">
+                    <input type="radio" name="child_school" value="high"> 고등학생
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 30px;">
+            <label style="cursor: pointer; display: flex; align-items: center; font-weight: normal;">
+                <input type="checkbox" name="terms_agreed" id="agree_terms" style="width: 18px; height: 18px; margin-right: 10px;">
+                <span>[필수] 이용약관 및 개인정보 처리방침에 동의합니다.</span>
+            </label>
+        </div>
+
+        <button type="submit" class="btn-login-submit">가입하기</button>
+    </form>
+
+    <div class="login-links">
+        <a href="{% url 'accounts:login' %}">이미 계정이 있으신가요? 로그인</a>
+    </div>
+</div>
+
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+    // 주소 합치기
+    function mergeAddress() {
+        const main = document.getElementById('address_main').value;
+        const detail = document.getElementById('address_detail').value;
+        if(main) document.getElementById('hidden_real_address').value = main + " " + detail;
+    }
+    // 주소 찾기
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                var addr = (data.userSelectedType === 'R') ? data.roadAddress : data.jibunAddress;
+                document.getElementById("address_main").value = addr;
+                mergeAddress();
+                document.getElementById("address_detail").focus();
+            }
+        }).open();
+    }
+
+    // 아이디 중복확인
+    let isIdChecked = false;
+    function checkId() {
+        const username = document.getElementById('username').value;
+        if(!username) return alert('아이디를 입력하세요.');
+        
+        fetch(`/accounts/check-id/?username=${username}`)
+        .then(res => res.json())
+        .then(data => {
+            const msg = document.getElementById('id_check_msg');
+            if(data.exists) {
+                msg.innerText = "이미 사용 중인 아이디입니다.";
+                msg.style.color = "red";
+                isIdChecked = false;
+            } else {
+                msg.innerText = "사용 가능한 아이디입니다.";
+                msg.style.color = "green";
+                isIdChecked = true;
+            }
+        });
+    }
+    function resetUsernameCheck() { isIdChecked = false; document.getElementById('id_check_msg').innerText = ""; }
+
+    // 폼 제출 검증
+    document.getElementById('signupForm').onsubmit = function(e) {
+        if(!isIdChecked) { alert("아이디 중복확인을 해주세요."); return false; }
+        if(!document.getElementById('agree_terms').checked) { alert("약관에 동의해주세요."); return false; }
+        return true;
+    };
+</script>
+{% endblock %}

@@ -1,0 +1,588 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ post.title }} - 자유게시판{% endblock %}
+
+{% block content %}
+<style>
+.free-detail-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.free-detail-header {
+    border-bottom: 2px solid #ff6b6b;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.free-category-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: #ffe0e0;
+    color: #ff6b6b;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.free-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.free-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.free-content {
+    line-height: 1.8;
+    font-size: 15px;
+    color: #333;
+    white-space: pre-wrap;
+    margin: 30px 0;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.free-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background: #ff6b6b;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+/* 상세 하단 미니 목록 */
+.free-list-preview {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.free-list-preview h3 {
+    margin: 0 0 16px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+}
+
+.free-mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.free-mini-table th,
+.free-mini-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.free-mini-table th {
+    background: #fafafa;
+    color: #666;
+}
+
+.free-mini-table a {
+    color: #ff6b6b;
+    text-decoration: none;
+}
+
+.free-mini-table a:hover {
+    text-decoration: underline;
+}
+
+.mini-pagination {
+    margin-top: 16px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.mini-page-btn {
+    display: inline-block;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #333;
+    text-decoration: none;
+    min-width: 34px;
+}
+
+.mini-page-btn.active {
+    background: #495057;
+    color: #fff;
+    border-color: #495057;
+}
+
+.mini-page-btn.disabled {
+    color: #bbb;
+    border-color: #eee;
+    cursor: not-allowed;
+}
+
+.comments-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.comments-header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.comment-item {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #999;
+    margin-left: 10px;
+}
+
+.comment-content {
+    margin-top: 10px;
+    line-height: 1.6;
+}
+
+.comment-form {
+    margin-top: 30px;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.comment-form button {
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .free-detail-container {
+        padding: 15px;
+    }
+    
+    .free-title {
+        font-size: 22px;
+    }
+    
+    .free-meta {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .free-actions {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<div class="free-detail-container">
+    <!-- 헤더 -->
+    <div class="free-detail-header">
+        <span class="free-category-badge">
+            {% if post.category == 'mom' %}육아수다
+            {% elif post.category == 'husband' %}남편뒷담화
+            {% elif post.category == 'family' %}시댁/친정
+            {% elif post.category == 'preg' %}임신출산
+            {% else %}{{ post.get_category_display }}{% endif %}
+        </span>
+        <h1 class="free-title">{{ post.title }}</h1>
+        <div class="free-meta">
+            <span>작성자: 
+                {% if post.is_anonymous %}익명{% else %}{{ post.author.nickname|default:post.author.username }}{% endif %}
+            </span>
+            <span>작성일: {{ post.created_at|date:"Y.m.d H:i" }} | 조회수: {{ post.views }}</span>
+        </div>
+    </div>
+    
+    <!-- 내용 -->
+    <div class="free-content">
+        {{ post.content|linebreaks }}
+    </div>
+    
+    <!-- 감정 리액션 버튼 영역 -->
+    <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-top: 20px; margin-bottom: 20px;">
+        <style>
+            .reaction-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .reaction-btn {
+                padding: 8px 14px;
+                border: 1px solid #ddd;
+                border-radius: 20px;
+                background: #fff;
+                cursor: pointer;
+                font-size: 14px;
+                transition: .2s;
+                white-space: nowrap;
+            }
+            
+            .reaction-btn:hover {
+                border-color: #ff6b6b;
+                background: #fff5f5;
+            }
+            
+            .reaction-count {
+                margin-left: 4px;
+                font-weight: 600;
+                color: #ff6b6b;
+            }
+            
+            @media (max-width: 768px) {
+                .reaction-buttons {
+                    gap: 6px;
+                }
+                
+                .reaction-btn {
+                    padding: 7px 12px;
+                    font-size: 13px;
+                    flex: 1 1 calc(50% - 3px);
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .reaction-buttons {
+                    gap: 5px;
+                }
+                
+                .reaction-btn {
+                    padding: 6px 10px;
+                    font-size: 12px;
+                    flex: 1 1 calc(100% - 5px);
+                }
+            }
+        </style>
+
+        <p style="margin: 0 0 12px 0; font-size: 14px; color: #666; font-weight: 600;">💝 이 글에 감정을 표현해보세요:</p>
+        <div class="reaction-buttons">
+            {% if user.is_authenticated %}
+                <!-- 공감해요 -->
+                <button class="reaction-btn" data-type="empathy" onclick="addReaction({{ post.pk }}, 'empathy', this)">
+                    🤝 공감 <span class="reaction-count">{{ post.reaction_empathy }}</span>
+                </button>
+                <!-- 힘내세요 -->
+                <button class="reaction-btn" data-type="courage" onclick="addReaction({{ post.pk }}, 'courage', this)">
+                    💪 힘내 <span class="reaction-count">{{ post.reaction_courage }}</span>
+                </button>
+                <!-- 축하해요 -->
+                <button class="reaction-btn" data-type="cheer" onclick="addReaction({{ post.pk }}, 'cheer', this)">
+                    🎉 축하 <span class="reaction-count">{{ post.reaction_cheer }}</span>
+                </button>
+                <!-- 응원해요 -->
+                <button class="reaction-btn" data-type="support" onclick="addReaction({{ post.pk }}, 'support', this)">
+                    👏 응원 <span class="reaction-count">{{ post.reaction_support }}</span>
+                </button>
+                <!-- 고마워요 -->
+                <button class="reaction-btn" data-type="thanks" onclick="addReaction({{ post.pk }}, 'thanks', this)">
+                    🙏 감사 <span class="reaction-count">{{ post.reaction_thanks }}</span>
+                </button>
+            {% else %}
+                <p style="color: #999; font-size: 14px;">
+                    감정을 표현하려면 <a href="{% url 'accounts:login' %}">로그인</a>해주세요.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- 액션 버튼 -->
+    <div class="free-actions">
+        <a href="{% url 'board:free_list' %}?category={{ request.GET.category|default:'all' }}&page={{ request.GET.page|default:1 }}" class="btn btn-secondary">목록으로</a>
+        
+        {% if user == post.author or user.is_staff %}
+        <a href="{% url 'board:free_update' post.pk %}" class="btn btn-primary">수정</a>
+        <form method="post" action="{% url 'board:free_delete' post.pk %}" style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">삭제</button>
+        </form>
+        {% endif %}
+    </div>
+    
+    <!-- 댓글 섹션 -->
+    <div class="comments-section">
+        <div class="comments-header">댓글 ({{ comments_page.paginator.count }})</div>
+        
+        <!-- 댓글 목록 -->
+        {% for comment in comments_page %}
+        <div class="comment-item">
+            <div>
+                <span class="comment-author">{{ comment.author.nickname|default:comment.author.username }}</span>
+                <span class="comment-time">{{ comment.created_at|date:"Y.m.d H:i" }}</span>
+                
+                {% if user == comment.author or user.is_staff %}
+                <button type="button" class="btn btn-sm" style="background:none; border:none; color:#ff6b6b; cursor:pointer; font-size:12px; padding:0;" onclick="editComment({{ comment.id }})">수정</button>
+                <form method="post" action="{% url 'board:free_comment_delete' comment.id %}" style="display:inline;" onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
+                    {% csrf_token %}
+                    <button type="submit" style="background:none; border:none; color:#dc3545; cursor:pointer; font-size:12px; margin-left:8px;">삭제</button>
+                </form>
+                {% endif %}
+            </div>
+            <div class="comment-content" id="comment-content-{{ comment.id }}">{{ comment.content }}</div>
+            
+            <!-- 댓글 수정 폼 (숨김) -->
+            <form method="post" action="{% url 'board:free_comment_update' comment.id %}?category={{ request.GET.category|default:'all' }}&page={{ request.GET.page|default:1 }}" id="comment-edit-form-{{ comment.id }}" style="display:none;">
+                {% csrf_token %}
+                <textarea name="content" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; margin-top:10px;">{{ comment.content }}</textarea>
+                <div style="margin-top:10px;">
+                    <button type="submit" class="btn btn-primary" style="padding:8px 16px;">저장</button>
+                    <button type="button" class="btn btn-secondary" style="padding:8px 16px; background:#999;" onclick="cancelEdit({{ comment.id }})">취소</button>
+                </div>
+            </form>
+        </div>
+        {% empty %}
+        <p style="text-align:center; color:#999; padding:30px 0;">첫 번째 댓글을 남겨주세요!</p>
+        {% endfor %}
+        
+        <!-- 댓글 작성 폼 -->
+        {% if user.is_authenticated %}
+        <div class="comment-form">
+            <form method="post" action="{% url 'board:free_comment_create' post.pk %}?category={{ request.GET.category|default:'all' }}&page={{ request.GET.page|default:1 }}">
+                {% csrf_token %}
+                <textarea name="content" placeholder="댓글을 입력하세요..." required></textarea>
+                <button type="submit" class="btn btn-primary">댓글 작성</button>
+            </form>
+        </div>
+        {% else %}
+        <p style="text-align:center; color:#999; padding:20px 0;">
+            <a href="{% url 'accounts:login' %}">로그인</a>하시면 댓글을 작성할 수 있습니다.
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 하단 네비게이션: 목록으로 이동 -->
+<div style="margin: 30px 0; text-align: center;">
+    <a href="{% url 'board:free_list' %}?category={{ request.GET.category|default:'all' }}&page={{ request.GET.page|default:1 }}"
+       class="btn btn-secondary"
+       style="padding: 10px 18px; display: inline-block;">
+        목록으로
+    </a>
+</div>
+
+<!-- 하단 미니 목록 (카테고리 유지, 5개씩) -->
+<div id="list-preview" class="free-list-preview">
+    <h3>자유게시판 최신 글</h3>
+    <table class="free-mini-table">
+        <thead>
+            <tr>
+                <th style="width:70px;">번호</th>
+                <th>제목</th>
+                <th style="width:120px;">작성자</th>
+                <th style="width:140px;">작성일</th>
+                <th style="width:70px;">조회</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in posts %}
+            <tr>
+                <td>{{ item.number }}</td>
+                <td>
+                    <a href="{% url 'board:free_detail' item.pk %}?category={{ selected_category }}&page={{ page_obj.number }}">{{ item.title }}</a>
+                </td>
+                <td>{{ item.author.nickname|default:item.author.username }}</td>
+                <td>{{ item.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ item.views|default:0 }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5" style="text-align:center; color:#999;">게시글이 없습니다.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="mini-pagination">
+        {% if page_obj.has_previous %}
+            <a class="mini-page-btn" href="?category={{ selected_category }}&page={{ page_obj.previous_page_number }}#list-preview">이전</a>
+        {% else %}
+            <span class="mini-page-btn disabled">이전</span>
+        {% endif %}
+
+        {% for p in page_obj.paginator.page_range %}
+            {% if p >= start_page and p <= end_page %}
+                {% if p == page_obj.number %}
+                    <span class="mini-page-btn active">{{ p }}</span>
+                {% else %}
+                    <a class="mini-page-btn" href="?category={{ selected_category }}&page={{ p }}#list-preview">{{ p }}</a>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a class="mini-page-btn" href="?category={{ selected_category }}&page={{ page_obj.next_page_number }}#list-preview">다음</a>
+        {% else %}
+            <span class="mini-page-btn disabled">다음</span>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function editComment(id) {
+    const contentEl = document.getElementById(`comment-content-${id}`);
+    const formEl = document.getElementById(`comment-edit-form-${id}`);
+    
+    if (!contentEl || !formEl) return;
+    
+    contentEl.style.display = 'none';
+    formEl.style.display = 'block';
+}
+
+function cancelEdit(id) {
+    const contentEl = document.getElementById(`comment-content-${id}`);
+    const formEl = document.getElementById(`comment-edit-form-${id}`);
+    
+    if (!contentEl || !formEl) return;
+    
+    formEl.style.display = 'none';
+    contentEl.style.display = 'block';
+}
+
+// CSRF 토큰 가져오기
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function addReaction(postId, reactionType, buttonElement) {
+    // 로그인 체크
+    if (!{{ user.is_authenticated|lower }}) {
+        alert('로그인 후 사용 가능합니다.');
+        return;
+    }
+
+    // 버튼 비활성화 (중복 클릭 방지)
+    buttonElement.disabled = true;
+    buttonElement.style.opacity = '0.6';
+
+    // FormData 생성
+    const formData = new FormData();
+    formData.append('reaction_type', reactionType);
+    formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+    // AJAX 요청
+    fetch(`/board/free/${postId}/reaction/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // 버튼 상태 업데이트
+            const counts = data.counts;
+
+            // 각 버튼의 카운트 업데이트
+            updateButtonCount('empathy', counts.empathy);
+            updateButtonCount('courage', counts.courage);
+            updateButtonCount('cheer', counts.cheer);
+            updateButtonCount('support', counts.support);
+            updateButtonCount('thanks', counts.thanks);
+
+            // 현재 버튼 스타일 토글
+            if (data.is_active) {
+                buttonElement.style.background = '#ffcdd2';
+                buttonElement.style.borderColor = '#ff6b6b';
+                buttonElement.style.fontWeight = '600';
+            } else {
+                buttonElement.style.background = '#fff';
+                buttonElement.style.borderColor = '#ddd';
+                buttonElement.style.fontWeight = '400';
+            }
+        } else {
+            alert(data.error || '오류가 발생했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('요청 중 오류가 발생했습니다.\n' + error.message);
+    })
+    .finally(() => {
+        // 버튼 다시 활성화
+        buttonElement.disabled = false;
+        buttonElement.style.opacity = '1';
+    });
+}
+
+function updateButtonCount(type, count) {
+    const button = document.querySelector(`.reaction-btn[data-type="${type}"]`);
+    if (button) {
+        button.querySelector('.reaction-count').textContent = count;
+    }
+}
+</script>
+{% endblock %}

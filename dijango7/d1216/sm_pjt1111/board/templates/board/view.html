@@ -1,0 +1,387 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <meta name='csrf_token' content='{{ csrf_token }}'>
+  <title>VLAST Shop - 게시글 상세보기</title>
+  <link rel="stylesheet" href="{% static "css/view.css" %}">
+  <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
+  <script>
+    $(function(){
+      // 댓글 불러오기
+      $.ajax({
+        url: '/comment/list/',
+        type: 'POST',
+        data: {
+          bno: '{{board.bno}}',
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        dataType: 'json',
+        success: function(data){
+          console.log('댓글 불러오기 성공:', data);
+          const commentsList = $('#commentsList');
+          commentsList.empty(); // 기존 댓글 제거
+          
+          if(data.comments && data.comments.length > 0){
+            data.comments.forEach(function(comment){
+              const commentHtml = `
+                <div class="comment" data-cno="${comment.cno}">
+                  <strong>${escapeHtml(comment.name)}</strong> <span>(${comment.cdate})</span>
+                  <p>${escapeHtml(comment.ccontent)}</p>
+                  <div class="comment-buttons">
+                    <button class="delete-btn" data-cno="${comment.cno}">삭제</button>
+                  </div>
+                </div>
+              `;
+              commentsList.append(commentHtml);
+            });
+          } else {
+            commentsList.html('<p style="text-align:center; color:#888;">댓글이 없습니다.</p>');
+          }
+        },
+        error: function(xhr, status, error){
+          console.log('댓글 불러오기 실패:', error);
+          console.log('상태:', status);
+          console.log('응답:', xhr.responseText);
+        }
+      });
+    });
+    
+    // XSS 방지용 함수
+    function escapeHtml(text) {
+      if(!text) return '';
+      return text.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="top-menu">
+      <a href="#">회원가입</a> |
+      <a href="#">로그인</a> |
+      <a href="#">주문조회</a> |
+      <a href="#">최근본상품</a>
+    </div>
+    <div class="icons">
+      <i class="fas fa-search"></i>
+      <i class="fas fa-user"></i>
+      <i class="fas fa-shopping-bag"></i>
+    </div>
+  </div>
+
+  <!-- Detail View -->
+  <div class="detail-container">
+    <div class="detail-title">{{board.btitle}}</div>
+    <div class="detail-info">
+      <div>작성자: {{board.member.name}}</div>
+      <div>작성일: {{board.bdate|date:'Y-m-d H:i'}}</div>
+      <div>조회수: {{board.bhit}}</div>
+    </div>
+    <div class="detail-content">
+      {{board.bcontent}}
+      <br>
+      {% if board.bfile%}
+      <img src='/media/{{board.bfile}}' style='width: 150px;'/>
+      {%else%}
+      <div>첨부된 파일이 없습니다.</div>
+      {% endif %}
+    </div>
+    <div class="detail-buttons">
+      <a href="/board/list/">목록으로</a>
+      <a href="/board/reply/{{board.bno}}/">답글달기</a>
+      {% if request.session.session_id == board.member.id %}
+      <a href="/board/update/{{board.bno}}/">수정</a>
+      <button id="deleteBtn">삭제</button>
+      {% endif %}
+    </div>
+  </div>
+
+
+
+  <!-- 댓글 섹션 -->
+  <div id="commentsSection">
+    <h3>댓글</h3>
+    <form id="commentForm">
+      {% if not request.session.session_id %}
+      <input type="text" id="cname" placeholder="이름" maxlength="20" required />
+      <input type="password" id="cpw" placeholder="비밀번호" maxlength="10" required />
+      {% endif %}
+      <textarea id="commentText" placeholder="댓글을 입력하세요." maxlength="200" required></textarea>
+      <button type="submit">등록</button>
+    </form>
+    <div id="commentsList">
+      <div class="comment">
+        <strong>홍길동1</strong> <span>(2025-09-08 14:32)</span>
+        <p>추석 연휴 배송 안내 감사합니다!</p>
+        <div class="comment-buttons">
+          <button class="edit-btn">수정</button>
+          <button class="delete-btn">삭제</button>
+        </div>
+      </div>
+    <div id="commentsList">
+      <div class="comment">
+        <strong>홍길동2</strong> <span>(2025-09-08 14:32)</span>
+        <p>추석 연휴 배송 안내 감사합니다!</p>
+        <div class="comment-buttons">
+          <button class="edit-btn">수정</button>
+          <button class="delete-btn">삭제</button>
+        </div>
+      </div>
+    <div id="commentsList">
+      <div class="comment">
+        <strong>홍길동3</strong> <span>(2025-09-08 14:32)</span>
+        <p>추석 연휴 배송 안내 감사합니다!</p>
+        <div class="comment-buttons">
+          <button class="edit-btn">수정</button>
+          <button class="delete-btn">삭제</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <p>삭제하시겠습니까?</p>
+      <div class="modal-buttons">
+        <button class="confirm" id="confirmDelete">삭제</button>
+        <button class="cancel" id="cancelDelete">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    Copyright © VLAST Shop. All rights reserved.
+  </footer>
+
+  <script>
+    const deleteBtn = document.getElementById('deleteBtn');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const cancelDelete = document.getElementById('cancelDelete');
+
+    deleteBtn.addEventListener('click', () => {
+      modalOverlay.style.display = 'flex';
+    });
+
+    cancelDelete.addEventListener('click', () => {
+      modalOverlay.style.display = 'none';
+    });
+
+    confirmDelete.addEventListener('click', () => {
+      modalOverlay.style.display = 'none';
+      // 실제 삭제 로직 삽입 위치
+      alert('게시글이 삭제되었습니다.');
+      // 예: 목록 페이지로 이동
+      window.location.href = '/board/delete/{{board.bno}}/';
+    });
+
+    // 모달 바깥 클릭 시 닫기
+    modalOverlay.addEventListener('click', (e) => {
+      if(e.target === modalOverlay) {
+        modalOverlay.style.display = 'none';
+      }
+    });
+
+    // 댓글 기능
+    const commentForm = document.getElementById('commentForm');
+    const commentsList = document.getElementById('commentsList');
+
+    // 댓글 추가 부분 - ajax로 서버에 저장
+    commentForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const textInput = document.getElementById('commentText');
+      const text = textInput.value.trim();
+
+      if (!text) {
+        alert('댓글 내용을 입력해주세요.');
+        return;
+      }
+
+      // 비회원인 경우 이름과 비밀번호 확인
+      const cnameInput = document.getElementById('cname');
+      const cpwInput = document.getElementById('cpw');
+      
+      let formData = {
+        bno: '{{board.bno}}',
+        ccontent: text,
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+      };
+
+      // 비회원 입력칸이 있으면 추가
+      if(cnameInput && cpwInput) {
+        if(!cnameInput.value.trim() || !cpwInput.value.trim()) {
+          alert('이름과 비밀번호를 입력해주세요.');
+          return;
+        }
+        formData.cname = cnameInput.value.trim();
+        formData.cpw = cpwInput.value.trim();
+      }
+
+      // ajax로 댓글 저장
+      $.ajax({
+        url: '/comment/write/',
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(data){
+          if(data.result === 'success'){
+            // 새 댓글을 화면에 추가
+            const newComment = document.createElement('div');
+            newComment.classList.add('comment');
+            newComment.setAttribute('data-cno', data.comment.cno);
+            newComment.style.padding = '12px 15px';
+            newComment.style.borderBottom = '1px solid #e0e0e0';
+
+            newComment.innerHTML = `
+              <strong>${escapeHtml(data.comment.name)}</strong> <span>(${data.comment.cdate})</span>
+              <p>${escapeHtml(data.comment.ccontent)}</p>
+              <div class="comment-buttons">
+                <button class="delete-btn" data-cno="${data.comment.cno}">삭제</button>
+              </div>
+            `;
+
+            commentsList.prepend(newComment); // 최신 댓글을 맨 위에 추가
+            textInput.value = ''; // 입력창 초기화
+            if(cnameInput) cnameInput.value = '';
+            if(cpwInput) cpwInput.value = '';
+            alert('댓글이 등록되었습니다.');
+          } else {
+            alert(data.message || '댓글 등록에 실패했습니다.');
+          }
+        },
+        error: function(xhr, status, error){
+          console.log('댓글 등록 실패:', error);
+          alert('댓글 등록에 실패했습니다. 로그인 후 이용해주세요.');
+        }
+      });
+    });
+
+    // 댓글 수정/삭제 이벤트 위임
+    commentsList.addEventListener('click', (e) => {
+      if (e.target.classList.contains('delete-btn')) {
+        // 삭제 버튼 클릭
+        const commentDiv = e.target.closest('.comment');
+        const cno = e.target.getAttribute('data-cno');
+        
+        if(!cno) {
+          alert('댓글 번호를 찾을 수 없습니다.');
+          return;
+        }
+        
+        // 비밀번호 입력 (비회원 댓글용)
+        const cpw = prompt('댓글을 삭제하려면 비밀번호를 입력하세요.\n(회원 댓글인 경우 빈칸으로 확인)');
+        if(cpw === null) return; // 취소
+        
+        // ajax로 댓글 삭제
+        $.ajax({
+          url: '/comment/delete/',
+          type: 'POST',
+          data: {
+            cno: cno,
+            cpw: cpw,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+          },
+          dataType: 'json',
+          success: function(data){
+            if(data.result === 'success'){
+              commentDiv.remove();
+              alert('댓글이 삭제되었습니다.');
+            } else {
+              alert(data.message || '댓글 삭제에 실패했습니다.');
+            }
+          },
+          error: function(xhr, status, error){
+            console.log('댓글 삭제 실패:', error);
+            alert('댓글 삭제에 실패했습니다.');
+          }
+        });
+        }
+      } else if (e.target.classList.contains('edit-btn')) {
+        // 수정 버튼 클릭
+        const commentDiv = e.target.closest('.comment');
+        if (!commentDiv) return;
+
+        const p = commentDiv.querySelector('p');
+        if (!p) return;
+
+        // 이미 수정 중이면 종료
+        if (commentDiv.querySelector('textarea')) return;
+
+        const originalText = p.textContent;
+
+        // textarea 생성 후 기존 텍스트로 채움
+        const textarea = document.createElement('textarea');
+        textarea.value = originalText;
+        textarea.style.width = '100%';
+        textarea.style.minHeight = '60px';
+
+        // 수정 완료, 취소 버튼 생성
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = '저장';
+        saveBtn.style.marginRight = '8px';
+        saveBtn.style.padding = '4px 10px';
+        saveBtn.style.cursor = 'pointer';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '취소';
+        cancelBtn.style.padding = '4px 10px';
+        cancelBtn.style.cursor = 'pointer';
+
+        // 기존 p, 수정/삭제 버튼 숨기기
+        p.style.display = 'none';
+        e.target.style.display = 'none'; // 수정버튼 숨김
+        const deleteBtn = commentDiv.querySelector('.delete-btn');
+        if (deleteBtn) deleteBtn.style.display = 'none';
+
+        // 수정 버튼 영역에 저장/취소 버튼 추가
+        const btnContainer = commentDiv.querySelector('.comment-buttons');
+        btnContainer.appendChild(saveBtn);
+        btnContainer.appendChild(cancelBtn);
+
+        // 수정 영역에 textarea 추가
+        commentDiv.insertBefore(textarea, btnContainer);
+
+        // 저장 버튼 클릭 시
+        saveBtn.addEventListener('click', () => {
+          const newText = textarea.value.trim();
+          if (!newText) {
+            alert('댓글 내용을 입력해주세요.');
+            return;
+          }
+          p.textContent = newText;
+          cleanupEdit();
+        });
+
+        // 취소 버튼 클릭 시
+        cancelBtn.addEventListener('click', () => {
+          cleanupEdit();
+        });
+
+        // 편집 모드 종료 함수
+        function cleanupEdit() {
+          textarea.remove();
+          saveBtn.remove();
+          cancelBtn.remove();
+          p.style.display = '';
+          e.target.style.display = '';
+          if (deleteBtn) deleteBtn.style.display = '';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+{# 26-01-02 슬기 추가: 육아정보 작성/수정 폼 페이지 #}
+{% block content %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .form-box {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .form-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    
+    .form-group textarea {
+        min-height: 300px;
+        resize: vertical;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    
+    .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    
+    .btn-submit {
+        background: #74b9ff;
+        color: white;
+    }
+    
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+    }
+</style>
+
+<div class="form-container">
+    <div class="form-box">
+        <h2 class="form-title">{% if post %}육아정보 수정{% else %}육아정보 등록{% endif %}</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>카테고리 *</label>
+                <select name="category" id="categorySelect" required onchange="toggleDevelopmentFields()">
+                    <option value="all" {% if post and post.category == 'all' %}selected{% endif %}>전체보기</option>
+                    <option value="development" {% if post and post.category == 'development' %}selected{% endif %}>월령별 발달</option>
+                    <option value="sleep" {% if post and post.category == 'sleep' %}selected{% endif %}>수면교육</option>
+                    <option value="discipline" {% if post and post.category == 'discipline' %}selected{% endif %}>훈육 노하우</option>
+                </select>
+            </div>
+            
+            <!-- 26-01-02 슬기 추가: 월령별 발달 전용 필드 -->
+            <div id="developmentFields" style="display: none;">
+                <div class="form-group">
+                    <label>월령 (개월) *</label>
+                    <input type="number" name="month_age" min="0" max="60" value="{{ post.month_age|default:'' }}" placeholder="예: 6">
+                </div>
+                
+                <div class="form-group">
+                    <label>신체발달 점수 (0-100)</label>
+                    <input type="number" name="physical_score" min="0" max="100" value="{{ post.physical_score|default:'' }}" placeholder="0-100 사이 점수">
+                </div>
+                
+                <div class="form-group">
+                    <label>인지발달 점수 (0-100)</label>
+                    <input type="number" name="cognitive_score" min="0" max="100" value="{{ post.cognitive_score|default:'' }}" placeholder="0-100 사이 점수">
+                </div>
+                
+                <div class="form-group">
+                    <label>언어발달 점수 (0-100)</label>
+                    <input type="number" name="language_score" min="0" max="100" value="{{ post.language_score|default:'' }}" placeholder="0-100 사이 점수">
+                </div>
+                
+                <div class="form-group">
+                    <label>사회성발달 점수 (0-100)</label>
+                    <input type="number" name="social_score" min="0" max="100" value="{{ post.social_score|default:'' }}" placeholder="0-100 사이 점수">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>제목 *</label>
+                <input type="text" name="title" value="{{ post.title|default:'' }}" required placeholder="제목을 입력하세요">
+            </div>
+            
+            <div class="form-group">
+                <label>내용 *</label>
+                <textarea name="content" required placeholder="육아정보를 상세히 작성해주세요">{{ post.content|default:'' }}</textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-submit">{% if post %}수정하기{% else %}등록하기{% endif %}</button>
+                <a href="{% if post %}{% url 'board:parenting_detail' post.pk %}{% else %}{% url 'board:parenting_list' %}{% endif %}" class="btn btn-cancel">취소</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// 26-01-02 슬기 추가: 월령별 발달 카테고리 선택 시 발달 지표 필드 표시
+function toggleDevelopmentFields() {
+    const category = document.getElementById('categorySelect').value;
+    const devFields = document.getElementById('developmentFields');
+    
+    if (category === 'development') {
+        devFields.style.display = 'block';
+    } else {
+        devFields.style.display = 'none';
+    }
+}
+
+// 페이지 로드 시 실행
+window.onload = function() {
+    toggleDevelopmentFields();
+};
+</script>
+{% endblock %}

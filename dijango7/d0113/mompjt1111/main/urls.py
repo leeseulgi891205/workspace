@@ -1,0 +1,12 @@
+from django.urls import path
+from . import views
+
+app_name = 'main'
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('search/', views.search, name='search'),
+    path('growth/', views.growth_chart, name='growth_chart'),
+    path('map/', views.map_view, name='map'),  # 26-01-05 슬기 추가: 지도 뷰
+    path('realtime-feed/', views.realtime_feed, name='realtime_feed'),  # 26-01-05 슬기 추가: 실시간 반응 피드
+]

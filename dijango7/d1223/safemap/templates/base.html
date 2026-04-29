@@ -1,0 +1,73 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SafeMap{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <script src="{% static 'js/site.js' %}"></script>
+  {% block head %}{% endblock %}
+  <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="{% url 'pages:home' %}"><b>Safe</b>Map</a>
+    <nav class="navlinks">
+      <a class="pill" href="{% url 'pages:board_list' %}">게시판</a>
+      <a class="pill" href="{% url 'reports:map' %}">지도</a>
+      <a class="pill" href="{% url 'reports:new' %}">제보하기</a>
+      <a class="pill" href="{% url 'pages:about' %}">서비스 소개</a>
+      {# 슬기가 추가했고 25-12-23일에 추가 #}
+      <a class="pill" href="{% url 'pages:korea_map' %}">행정구역 지도</a>
+      {% if user.is_authenticated %}
+        <a class="pill" href="{% url 'accounts:profile' %}">내 프로필</a>
+        <a class="pill" href="{% url 'accounts:logout' %}">로그아웃</a>
+        {% if user.is_staff %}<a class="btn" href="/admin/">관리자</a>{% endif %}
+      {% else %}
+        <a class="pill" href="{% url 'accounts:login' %}">로그인</a>
+        <a class="pill primary" href="{% url 'accounts:signup' %}">회원가입</a>
+        <a class="pill" href="/admin/">관리자</a>
+      {% endif %}
+</nav>
+  </header>
+
+  <main class="container">
+    {% if messages %}
+      {% for m in messages %}
+        <div class="notice" style="margin: 10px 0;">{{ m }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="container footer">
+    <div class="small">© {{ now|date:"Y" }} SafeMap — 사건·사고 제보를 요약해 지도에 보여주는 실험적 안전 서비스</div>
+  </footer>
+
+<!-- 성훈============================================== -->
+<div id="chatbot-btn">💬</div>
+
+<div id="chatbot-popup">
+  <div class="chatbot-header">
+    <span>SafeMap 챗봇</span>
+    <span id="chatbot-close">✕</span>
+  </div>
+
+  <div class="chatbot-content">
+    <div class="chatbot-body" id="chatbot-messages">
+      <div class="msg bot">안녕하세요! SafeMap 챗봇입니다 🙂</div>
+    </div>
+
+    <div class="chatbot-input">
+      <input type="text" id="chat-input" placeholder="메시지를 입력하세요" />
+      <button id="chat-send">전송</button>
+    </div>
+  </div>
+</div>
+<script src="{% static 'js/chatbot.js' %}"></script>
+<!-- 성훈============================================== -->
+ 
+</body>
+</html>

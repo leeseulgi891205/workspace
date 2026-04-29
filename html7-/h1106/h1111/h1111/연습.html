@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+<style>
+    *{padding: 0; margin: 0;}
+        #banner{width: 1200px; height: 360px;
+        border-radius: 16px;
+        }
+
+    #b01{width: 270px; height: 270px;
+        border-radius: 16px;
+        background: url("image/1111.png");
+        background-size: cover;
+    }
+    #article>ul{margin-top: 8px; list-style: none;}
+    #article>ul>li{margin-left: 4px;
+    font-size: 16px; color: #333; letter-spacing: -0.4px;}
+    #header{width: 100%; height: 84px;}
+        #nav{width: 1200px; height: 84px; margin: 0 auto;
+        }
+        #nav>ul{list-style: none; display: flex; text-align: center;
+            width: 1200px; border-radius: 8px; overflow: hidden;
+        }
+        #nav>ul>li{width: 300px; height: 64px;
+            font-size: 16px; color: #333; font-weight: 600;
+            display: flex; align-items: center; justify-content: center;
+            background: #f5f5f5; border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        #nav>ul>li:not(:last-child){
+            border-right: none;
+        }
+        #nav>ul>li:first-child{
+            background: #682fca; color: white;
+        }
+        #nav>ul>li:hover{
+            background: #e0e0e0;
+        }
+        #nav>ul>li:first-child:hover{
+            background: #682fca;
+        }
+        
+        
+        #b02{width: 270px; height: 270px; 
+            border-radius: 8px;
+            background: white; padding: 15px; box-sizing: border-box;
+        }
+
+        #section{width: 1200px; height: 900px; margin: 0 auto;}
+
+        #article{padding: 0;}
+        #article h3{color: #682fca; font-size: 14px; 
+            font-weight: bold; margin-bottom: 8px;}
+        #article>p{font-size: 18px; font-weight: bold; 
+            color: #333; margin-bottom: 8px; line-height: 1.4;}
+        #article h4{color: #666; font-size: 14px; 
+            margin-bottom: 15px; font-weight: normal;}
+        #article div{font-size: 20px; font-weight: bold; 
+            color: #e91e63; margin-bottom: 10px;
+            margin: 0; padding: 0;
+        }
+        #article>div>span{font-size: 20px;}
+        #article>h5{font-size: 12px; color: white; 
+            background: #e91e63; padding: 3px 8px; 
+            border-radius: 3px; display: inline-block;}
+        #article>h5>span{background: #7d7886; padding: 3px 8px; 
+            border-radius: 3px; margin-left: 5px;}
+        #article>h5.hotel-upgrade{background: #e91e63;}
+        #article>h5:not(.hotel-upgrade){background: #7d7886;}
+</style>
+</head>
+<body>
+
+<ul>
+ <div id="header">
+        <div id="nav">
+            <ul>
+                <li>동남아</li>
+                <li>중국</li>
+                <li>일본</li>
+                <li>유럽</li>
+                
+
+            </ul>
+        </div>
+</div>
+
+<div id="section">
+    <div id="banner">
+        <div id="b01"></div>
+        <div id="b02">
+            <div id="article">
+                <h3>하롱베이 데이크루즈&뷔페</h3>
+                <p>하노이/하롱베이 4,5,6일 #베스트셀러</p>
+                <h4>인천/부산 | 4,5,6일</h4>
+                <div>399,000<span>원~</span></div>
+                <h5 class="hotel-upgrade">호텔 업그레이드</h5><h5><span>하노이 핵심관광</span></h5>
+            </div>
+        </div>
+
+        
+
+    </div>
+</div>
+
+</body>
+</html>

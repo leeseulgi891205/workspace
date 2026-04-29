@@ -1,0 +1,167 @@
+from django.shortcuts import render,redirect
+from board.models import Board
+from comment.models import Comment
+from member.models import Member
+from django.db.models import F,Q
+from django.core.paginator import Paginator
+import requests
+import json
+import pprint
+
+# 차트 그리기
+def chart(request):
+    return render(request,'board/chart.html')
+
+# 게시판 답글달기
+def reply(request,bno):
+    if request.method == 'GET':
+        # 게시글 가져오기
+        qs = Board.objects.get(bno=bno)
+        context = {'board':qs}
+        return render(request,'board/reply.html',context)
+    elif request.method == 'POST':
+        # 답글저장
+        bgroup = request.POST.get('bgroup')
+        bstep = int(request.POST.get('bstep'))
+        bindent = int(request.POST.get('bindent'))
+        btitle = request.POST.get('btitle')
+        bcontent = request.POST.get('bcontent')
+        id = request.session.get('session_id')
+        member = Member.objects.get(id=id)
+        bfile = request.FILES.get('bfile','')
+        # 1. 답글달기 : 우선 같은 그룹에 있는 게시글의 bstep 1씩 먼저 증가
+        board_qs = Board.objects.filter(bgroup=bgroup,bstep__gt = bstep)
+        board_qs.update(bstep=F('bstep')+1) # F함수 : 검색된 그 컬럼에만 값을 적용
+        
+        # 2. 답글저장
+        Board.objects.create(btitle=btitle,bcontent=bcontent,member=member,bgroup=bgroup,\
+            bstep=bstep+1,bindent=bindent+1,bfile=bfile)
+        
+        
+        context = {'flag':1}
+        return render(request,'board/reply.html',context)
+
+
+# 게시판 수정
+def update(request,bno):
+    if request.method == 'GET':
+        # 게시글 가져오기
+        qs = Board.objects.get(bno=bno)
+        context = {'board':qs}
+        return render(request,'board/update.html',context)
+    elif request.method == 'POST':
+        id = request.session.get('session_id')
+        member = Member.objects.get(id=id)
+        btitle = request.POST.get('btitle')
+        bcontent = request.POST.get('bcontent')
+        bfile = request.FILES.get('bfile')
+        # 수정
+        qs = Board.objects.get(bno=bno)
+        qs.btitle = btitle
+        qs.bcontent = bcontent
+        if bfile: qs.bfile = bfile
+        qs.save()    
+        return redirect(f'/board/view/{bno}/')    
+                
+# 게시판 삭제
+def delete(request,bno):
+    # 게시글 가져오기
+    qs = Board.objects.get(bno=bno)
+    qs.delete()
+    context = {'flag':2}
+    return redirect("/board/list/")
+
+# 게시판 상세보기 - 해당 하단댓글도 함께 가져올 수 있음.
+def view(request,bno):
+    search = request.GET.get('search','')
+    # 게시글 가져오기
+    qs = Board.objects.filter(bno=bno)
+    # 하단댓글
+    c_qs = Comment.objects.filter(board=qs[0])
+    # 조회수 1증가
+    # 조회를 한후 조회된 데이터들을 update,delete : F
+    qs.update(bhit = F('bhit') + 1 )
+    context = {'board':qs[0],'clist':c_qs}
+    return render(request,'board/view.html',context)
+
+# 게시판 상세보기 - 해당 하단댓글도 함께 가져올 수 있음.
+def view2(request,bno):
+    print('bno :',bno)
+    # 게시글 가져오기
+    qs = Board.objects.filter(bno=bno)
+    # 하단댓글
+    c_qs = Comment.objects.filter(board=qs[0]).order_by('-cno')
+    context = {'board':qs[0],'clist':c_qs}
+    return render(request,'board/view2.html',context)
+
+
+
+# 게시판 리스트
+def list(request):
+    search = request.GET.get('search', '')
+    if search:
+        qs = Board.objects.filter(
+            Q(btitle__icontains=search) |
+            Q(bcontent__icontains=search) |
+            Q(comment__ccontent__icontains=search)
+        ).distinct().order_by('-bgroup', 'bstep')
+    else:
+        qs = Board.objects.all().order_by('-bgroup', 'bstep')
+    paginator = Paginator(qs, 10)
+    page = int(request.GET.get('page', 1))
+    list_qs = paginator.get_page(page)
+    context = {'list': list_qs, 'page': page}
+    return render(request, 'board/list.html', context)
+
+# 공공데이터 리스트 - api 활용
+def list2(request):
+    
+    # 공공데이터 api 접속
+    public_key = '87245b32a91bb58097c47eab5b32f3196e46f30baf2ac02eb36349c30ad480b3'
+    # page_no = request.GET.get('page_no')
+    page_no = 1
+    url = f'https://apis.data.go.kr/B551011/PhotoGalleryService1/galleryList1?serviceKey={public_key}&numOfRows=10&pageNo={page_no}&MobileOS=ETC&MobileApp=AppTest&arrange=A&_type=json'
+    # 공공데이터 정보 가져오기
+    rel = requests.get(url)
+    # 파일 변환 : 문자열 -> json
+    json_data = json.loads(rel.text)
+    p_list = json_data['response']['body']['items']['item']
+    print('json데이터 =-----------------: ', p_list[0])
+    context = {'result':'성공','list':p_list}
+    return render(request,'board/list2.html',context)
+
+# 영화 박스오피스 리스트 - KOBIS API 활용
+def list3(request):
+    # KOBIS 영화진흥위원회 API 접속
+    kobis_key = 'c3010f63ec81e3e1b75c3c94ce850ef7'
+    target_dt = request.GET.get('targetDt', '20251218')  # 어제 날짜로 기본 설정
+    url = f'http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key={kobis_key}&targetDt={target_dt}'
+    
+    # 영화 박스오피스 정보 가져오기
+    rel = requests.get(url)
+    # 파일 변환 : 문자열 -> json
+    json_data = json.loads(rel.text)
+    
+    # 박스오피스 리스트 가져오기
+    movie_list = json_data['boxOfficeResult']['dailyBoxOfficeList']
+    print('영화 데이터: ', movie_list[0] if movie_list else '데이터 없음')
+    
+    context = {'result':'성공', 'list':movie_list, 'targetDt':target_dt}
+    return render(request,'board/list3.html',context)
+
+# 게시판 글쓰기
+def write(request):
+    if request.method == 'GET':
+        return render(request,'board/write.html')
+    elif request.method == 'POST':
+        id = request.session.get('session_id')
+        member_qs = Member.objects.get(id=id)
+        btitle = request.POST.get('btitle')
+        bcontent = request.POST.get('bcontent')
+        bfile = request.FILES.get('bfile','')
+        # bgroup 값을 입력
+        qs = Board.objects.create(btitle=btitle,bcontent=bcontent,member=member_qs,bfile=bfile)
+        qs.bgroup = qs.bno
+        qs.save()
+        context = {'flag':'1'}
+        return render(request,'board/write.html',context)

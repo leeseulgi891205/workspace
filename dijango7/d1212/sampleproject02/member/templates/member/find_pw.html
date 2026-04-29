@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>VLAST Shop - 비밀번호 찾기</title>
+  <style>
+    .result-box {
+      background: #f8f9fa;
+      padding: 25px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .result-box .pw-result {
+      font-size: 24px;
+      color: #dc3545;
+      font-weight: bold;
+      margin: 15px 0;
+      letter-spacing: 2px;
+    }
+    .result-box .info {
+      color: #666;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .error-box {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+      color: #856404;
+    }
+  </style>
+  <script>
+    $(function(){
+      {% if find_state %}
+      if ('{{find_state}}'=="0"){
+        alert("일치하는 회원 정보가 없습니다.\n아이디, 이름, 전화번호를 다시 확인해주세요.");
+      }
+      {% endif %}
+    });
+
+    function findBtn(){
+      if ($("input[name='id']").val().length < 1){
+        alert("아이디를 입력하세요.");
+        return false;
+      }
+      if ($("input[name='name']").val().length < 1){
+        alert("이름을 입력하세요.");
+        return false;
+      }
+      if ($("input[name='phone']").val().length < 1){
+        alert("전화번호를 입력하세요.");
+        return false;
+      }
+      frm.submit();
+    }
+  </script>
+</head>
+<body>
+  <div class="header">
+    <div class="top-menu">
+      <a href="{% url 'member:join' %}">회원가입</a> |
+      <a href="{% url 'member:login' %}">로그인</a> |
+      <a href="#">주문조회</a> |
+      <a href="#">최근본상품</a>
+    </div>
+    <div class="icons">
+      <i class="fas fa-search"></i>
+      <i class="fas fa-user"></i>
+      <i class="fas fa-shopping-bag"></i>
+    </div>
+  </div>
+  <div class="container">
+    <div class="login-box">
+      <h1>비밀번호 찾기</h1>
+      <p style="text-align:center; color:#666; margin-bottom:20px;">
+        회원가입 시 등록한 아이디, 이름, 전화번호를 입력해주세요.
+      </p>
+      
+      {% if find_state == "1" %}
+      <div class="result-box">
+        <p style="font-size:16px; color:#333; margin-bottom:10px;">회원님의 비밀번호는</p>
+        <div class="pw-result">{{password}}</div>
+        <p class="info">아이디: {{id}}</p>
+      </div>
+      <a href="{% url 'member:login' %}">
+        <button type="button" class="btn btn-login">로그인하러 가기</button>
+      </a>
+      {% else %}
+      <form action="{% url 'member:find_pw' %}" method="post" name="frm">
+        {% csrf_token %}
+        <label>아이디</label>
+        <input type="text" name="id" placeholder="아이디" class="input-box" required>
+        
+        <label>이름</label>
+        <input type="text" name="name" placeholder="이름" class="input-box" required>
+        
+        <label>전화번호</label>
+        <input type="text" name="phone" placeholder="010-0000-0000" class="input-box" required>
+        
+        <button type="button" onclick="findBtn()" class="btn btn-login">비밀번호 찾기</button>
+      </form>
+      {% endif %}
+      
+      <div class="links">
+        <a href="{% url 'member:find_id' %}">아이디 찾기</a> |
+        <a href="{% url 'member:login' %}">로그인</a> |
+        <a href="{% url 'member:join' %}">회원가입</a>
+      </div>
+    </div>
+  </div>
+  <footer>
+    Copyright © VLAST Shop. All rights reserved.
+  </footer>
+</body>
+</html>

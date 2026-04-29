@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}SafeMap | 챗봇{% endblock %}
+{% block content %}
+<div class="card">
+  <h2 style="margin:0 0 6px;">챗봇·게시판 (성훈)</h2>
+  <div class="muted">지금은 챗봇 MVP. 게시판은 다음 단계로 붙이면 됨.</div>
+</div>
+
+<div style="height:14px"></div>
+
+<div class="card" style="max-width:800px;margin:0 auto;">
+  <div class="muted">예시: “이 동네에서 최근 제보 많아?”, “제보 글을 한 줄로 요약해줘”</div>
+  <div style="height:10px"></div>
+
+  <div class="form">
+    <input id="q" placeholder="질문 입력..." />
+    <button class="btn" id="askBtn">질문하기</button>
+  </div>
+
+  <div style="height:14px"></div>
+  <div class="item">
+    <div class="title">답변</div>
+    <div id="answer" class="muted" style="margin-top:8px;white-space:pre-wrap"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const qEl = document.getElementById("q");
+const ansEl = document.getElementById("answer");
+document.getElementById("askBtn").addEventListener("click", async () => {
+  const q = (qEl.value || "").trim();
+  if(!q){ ansEl.textContent = "질문을 입력해줘."; return; }
+  ansEl.textContent = "생각중...";
+  const res = await fetch("{% url 'chatbot:ask' %}", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({q})
+  });
+  const data = await res.json().catch(()=>({answer:"오류"}));
+  ansEl.textContent = data.answer || "응답 없음";
+});
+</script>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}SafeMap | 마이페이지{% endblock %}
+{% block content %}
+<div class="card">
+  <h2 style="margin:0 0 6px;">마이페이지 (규리)</h2>
+  <div class="muted">내 제보 목록 + 상태 확인</div>
+</div>
+
+<div style="height:14px"></div>
+
+<div class="card">
+  <h3 style="margin:0 0 10px;">내 제보</h3>
+  <div class="list">
+    {% for r in reports %}
+      <div class="item">
+        <div class="top">
+          <div class="title">{{ r.title }}</div>
+          {% if r.status == 'received' %}
+            <span class="badge done">접수됨</span>
+          {% elif r.status == 'processing' %}
+            <span class="badge warn">처리중</span>
+          {% else %}
+            <span class="badge ok">완료</span>
+          {% endif %}
+        </div>
+        <div class="muted" style="margin-top:6px;">{{ r.summary }}</div>
+        <div class="help" style="margin-top:6px;">{{ r.created_at|date:"Y-m-d H:i" }} · ({{ r.latitude }}, {{ r.longitude }})</div>
+      </div>
+    {% empty %}
+      <div class="muted">아직 제보가 없어요. 한 건 올리면 바로 폼 난다.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

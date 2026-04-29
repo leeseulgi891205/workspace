@@ -1,0 +1,277 @@
+body {
+    background: radial-gradient(circle at top, #0b1228, #05070f);
+    color: #e5e7eb;
+    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+}
+
+/* ================= 레이아웃 ================= */
+.board-wrapper {           /* 🔥 글작성 버튼 기준점 */
+    position: relative;  
+}
+
+/* ================= 제목 영역 ================= */
+.board-header h1 {
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #ffffff, #9dd1ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.board-header p {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #ffffff;
+}
+
+/* ================= 게시판 카드 ================= */
+.board-card {
+    margin-top: 48px;
+    padding: 28px;
+    border-radius: 20px;
+
+    background: linear-gradient(180deg, #141d3a, #0c1228);
+    border: 1px solid rgba(106, 169, 255, 0.25);
+
+    box-shadow:
+        0 0 0 1px rgba(106,169,255,0.15),
+        0 20px 60px rgba(0,0,0,0.8),
+        0 0 40px rgba(79,140,255,0.15);
+}
+
+/* ================= 테이블 ================= */
+.board-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.board-table thead {
+    background: rgba(79, 140, 255, 0.08);
+}
+
+.board-table th {
+    padding: 16px;
+    font-size: 14px;
+    color: #c7d6f8;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.board-table td {
+    padding: 18px 16px;
+    font-size: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.board-table td.title {
+    font-weight: 600;
+    color: #eef2ff;
+}
+
+.board-table td{
+    text-align: center;
+}
+
+
+.board-table tbody tr:hover {
+    background: linear-gradient(
+        90deg,
+        rgba(79,140,255,0.18),
+        rgba(79,140,255,0.05)
+    );
+}
+
+/* ================= 빈 상태 ================= */
+.empty {
+    text-align: center;
+    padding: 60px;
+    color: #9fb3d1;
+}
+
+/* ================= 글 작성 버튼 ================= */
+.write-btn {
+    position: absolute;
+    right: 20px;      /* 👉 카드 바깥 */
+    bottom: -60px;     /* 👉 카드 아래 */
+
+    padding: 10px 22px;
+    border-radius: 999px;
+
+    background: linear-gradient(90deg, #6366f1, #3b82f6);
+    color: #fff;
+
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+
+    box-shadow: 0 8px 20px rgba(59,130,246,0.4);
+}
+
+.write-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(59,130,246,0.6);
+}
+
+/* ================= 작성 페이지 ================= */
+.board-form textarea {
+    resize: none;
+    height: 260px;
+}
+
+
+/* ================= 게시글 상세페이지 이동 ================= */
+.board-row {
+    cursor: pointer;
+}
+
+.board-row:hover {
+    background: linear-gradient(
+        90deg,pagination 
+        rgba(79,140,255,0.22),
+        rgba(79,140,255,0.06)
+    );
+}
+
+.board-table td a {         /* 🔥 전체 행 클릭 가능하게 */
+    pointer-events: none;   /* 🔥 링크가 클릭을 가로채지 못하게 */
+    color: inherit;
+    text-decoration: none;
+}
+
+.board-row:active {
+    transform: scale(0.995);
+}
+/* ================= 게시글 상세페이지 이동 ================= */
+
+
+/* ================= 게시글 상세 페이지 ================= */
+
+.board-detail-card {
+    padding: 40px;
+}
+
+/* 제목 */
+.detail-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #eef2ff;
+}
+
+/* 메타 정보 */
+.detail-meta {
+    display: flex;
+    gap: 18px;
+    font-size: 14px;
+    color: #9fb3d1;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 28px;
+}
+
+/* 본문 */
+.detail-content {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #e5e7eb;
+    min-height: 200px;
+}
+
+/* 하단 버튼 */
+.detail-actions {
+    margin-top: 40px;
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    color: #c7d6f8;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.back-btn:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* ================= 게시글 상세 페이지 ================= */
+
+/* ================= 게시글 페이지 번호 ================= */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.page-btn, .page-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.18);
+
+  background: rgba(255,255,255,0.04);
+  color: #cfe1ff;
+  font-size: 14px;
+  text-decoration: none;
+
+  transition: 0.15s;
+}
+
+.page-btn:hover, .page-num:hover {
+  border-color: rgba(106,169,255,0.55);
+  background: rgba(79,140,255,0.10);
+}
+
+.page-num.active {
+  border-color: rgba(106,169,255,0.9);
+  background: rgba(79,140,255,0.18);
+  box-shadow: 0 0 0 1px rgba(106,169,255,0.25), 0 0 20px rgba(79,140,255,0.18);
+  font-weight: 700;
+}
+
+.page-btn.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+/* ================= 게시글 페이지 번호 ================= */
+
+
+/* ===== 화면 오른쪽 총 게시물 표시 ===== */
+.board-wrapper{
+  position: relative;
+}
+
+.board-count-fixed{
+  position: absolute;
+  top: 48px;
+  right: 0;
+
+  padding: 10px 14px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(106,169,255,0.18);
+
+  box-shadow:
+    0 0 0 1px rgba(106,169,255,0.12),
+    0 8px 24px rgba(0,0,0,0.55);
+
+  font-size: 14px;
+  color: #dbeafe;
+  white-space: nowrap;
+}
+
+/* 숫자만 살짝 강조 */
+.board-count-fixed strong{
+  font-weight: 700;
+  color: #ffffff;
+}
+/* ===== 화면 오른쪽 총 게시물 표시 ===== */
+
+
