@@ -1,0 +1,172 @@
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,500,700,900&display=swap&subset=korean" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/event_list.css">
+</head>
+<body>
+  <header>
+    <ul>
+      <li>?뚯썝媛??/li> <span>|</span>
+      <li>濡쒓렇??/li> <span>|</span>
+      <li>怨좉컼?됰났?쇳꽣</li> <span>|</span>
+      <li>諛곗넚吏?????/li> <span>|</span>
+      <li>湲고봽?몄뭅???깅줉</li>
+    </ul>
+  </header>
+
+  <nav>
+    <div class="logo"></div>
+
+    <div id="search">
+      <div class="search"></div><br>
+      <span>硫붾돱李얘린</span>
+    </div>
+
+    <div id="cart">
+      <div class="cart"></div><br>
+      <span>?λ컮援щ땲</span>
+    </div>
+
+    <div class="nav-menu">
+      <ul>
+        <li>COOKIT?뚭컻</li>
+        <li>COOKIT 硫붾돱</li>
+        <li>由щ럭</li>
+        <li>?대깽??/li>
+        <li>MY荑≫궥</li>
+      </ul>  
+    </div>
+  </nav>
+
+  <section>
+    <h1>EVENT</h1>
+
+    <article id="event_list">
+      <ul>
+        <li>
+          <img src="https://www.akbeauty.co.kr/files/public/site/2020/202003/88752b53-6a41-4930-9145-266f90d27d8c.jpg" alt="" class="event-img">
+          <div class="event-now">吏꾪뻾以?/div>
+          <div class="event-title">?꾩씠?붾툕 釉뚮옖??湲고쉷??/div>
+          <div class="event-date">2020-03-10 ~ 2020-03-31</div>
+        </li>
+        <li>
+          <img src="https://www.akbeauty.co.kr/files/public/site/2020/202003/54f0b3df-3c00-4ac9-b7ba-52cc5bf36d85.jpg" alt="" class="event-img">
+          <div class="event-now">吏꾪뻾以?/div>
+          <div class="event-title">留뚮굹??諛섍컪?듬땲??</div>
+          <div class="event-date">2020-03-06 ~ 2020-03-27</div>
+        </li>
+        <li>
+          <img src="https://www.akbeauty.co.kr/files/public/site/2020/202002/8de980c1-0ed3-487b-9e69-c5d4c03288a2.jpg" alt="" class="event-img">
+          <div class="event-now">吏꾪뻾以?/div>
+          <div class="event-title">李⑺븳 ?⑺듃 event</div>
+          <div class="event-date">2020-02-24 ~ 2020-03-31</div>
+        </li>
+        <li>
+          <img src="https://www.akbeauty.co.kr/files/public/site/2020/202001/7f5af7d9-8f7e-4513-80a9-9055ae7c0f0d.jpg" alt="" class="event-img">
+          <div class="event-now">吏꾪뻾以?/div>
+          <div class="event-title">?섏뒳 44???좎갑???덉쟾???쒗깮</div>
+          <div class="event-date">2020-02-28 ~ 2020-03-31</div>
+        </li>
+        <li>
+          <img src="https://www.akbeauty.co.kr/files/public/site/2020/202002/aa855f2e-a2c4-4d12-82cb-4b07b06c6fb7.jpg" alt="" class="event-img">
+          <div class="event-end">醫낅즺</div>
+          <div class="event-title">FFLOW WELCOME EVENT</div>
+          <div class="event-date">2020-02-17 ~ 2020-02-29</div>
+        </li>
+        <li>
+          <img src="https://www.akbeauty.co.kr/files/public/site/2020/202002/dc744bef-2acb-4540-8355-8ff447949c04.png" alt="" class="event-img">
+          <div class="event-end">醫낅즺</div>
+          <div class="event-title">?댄뵾 諛쒕젋??몃뜲??/div>
+          <div class="event-date">2020-02-10 ~ 2020-02-16</div>
+        </li>
+        <li>
+          <img src="https://www.akbeauty.co.kr/files/public/site/2020/202001/bddffe34-23e4-4f8c-b639-ccc0425236e1.jpg" alt="" class="event-img">
+          <div class="event-end">醫낅즺</div>
+          <div class="event-title">??깂?몄씪</div>
+          <div class="event-date">2020-01-29 ~ 2020-02-09</div>
+        </li>
+        <li>
+          <img src="https://www.akbeauty.co.kr/files/public/site/2019/201912/5529fa9d-4a59-45fd-a65e-2bf265bec192.jpg" alt="" class="event-img">
+          <div class="event-end">醫낅즺</div>
+          <div class="event-title">?щ━?ㅻ쭏???대깽??/div>
+          <div class="event-date">2019-12-20 ~ 2030-12-30</div>
+        </li>
+        <li>
+          <img src="https://www.akbeauty.co.kr/files/public/site/2019/201909/b50e8848-a431-4c2f-8ca9-4f771b090dd3.png" alt="" class="event-img">
+          <div class="event-end">醫낅즺</div>
+          <div class="event-title">?섏뒳 ?댄떚?ㅻ쭏???곗묶 ?대깽??/div>
+          <div class="event-date">2019-12-02 ~ 2021-12-31</div>
+        </li>
+        <li>
+          <img src="https://www.akbeauty.co.kr/files/public/site/2019/201912/1282dd64-9587-44cb-85f3-142ab640decb.jpg" alt="" class="event-img">
+          <div class="event-end">醫낅즺</div>
+          <div class="event-title">Year-End Lucky Draw!</div>
+          <div class="event-date">2019-12-06 ~ 2019-12-15</div>
+        </li>
+      </ul>
+    </article>
+
+    <ul class="page-num">
+      <li class="first"></li>
+      <li class="prev"></li>
+      <li class="num">
+        <div>1</div>
+      </li>
+      <li class="next"></li>
+      <li class="last"></li>
+    </ul>
+
+    <div class="write">?곌린</div>
+
+  </section>
+
+  <footer>
+    <div class="wrapper">
+      <div class="footer-left">
+        <div class="footer-logo"></div>
+        <div class="copyright">짤 COOKIT ALL RIGHTS RESERVED</div>
+      </div>
+  
+      <div class="footer-center">
+        <ul class="footer-nav">
+          <li class="first-list">?댁슜?쎄?</li>
+          <li class="green">媛쒖씤?뺣낫泥섎━ 諛⑹묠</li>
+          <li>踰뺤쟻怨좎?</li>
+          <li>?ъ뾽?먯젙蹂??뺤씤</li>
+        </ul>
+  
+        <ul class="footer-info">
+          <li class="first-list">?⑥젣?댁젣?쇱젣??二?</li>
+          <li>??쒖씠??: ?먭꼍??媛뺤떊???좏쁽??/li>
+          <li>?ъ뾽?먮벑濡앸쾲??: 104-86-09535</li>
+          <li class="first-list">二쇱냼 : ?쒖슱 以묎뎄 ?숉샇濡?330 CJ?쒖씪?쒕떦 ?쇳꽣 (?? 04560</li>
+          <li>?듭떊?먮ℓ?낆떊怨?以묎뎄 ??07767??/li>
+          <li class="first-list">媛쒖씤?뺣낫蹂댄샇梨낆엫??: 議곗쁺誘?/li>
+          <li>?대찓??: cjon@cj.net</li>
+          <li>?몄뒪?낆젣怨듭옄 : CJ?щ━釉뚮꽕?몄썚?ㅳ닚</li>
+        </ul>
+  
+        <div id="check">怨좉컼?섏? ?덉쟾嫄곕옒瑜??꾪빐 ?꾧툑?깆쑝濡?寃곗젣??LG U+ ?꾩옄 寃곗젣??留ㅻℓ蹂댄샇(?먯뒪?щ줈) ?쒕퉬?ㅻ? ?댁슜?섏떎 ???덉뒿?덈떎. <span class="check">媛???ъ떎 ?뺤씤</span></div>
+      </div>
+  
+      <div class="footer-right">
+        <div id="shortcut">
+          <span>CJ洹몃９怨꾩뿴??諛붾줈媛湲?/span>
+          <div class="shortcut"></div>
+        </div>
+  
+        <div class="call">怨좉컼?됰났?쇳꽣 1668-1920</div>
+        <div class="inquery">1:1 臾몄쓽</div>
+      </div>
+  
+    </div>
+  </footer>
+</body>
+</html>

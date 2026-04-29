@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.dao.BoardMapper">
+
+   <!-- 게시글 전체가져오기 -->
+   <select id="selectAllCount" resultType="int">
+   		select count(*) from board
+   </select>
+
+   <select id="selectAll" resultType="com.java.dto.BoardDto">
+   		select * from (
+   			select row_number() over (order by bgroup desc, bstep asc) as rnum,
+   			       bno, btitle, bcontent, id, bgroup, bstep, bindent, bfile, bdate
+   			from board
+   		)
+   		where rnum between #{startRow} and #{endRow}
+   </select>
+
+   <!-- 검색 -->
+   <select id="selectSearch" resultType="com.java.dto.BoardDto" parameterType="com.java.dto.searchDto">
+   		select * from (
+   			select row_number() over (order by bgroup desc, bstep asc) as rnum,
+   			       bno, btitle, bcontent, id, bgroup, bstep, bindent, bfile, bdate
+   			from board
+   			where 1=1
+   			<if test="searchType == 'btitle'">
+   				and btitle like '%'||#{searchWord}||'%'
+   			</if>
+   			<if test="searchType == 'bcontent'">
+   				and bcontent like '%'||#{searchWord}||'%'
+   			</if>
+   			<if test="searchType == 'all'">
+   				and (id like '%'||#{searchWord}||'%' or btitle like '%'||#{searchWord}||'%' or bcontent like '%'||#{searchWord}||'%')
+   			</if>
+   		)
+   		where rnum between #{startRow} and #{endRow}
+   		order by rnum
+   </select>
+
+   <!-- 게시글 1개가져오기 -->
+   <select id="selectOne" resultType="com.java.dto.BoardDto">
+   		select * from board where bno=#{bno} and rownum = 1
+   </select>
+
+      <!-- 게시글 이전글 가져오기 -->
+   <select id="selectOnePrev" resultType="com.java.dto.BoardDto">
+   		select * from board
+		where bno = (select decode(prev_no, -1, null, prev_no) from (
+		select bno, lead(bno,1,-1) over(order by bgroup desc,bstep asc) prev_no from board
+		) where bno=#{bno})
+   </select>
+
+         <!-- 게시글 다음글 가져오기 -->
+   <select id="selectOneNext" resultType="com.java.dto.BoardDto">
+   		select * from board
+		where bno = (select decode(next_no, -1, null, next_no) from (
+		select bno, lag(bno,1,-1) over(order by bgroup desc,bstep asc) next_no from board
+		) where bno=#{bno})
+   </select>
+
+   <update id="updateBhit">
+   		update board set bhit = bhit + 1 where bno = #{bno}
+   	</update>
+
+   <!-- 게시글 수정 -->
+   <update id="updateBoard">
+        update board set btitle=#{btitle},bcontent=#{bcontent},
+        bfile=#{bfile},bdate=sysdate
+        where bno=#{bno}
+   </update>
+
+   <!-- 게시글 저장 -->
+   <insert id="insertBoard">
+   		insert into board values (
+		 board_seq.nextval,#{btitle},#{bcontent},
+		 #{id},board_seq.currval,0,0,0,'',sysdate
+		)
+   </insert>
+
+   <!-- 답변달기 bstep증가부분 -->
+   <update id="updateReply">
+   		<![CDATA[
+	   		update board set bstep = bstep+1
+	   		where bgroup=#{bgroup} and bstep>#{bstep}
+   		]]>
+   </update>
+
+   <!-- 답변달기 저장 -->
+   <insert id="insertReply">
+   		insert into board values (
+		 board_seq.nextval,#{btitle},#{bcontent},
+		 #{id},#{bgroup},#{bstep}+1,#{bindent}+1,0,'',sysdate
+		)
+   </insert>
+
+   <!-- 게시글 삭제 -->
+   <delete id="deleteBoard">
+       delete board where bno = #{bno}
+   </delete>
+
+</mapper>

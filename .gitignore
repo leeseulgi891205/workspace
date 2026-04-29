@@ -1,0 +1,20 @@
+# Build outputs
+**/target/
+**/build/
+**/bin/
+**/out/
+
+# Gradle
+**/.gradle/
+
+# IDE metadata
+**/.settings/
+**/.classpath
+**/.project
+**/.idea/
+**/*.iml
+
+# OS / logs
+**/.DS_Store
+**/Thumbs.db
+**/*.log
