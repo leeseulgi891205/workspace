@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원 가입</title>
+  <style>
+    @font-face {
+        font-family: 'Pretendard';
+        src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+        font-weight: 400;
+        font-display: swap;
+    }
+    @font-face {
+        font-family: 'Pretendard';
+        src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Bold.woff') format('woff');
+        font-weight: 700;
+        font-display: swap;
+    }
+    * { font-family: 'Pretendard'; }
+    ul, ol { list-style: none; padding: 0; margin: 0; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #1a1a1a;
+    }
+
+    /* Header (우측 상단 메뉴 + 아이콘) */
+    .header {
+      width: 100%;
+      height: 60px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 40px;
+      box-sizing: border-box;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .top-menu {
+      display: flex;
+      gap: 15px;
+      font-size: 13px;
+      color: #636363;
+      margin-right: 20px;
+    }
+    .top-menu a {
+      text-decoration: none;
+      color: #636363;
+    }
+    .top-menu a:hover {
+      color: #035fe0;
+    }
+    .icons {
+      display: flex;
+      gap: 15px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .title {
+        margin: 0 auto;
+        text-align: center;
+        padding: 70px 0;
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .orderStep {
+        text-align: center;
+        padding-bottom: 20px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #1a1a1a;
+    }
+
+    .orderStep ul {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+    }
+
+    .orderStep li {
+      display: inline-block;
+      font-size: 14px;
+    }
+
+    .orderStep li .current {
+        color: #035fe0;
+        font-weight: 700;
+        font-size: 15px;
+    }
+
+    .form-box {
+      margin: 0 auto;
+      max-width: 720px;
+      box-sizing: border-box;
+      padding: 10px 30px;
+    }
+
+    .form-box table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .form-box td {
+      padding: 4px 0 12px;
+      vertical-align: middle;
+    }
+
+    .form-box td:first-child {
+      width: 140px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    input[type="text"], input[type="password"], input[type="email"], select {
+      width: 100%;
+      padding: 15px;
+      font-size: 15px;
+      height: 45px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      background: white;
+    }
+
+    input:focus, select:focus {
+      outline: 1.5px solid #1a1a1a;
+    }
+
+    /* 아이디, 이메일 입력 + 버튼 */
+    .id-check-box,
+    .email-input,
+    .addr-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .id-check-box input,
+    .email-input input,
+    .addr-box input {
+      flex: 1;
+    }
+
+    .id-check-box button,
+    .email-input button,
+    .addr-box button {
+      width: 110px;
+      height: 45px;
+      border: 1px solid #035fe0;
+      background-color: #035fe0;
+      color: #fff;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    /* 휴대전화 입력칸 */
+    .phone-input {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .phone-input select,
+    .phone-input input {
+      flex: 1;
+      height: 45px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      background: white;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    .phone-input span {
+      width: 15px;
+      text-align: center;
+    }
+
+    /* 주소 입력 */
+    .address-detail {
+      margin-top: 8px;
+    }
+
+    /* 하단 버튼 */
+    .btn-box {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      padding: 50px 0;
+      margin: 0;
+    }
+
+    .btn-box .btn {
+      width: 160px;
+      height: 50px;
+      font-size: 15px;
+      font-weight: 400;
+      border: 1px solid #ccc;
+      background-color: white;
+      color: #1a1a1a;
+      cursor: pointer;
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    .btn-box .btn.submit {
+      background-color: #035fe0;
+      border: 1px solid #035fe0;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .btn-box {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .btn-box .btn {
+        width: 100%;
+      }
+    }
+
+    .required {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="top-menu">
+      <a href="/member/join/">회원가입</a> |
+      <a href="/member/login/">로그인</a> |
+      <a href="#">주문조회</a> |
+      <a href="#">최근본상품</a>
+    </div>
+    <div class="icons">
+      <i class="fas fa-search"></i>
+      <i class="fas fa-user"></i>
+      <i class="fas fa-shopping-bag"></i>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="steps">
+      <div class="title">회원가입</div>
+      <div class="orderStep">
+        <ul>
+          <li>1. 약관동의</li>
+          <li><span class="current">2. 정보입력</span></li>
+          <li>3. 가입완료</li>
+        </ul>
+      </div>
+    </div>
+
+    <form method="post" id="joinForm">
+      {% csrf_token %}
+      <div class="form-box">
+        <table>
+          <tr>
+            <td>아이디 <span class="required">*</span></td>
+            <td>
+              <div class="id-check-box">
+                <input type="text" name="id" id="id" placeholder="영문소문자/숫자, 4~16자" required>
+                <button type="button" onclick="checkId()">중복확인</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>비밀번호 <span class="required">*</span></td>
+            <td><input type="password" name="pw" id="pw" placeholder="영문 대소문자/숫자/특수문자 중 2가지 이상 조합, 10자~16자" required></td>
+          </tr>
+          <tr>
+            <td>비밀번호 확인 <span class="required">*</span></td>
+            <td><input type="password" id="pw_confirm" placeholder="비밀번호를 다시 입력하세요" required></td>
+          </tr>
+          <tr>
+            <td>이름 <span class="required">*</span></td>
+            <td><input type="text" name="name" id="name" required></td>
+          </tr>
+          <tr>
+            <td>휴대전화 <span class="required">*</span></td>
+            <td>
+              <div class="phone-input">
+                <select name="phone1" required>
+                  <option value="010">010</option>
+                  <option value="011">011</option>
+                  <option value="016">016</option>
+                  <option value="017">017</option>
+                </select>
+                <span>-</span>
+                <input type="text" name="phone2" maxlength="4" required>
+                <span>-</span>
+                <input type="text" name="phone3" maxlength="4" required>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>이메일 <span class="required">*</span></td>
+            <td>
+              <div class="email-input">
+                <input type="email" name="email" id="email" placeholder="example@domain.com" required>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>주소</td>
+            <td>
+              <div class="addr-box">
+                <input type="text" name="post" id="post" placeholder="우편번호" readonly>
+                <button type="button" onclick="execDaumPostcode()">우편번호</button>
+              </div>
+              <div class="address-detail">
+                <input type="text" name="address" id="address" placeholder="주소" readonly>
+              </div>
+              <div class="address-detail">
+                <input type="text" name="address_detail" id="address_detail" placeholder="상세주소">
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>성별</td>
+            <td>
+              <label><input type="radio" name="gender" value="남자" checked> 남자</label>
+              <label><input type="radio" name="gender" value="여자"> 여자</label>
+            </td>
+          </tr>
+          <tr>
+            <td>취미</td>
+            <td>
+              <label><input type="checkbox" name="hobby" value="게임"> 게임</label>
+              <label><input type="checkbox" name="hobby" value="운동"> 운동</label>
+              <label><input type="checkbox" name="hobby" value="독서"> 독서</label>
+              <label><input type="checkbox" name="hobby" value="영화"> 영화</label>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="btn-box">
+        <button type="button" class="btn cancel" onclick="history.back()">취소</button>
+        <button type="submit" class="btn submit">확인</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Daum 우편번호 API -->
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <script>
+    // 아이디 중복 체크
+    function checkId() {
+      const id = document.getElementById('id').value;
+      if (!id) {
+        alert('아이디를 입력하세요.');
+        return;
+      }
+      // TODO: 서버에 아이디 중복 체크 요청
+      alert('사용 가능한 아이디입니다.');
+    }
+
+    // Daum 우편번호 API
+    function execDaumPostcode() {
+      new daum.Postcode({
+        oncomplete: function(data) {
+          // 우편번호와 주소 정보를 해당 필드에 넣는다.
+          document.getElementById('post').value = data.zonecode;
+          
+          // 도로명 주소
+          let addr = '';
+          if (data.userSelectedType === 'R') {
+            addr = data.roadAddress;
+          } else {
+            addr = data.jibunAddress;
+          }
+          
+          document.getElementById('address').value = addr;
+          
+          // 상세주소 입력란으로 커서 이동
+          document.getElementById('address_detail').focus();
+        }
+      }).open();
+    }
+
+    // 페이지 로드 후 이벤트 리스너 등록
+    window.addEventListener('DOMContentLoaded', function() {
+      // 폼 제출시 비밀번호 확인
+      const joinForm = document.getElementById('joinForm');
+      if (joinForm) {
+        joinForm.addEventListener('submit', function(e) {
+          const pw = document.getElementById('pw').value;
+          const pwConfirm = document.getElementById('pw_confirm').value;
+          
+          if (pw !== pwConfirm) {
+            e.preventDefault();
+            alert('비밀번호가 일치하지 않습니다.');
+            return false;
+          }
+
+          // 주소 합치기
+          const address = document.getElementById('address').value;
+          const addressDetail = document.getElementById('address_detail').value;
+          if (address && addressDetail) {
+            document.getElementById('address').value = address + ' ' + addressDetail;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

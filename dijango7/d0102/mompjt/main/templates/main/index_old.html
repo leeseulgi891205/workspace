@@ -1,0 +1,829 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* ==================== 1. 배너 슬라이더 스타일 (최종 수정) ==================== */
+  .banner-slider {
+    position: relative;
+    width: 100%;
+    height: 280px; /* ✅ 배너 전체 높이 설정 */
+    margin-bottom: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    overflow: hidden; /* 둥근 모서리 적용을 위해 넘치는 부분 숨김 */
+  }
+  .banner-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .banner-item {
+    min-width: 100%;
+    height: 100%; /* ✅ 부모 높이에 맞춤 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 50px;
+    box-sizing: border-box;
+    position: relative;
+    /* border-radius, overflow는 부모(banner-slider)에서 처리하므로 여기선 제거 */
+  }
+  
+  /* 텍스트 영역 */
+  .banner-text { 
+    flex: 1; 
+    z-index: 2; 
+    max-width: 55%;
+  }
+  .banner-text h2 { 
+    font-size: 28px;
+    font-weight: 800; 
+    color: #333; 
+    margin: 0 0 15px 0; 
+    line-height: 1.3;
+    word-break: keep-all;
+  }
+  .banner-text p { 
+    font-size: 16px; 
+    color: #555; 
+    margin: 0; 
+    opacity: 0.9; 
+  }
+
+  /* ★★★ [핵심 수정] 이미지 스타일 ★★★ */
+  .banner-image {
+    height: 190px; /* ✅ 이미지 크기 키움 */
+    width: auto;
+    object-fit: contain; /* 비율 유지하며 안에 맞춤 */
+    
+    /* mix-blend-mode 제거: 이미지 본연의 색상 유지 */
+    
+    /* 위치 조정: 오른쪽 아래로 배치 */
+    
+    
+    margin-right: -30px;  /* 오른쪽에 딱 붙게 조정 */
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.05)); /* 살짝 그림자 추가 */
+  }
+
+  /* 화살표 버튼 */
+  .slider-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8); color: #333; border: none;
+    width: 40px; height: 40px; border-radius: 50%;
+    font-size: 18px; cursor: pointer; z-index: 10;
+    transition: all 0.3s;
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .slider-btn:hover { background: #fff; transform: translateY(-50%) scale(1.1); }
+  .prev-btn { left: 15px; }
+  .next-btn { right: 15px; }
+
+
+  /* ==================== 2. 등급/퀘스트 스타일 (기존 유지) ==================== */
+  .user-grade-chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+    border-radius: 999px; background: linear-gradient(135deg, #fff0f3, #ffe4ec);
+    color: #d6336c; font-size: 12px; font-weight: 700;
+    box-shadow: 0 3px 8px rgba(214, 51, 108, .12);
+    transform: translateY(-12px); position: relative;
+    will-change: transform, box-shadow, filter;
+  }
+  .grade-suffix { font-size: 10px; opacity: .7; font-weight: 600; }
+
+  @keyframes toastPop {
+    0%   { transform: translateY(-4px) scale(.98); opacity: 0; }
+    30%  { transform: translateY(0)   scale(1.06); opacity: 1; }
+    70%  { transform: translateY(0)   scale(1.00); opacity: 1; }
+    100% { transform: translateY(-4px) scale(1.00); opacity: 0; }
+  }
+  #point-toast.is-pop { animation: toastPop 1400ms cubic-bezier(.2, .9, .2, 1); }
+  #point-toast.is-levelup {
+    box-shadow: 0 10px 22px rgba(255, 92, 138, .25), 0 0 0 6px rgba(255, 92, 138, .12);
+  }
+
+  .user-grade-chip.is-levelup {
+    animation: chipBounce 520ms cubic-bezier(.2, .9, .2, 1), chipGlow 900ms ease-out;
+  }
+  @keyframes chipBounce {
+    0%   { transform: translateY(-12px) scale(1); }
+    35%  { transform: translateY(-18px) scale(1.06); }
+    65%  { transform: translateY(-10px) scale(.98); }
+    100% { transform: translateY(-12px) scale(1); }
+  }
+  @keyframes chipGlow {
+    0% { box-shadow: 0 3px 8px rgba(214, 51, 108, .12); filter: saturate(1); }
+    35% { box-shadow: 0 10px 24px rgba(255, 92, 138, .38), 0 0 0 6px rgba(255, 92, 138, .18); filter: saturate(1.25); }
+    100% { box-shadow: 0 3px 8px rgba(214, 51, 108, .12); filter: saturate(1); }
+  }
+  @keyframes barPopStrong {
+    0% { transform: scaleX(1); } 45% { transform: scaleX(1.08); } 100% { transform: scaleX(1); }
+  }
+  .grade-bar-animate { animation: barPopStrong 0.32s cubic-bezier(.2, .9, .2, 1); transform-origin: left; }
+
+  /* 레이아웃 */
+  .content-wrapper { 
+    display: flex; 
+    gap: 30px; 
+    max-width: 1400px; 
+    margin: 0 auto; 
+    padding: 20px; 
+  }
+  .main-left { 
+    flex: 2.5; 
+    min-width: 0; 
+  }
+  .main-right { 
+    flex: 1; 
+    min-width: 300px; 
+    position: sticky; 
+    top: 20px; 
+    height: fit-content;
+  }
+
+  /* 탭 네비게이션 */
+  .section-tabs {
+    display: flex;
+    gap: 20px;
+    margin: 30px 0 25px 0;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+  }
+
+  .tab-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .tab-button.active {
+    color: #ff6b6b;
+  }
+
+  .tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #ff6b6b;
+  }
+
+  .tab-button:hover {
+    color: #ff8787;
+  }
+
+  /* 섹션 컨테이너 */
+  .section-container {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title-icon {
+    font-size: 24px;
+  }
+
+  /* 로그인 박스 */
+  .login-box { 
+    width: 100%; 
+    box-sizing: border-box;
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
+  }
+
+  /* 인기글 섹션 */
+  .hot-posts { margin-bottom: 0; }
+  
+  .section-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 20px; 
+  }
+  
+  .section-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+  }
+
+  .more-link {
+    color: #ff6b6b !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease;
+  }
+
+  .more-link:hover {
+    color: #ff8787 !important;
+  }
+  
+  .post-grid { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 15px;
+  }
+  
+  .post-card { 
+    background: linear-gradient(135deg, #fff5f5 0%, #fff0f5 100%);
+    padding: 18px 20px; 
+    border-radius: 14px; 
+    border: 2px solid #ffe0e6;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .post-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ff6b6b 0%, #ff8787 100%);
+  }
+  
+  .post-card:hover { 
+    border-color: #ff6b6b; 
+    transform: translateX(8px);
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.15);
+    background: linear-gradient(135deg, #ffe0e6 0%, #ffccdd 100%);
+  }
+  
+  .post-card-content {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .post-card .category { 
+    font-size: 11px; 
+    font-weight: 700;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+    background-color: #ffe0e6;
+  }
+  
+  .post-card .category[style*="color:#28a745"] { 
+    background-color: #e8f5e9;
+  }
+  
+  .post-card .title { 
+    font-weight: 700; 
+    color: #333; 
+    text-decoration: none; 
+    display: block; 
+    margin: 0 0 10px 0; 
+    font-size: 15px; 
+    line-height: 1.5;
+    word-break: break-word;
+  }
+  
+  .post-card .title:hover {
+    color: #ff6b6b;
+  }
+  
+  .post-info { 
+    font-size: 12px; 
+    color: #999; 
+    margin-top: 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* 카테고리 섹션 */
+  .category-section {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+
+  @media (max-width: 1024px) {
+    .category-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #fff5f5 0%, #fff0f5 100%);
+    border-radius: 12px;
+    border: 1px solid #ffe0e6;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #333;
+    cursor: pointer;
+  }
+
+  .category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.15);
+    border-color: #ff6b6b;
+  }
+
+  .category-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .category-name {
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* 우측 사이드바 추천 */
+  .sidebar-section {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  }
+
+  .sidebar-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  .recommendation-item {
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .recommendation-item:hover {
+    background: #ffe0e6;
+  }
+
+  .recommendation-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+  }
+
+  .recommendation-desc {
+    font-size: 12px;
+    color: #999;
+  }
+</style>
+
+<div class="content-wrapper">
+  <div class="main-left">
+    <section class="main-banner">
+      <div class="banner-slider">
+        <div class="banner-track">
+          <div class="banner-item" style="background-color:#fdf3e6; border-radius: 20px;">
+            <div class="banner-text">
+              <h2>12월 맘스로그<br>베이비페어!</h2>
+              <p>사전등록하고 푸짐한 경품 받아가세요~</p>
+            </div>
+            <img src="{% static 'images/image_3.png' %}" class="banner-image" onerror="this.style.display='none'">
+          </div>
+
+          <div class="banner-item" style="background-color:#e6f7ff; border-radius: 20px;">
+            <div class="banner-text">
+              <h2>우리 아이<br>첫 이유식 가이드</h2>
+              <p>초기부터 완료기까지 단계별 레시피!</p>
+            </div>
+            <img src="{% static 'images/image_2.png' %}" class="banner-image" onerror="this.style.display='none'">
+          </div>
+
+          <div class="banner-item" style="background-color:#fff0f6; border-radius: 20px;">
+            <div class="banner-text">
+              <h2>겨울철 실내놀이<br>BEST 5</h2>
+              <p>집에서도 지루하지 않게 노는 방법</p>
+            </div>
+            <img src="{% static 'images/image_4.png' %}" class="banner-image" onerror="this.style.display='none'">
+          </div>
+
+          <div class="banner-item" style="background-color:#f6ffed; border-radius: 20px;">
+            <div class="banner-text">
+              <h2>육아용품<br>중고장터 OPEN</h2>
+              <p>안 쓰는 장난감, 깨끗하게 나누세요</p>
+            </div>
+            <img src="{% static 'images/image_5.png' %}" class="banner-image" onerror="this.style.display='none'">
+          </div>
+
+          <div class="banner-item" style="background-color:#fff7e6; border-radius: 20px;">
+            <div class="banner-text">
+              <h2>맘스로그<br>신규가입 이벤트</h2>
+              <p>지금 가입하면 포인트 2배 적립! ✨</p>
+            </div>
+            <img src="{% static 'images/image_1.png' %}" class="banner-image" onerror="this.style.display='none'">
+          </div>
+        </div>
+
+        <button class="slider-btn prev-btn" id="btnPrev">❮</button>
+        <button class="slider-btn next-btn" id="btnNext">❯</button>
+      </div>
+    </section>
+
+    <!-- 섹션 탭 -->
+    <div class="section-tabs">
+      <button class="tab-button active" onclick="switchSection('recent')">📝 최근글</button>
+      <button class="tab-button" onclick="switchSection('hot')">🔥 인기글</button>
+      <button class="tab-button" onclick="switchSection('guide')">📖 가이드</button>
+      <button class="tab-button" onclick="switchSection('recipe')">🍽 레시피</button>
+    </div>
+
+    <!-- 최근글 섹션 -->
+    <section id="section-recent" class="section-container">
+      <div class="section-header">
+        <h3>최근 올려진 글</h3>
+        <a href="#" class="more-link">더보기 ></a>
+      </div>
+      <div class="post-grid">
+        {% for post in hot_posts|slice:":3" %}
+        <div class="post-card">
+          <div class="post-card-content">
+            <span class="category" style="color:#ff6b6b; font-size:11px; font-weight:bold;">{% if post.post_type == 'free' %}자유게시판{% else %}벼룩시장{% endif %}</span>
+            <a href="{% if post.post_type == 'free' %}{% url 'board:free_detail' post.pk %}{% else %}{% url 'board:flea_detail' post.pk %}{% endif %}" class="title">{{ post.title }}</a>
+            <div class="post-info">
+              <span>👤 {{ post.author.nickname }}</span> 
+              <span>👁 {{ post.views }}</span> 
+              <span>🕐 {{ post.created_at|date:"m.d H:i" }}</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- 인기글 섹션 -->
+    <section id="section-hot" class="section-container" style="display:none;">
+      <div class="section-header">
+        <h3>🔥 실시간 인기글</h3>
+        <a href="#" class="more-link">더보기 ></a>
+      </div>
+      <div class="post-grid">
+        {% for post in hot_posts %}
+        <div class="post-card">
+          <div class="post-card-content">
+            <span class="category" style="color:#ff6b6b; font-size:11px; font-weight:bold;">{% if post.post_type == 'free' %}자유게시판{% else %}벼룩시장{% endif %}</span>
+            <a href="{% if post.post_type == 'free' %}{% url 'board:free_detail' post.pk %}{% else %}{% url 'board:flea_detail' post.pk %}{% endif %}" class="title">{{ post.title }}</a>
+            <div class="post-info">
+              <span>👤 {{ post.author.nickname }}</span> 
+              <span>👁 {{ post.views }}</span> 
+              <span>🕐 {{ post.created_at|date:"m.d H:i" }}</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- 가이드 섹션 -->
+    <section id="section-guide" class="section-container" style="display:none;">
+      <div class="section-header">
+        <h3>📖 육아 가이드</h3>
+        <a href="#" class="more-link">더보기 ></a>
+      </div>
+      <div class="category-grid">
+        <div class="category-card">
+          <div class="category-icon">📚</div>
+          <div class="category-name">육아 Q&A</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🍼</div>
+          <div class="category-name">수유/이유식</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">😴</div>
+          <div class="category-name">수면 케어</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">👶</div>
+          <div class="category-name">발달 가이드</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 레시피 섹션 -->
+    <section id="section-recipe" class="section-container" style="display:none;">
+      <div class="section-header">
+        <h3>🍽 인기 레시피</h3>
+        <a href="#" class="more-link">더보기 ></a>
+      </div>
+      <div class="category-grid">
+        <div class="category-card">
+          <div class="category-icon">🥘</div>
+          <div class="category-name">한끼 식사</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🍪</div>
+          <div class="category-name">간식</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🥤</div>
+          <div class="category-name">음료</div>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🎂</div>
+          <div class="category-name">디저트</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <aside class="main-right">
+    <div class="login-box">
+      {% if user.is_authenticated %}
+        <div class="user-info-area">
+          <p class="login-text">
+            <span id="user-grade-chip" class="user-grade-chip">
+              <span id="user-grade-name" class="grade-name">{{ user.get_grade_display }}</span>
+              <span class="grade-suffix">등급</span>
+            </span><br>
+            <strong>{{ user.nickname }}</strong>님,<br>
+            오늘도 행복한 하루 되세요!
+          </p>
+
+          <div id="grade-progress-area">
+            {% if grade_progress %}
+            <div style="margin:10px 0 12px; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+              <div class="grade-top-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; font-weight:bold; color:#555;">
+                <span class="grade-top-left">
+                  <b>Lv.</b> <span id="current-grade-label">{{ grade_progress.current_label }}</span>
+                </span>
+                <span class="grade-top-mid">
+                  <span id="point-toast" style="font-weight:bold; color:#ff6b6b;"></span>
+                </span>
+                <span class="grade-top-right"><b id="point-value" style="color:#ff6b6b;">{{ grade_progress.point }}</b> P</span>
+              </div>
+
+              <div class="grade-bar-bg" style="background:#eee; height:10px; border-radius:5px; overflow:hidden;">
+                <div id="grade-bar-fill"
+                     class="grade-bar-fill"
+                     style="width:{{ grade_progress.progress_percent }}%; background: linear-gradient(90deg, #ff9a9e 0%, #ff6b6b 100%); height:100%; transition: width 0.5s;">
+                </div>
+              </div>
+
+              <div id="grade-remaining-text" style="margin-top:10px; font-size:12px; color:#888; text-align:center;">
+                {% if grade_progress.is_max %}
+                  최고 등급이에요 ⭐
+                {% else %}
+                  다음 <b>{{ grade_progress.next_label }}</b>까지 <b>{{ grade_progress.remaining }}P</b> 남았어요!
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <div id="quest-card-area">
+            {% if today_quest and not today_quest.completed and not today_quest.skipped %}
+            <div class="quest-card" style="margin:12px 0; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+              <div style="font-weight:800; color:#333; margin-bottom:5px;">🎯 오늘의 작은 목표</div>
+              <div style="margin:8px 0 15px; color:#555; font-size:14px;">{{ today_quest.content }}</div>
+
+              <div style="display:flex; gap:8px;">
+                <form method="post" action="{% url 'quests:complete_today' %}" data-quest-action="complete" style="flex:1;">
+                  {% csrf_token %}
+                  <button class="btn-login" style="width:100%; padding:10px; background:#ff6b6b; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; transition:background 0.2s;">했어요 ✓</button>
+                </form>
+
+                <form method="post" action="{% url 'quests:skip_today' %}" style="flex:1;">
+                  {% csrf_token %}
+                  <button class="btn-login" style="width:100%; padding:10px; background:#f3f4f6; color:#666; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">패스</button>
+                </form>
+              </div>
+              <div style="margin-top:10px; font-size:12px; color:#999; text-align:center;">완료 시 +3 포인트 적립</div>
+            </div>
+            {% else %}
+            <div class="quest-card" style="margin:12px 0; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; text-align:center;">
+              <div style="font-weight:700; font-size:16px;">오늘 미션 클리어! 🌟</div>
+              <div style="margin-top:6px; color:#888; font-size:14px;">내일 새로운 목표로 만나요</div>
+            </div>
+            {% endif %}
+          </div>
+
+          <a href="{% url 'accounts:profile' %}" class="btn-login" style="display:block; width:100%; text-align:center; padding:12px; background:#fff; color:#333; border:1px solid #ddd; border-radius:10px; text-decoration:none; font-weight:bold; transition:background 0.2s; margin-bottom:10px;">마이페이지</a>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="btn-login btn-logout" style="display:block; width:100%; text-align:center; padding:12px; background:#f1f3f5; color:#888; border-radius:10px; text-decoration:none; font-size:13px;">로그아웃</a>
+
+      {% else %}
+        <div class="user-info-area" style="padding:20px; background:white; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); text-align:center;">
+          <p class="login-text" style="margin-bottom:20px; color:#444;">
+            <strong style="font-size:18px; color:#ff6b6b;">로그인하고</strong><br>
+            나만의 육아 기록을 시작해보세요!
+          </p>
+          <a href="{% url 'accounts:login' %}" style="display:block; width:100%; padding:12px; background:#ff6b6b; color:white; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold; margin-bottom:10px; box-shadow:0 4px 10px rgba(255, 107, 107, 0.3);">로그인</a>
+          <a href="{% url 'accounts:signup' %}" style="display:block; width:100%; padding:12px; background:#fff; border:1px solid #ddd; color:#333; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold;">회원가입</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- 우측 추천 섹션 -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">🌟 추천 콘텐츠</div>
+      <div class="recommendation-item">
+        <div class="recommendation-title">신생아 안내책</div>
+        <div class="recommendation-desc">필수 육아 정보 모음</div>
+      </div>
+      <div class="recommendation-item">
+        <div class="recommendation-title">이유식 완벽 가이드</div>
+        <div class="recommendation-desc">월령별 레시피</div>
+      </div>
+      <div class="recommendation-item">
+        <div class="recommendation-title">수면 트러블 해결법</div>
+        <div class="recommendation-desc">숙면의 비결</div>
+      </div>
+    </div>
+
+    <!-- 광고 배너 -->
+    <div style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+      <img src="{% static 'images/ad_banner.png' %}" alt="광고 배너" style="width: 100%; height: auto; display: block;">
+    </div>
+  </aside>
+</div>
+
+<script>
+function switchSection(sectionName) {
+  // 모든 섹션 숨기기
+  document.getElementById('section-recent').style.display = 'none';
+  document.getElementById('section-hot').style.display = 'none';
+  document.getElementById('section-guide').style.display = 'none';
+  document.getElementById('section-recipe').style.display = 'none';
+
+  // 선택한 섹션 표시
+  document.getElementById('section-' + sectionName).style.display = 'block';
+
+  // 탭 버튼 스타일 변경
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  /* 1. 배너 슬라이더 로직 */
+  const track = document.querySelector('.banner-track');
+  const items = document.querySelectorAll('.banner-item');
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  
+  if (track && items.length > 0) {
+      let currentSlide = 0;
+      const totalSlides = items.length;
+
+      function updateSlidePosition() {
+          const offset = -currentSlide * 100;
+          track.style.transform = `translateX(${offset}%)`;
+      }
+
+      function moveNext() {
+          currentSlide = (currentSlide + 1) % totalSlides;
+          updateSlidePosition();
+      }
+
+      function movePrev() {
+          currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+          updateSlidePosition();
+      }
+
+      if (nextBtn) nextBtn.addEventListener('click', moveNext);
+      if (prevBtn) prevBtn.addEventListener('click', movePrev);
+      
+      setInterval(moveNext, 5000);
+  }
+
+  /* 2. 퀘스트 & 등급 애니메이션 로직 */
+  const questArea = document.getElementById("quest-card-area");
+  const toast = document.getElementById("point-toast");
+
+  if (questArea && toast) {
+    function animateNumber(el, to, duration = 450) {
+        if (!el) return;
+        const from = parseInt(el.textContent || "0", 10);
+        const target = Number(to);
+        if (Number.isNaN(target)) return;
+        const start = performance.now();
+        function tick(now) {
+            const t = Math.min(1, (now - start) / duration);
+            const value = Math.round(from + (target - from) * t);
+            el.textContent = value;
+            if (t < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    }
+
+    function replayClass(el, className) {
+        if (!el) return;
+        el.classList.remove(className);
+        void el.offsetWidth;
+        el.classList.add(className);
+    }
+
+    function showToast({ text, bg = "#111", isLevelUp = false }) {
+        toast.textContent = text;
+        toast.style.color = bg;
+        replayClass(toast, "is-pop");
+    }
+
+    questArea.addEventListener("submit", async (e) => {
+        const form = e.target;
+        if (!form.dataset || form.dataset.questAction !== "complete") return;
+        e.preventDefault();
+
+        const btn = form.querySelector("button");
+        if (btn) btn.disabled = true;
+
+        const csrf = form.querySelector("[name=csrfmiddlewaretoken]")?.value;
+        if (!csrf) return;
+
+        try {
+            const res = await fetch(form.action, {
+                method: "POST",
+                headers: { "X-CSRFToken": csrf, "X-Requested-With": "XMLHttpRequest" },
+            });
+            const data = await res.json();
+
+            if (data.status !== "ok") return;
+
+            questArea.innerHTML = `
+                <div class="quest-card" style="margin:12px 0; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; text-align:center;">
+                    <div style="font-weight:700; font-size:16px;">오늘 미션 클리어! 🌟</div>
+                    <div style="margin-top:6px; color:#888; font-size:14px;">내일 새로운 목표로 만나요</div>
+                </div>`;
+
+            const pointEl = document.getElementById("point-value");
+            const barEl = document.getElementById("grade-bar-fill");
+            const remainingEl = document.getElementById("grade-remaining-text");
+
+            if (typeof data.point === "number") animateNumber(pointEl, data.point);
+            if (data.progress_percent !== undefined) {
+                if(barEl) barEl.style.width = `${data.progress_percent}%`;
+            }
+            if (data.remaining_text && remainingEl) remainingEl.innerHTML = data.remaining_text;
+
+            const isBonus = data.streak && [3,7,14].includes(data.streak);
+            showToast({ text: isBonus ? `🔥 +10P` : "+3P", bg: "#ff6b6b" });
+
+            if (data.leveled_up) {
+                const nameEl = document.getElementById("user-grade-name");
+                const chip = document.getElementById("user-grade-chip");
+                if (nameEl) nameEl.textContent = data.new_label;
+                if (chip) replayClass(chip, "is-levelup");
+                
+                const currentLabelEl = document.getElementById("current-grade-label");
+                if (currentLabelEl) currentLabelEl.textContent = data.new_label;
+                
+                alert(`축하합니다! ${data.new_label} 등급이 되셨어요! 🎉`);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    });
+  }
+});
+</script>
+{% endblock %}

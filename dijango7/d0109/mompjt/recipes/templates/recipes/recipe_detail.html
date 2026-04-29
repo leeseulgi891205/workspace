@@ -1,0 +1,427 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}{{ post.title }} - 요리레시피{% endblock %}
+
+{% block content %}
+<style>
+.recipe-detail-shell {
+    max-width: 960px;
+    margin: 32px auto 60px;
+    padding: 0 16px;
+}
+
+.recipe-hero {
+    background: linear-gradient(135deg, #fff6f6 0%, #ffecec 100%);
+    border: 1px solid #ffe0e0;
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 16px 45px rgba(255, 143, 143, 0.16);
+}
+
+.hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    background: #fff;
+    color: #ff8f8f;
+    border: 1px solid #ffd3d3;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(255, 143, 143, 0.12);
+}
+
+.category-chip small {
+    color: #c86464;
+    font-weight: 600;
+}
+
+.meta-soft {
+    text-align: right;
+    color: #a36a6a;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.recipe-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #2f2a28;
+    margin: 14px 0 10px;
+    line-height: 1.25;
+}
+
+.meta-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 14px;
+    color: #6b5555;
+}
+
+.meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid #f4d6d6;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.reader-note {
+    margin: 22px 0 0;
+    padding: 14px 16px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px dashed #ffd3d3;
+    color: #8b5d5d;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.recipe-body {
+    margin-top: 26px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #f1e8e8;
+    box-shadow: 0 10px 30px rgba(31, 41, 55, 0.06);
+    overflow: hidden;
+}
+
+.recipe-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    padding: 18px 18px 6px;
+}
+
+.recipe-images img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    background: #f8f4f4;
+    box-shadow: 0 8px 20px rgba(31, 41, 55, 0.04);
+}
+
+.recipe-content {
+    padding: 18px 20px 22px;
+    line-height: 1.8;
+    font-size: 16px;
+    color: #3c3533;
+    white-space: pre-wrap;
+}
+
+.action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 26px;
+}
+
+.btn-ghost,
+.btn-accent,
+.btn-soft,
+.btn-danger-soft {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.btn-ghost {
+    background: #fff;
+    color: #744f4f;
+    border-color: #f1dcdc;
+}
+
+.btn-accent {
+    background: linear-gradient(135deg, #ff8f8f 0%, #ffa8a8 100%);
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(255, 143, 143, 0.35);
+}
+
+.btn-soft {
+    background: #faf7f7;
+    color: #8a6a6a;
+    border-color: #eadede;
+}
+
+.btn-danger-soft {
+    background: #fff7f7;
+    color: #c25555;
+    border-color: #f2cfcf;
+}
+
+.btn-ghost:hover,
+.btn-accent:hover,
+.btn-soft:hover,
+.btn-danger-soft:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(31, 41, 55, 0.08);
+}
+
+.admin-actions {
+    display: inline-flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.comments-section {
+    margin-top: 42px;
+    padding: 28px;
+    background: #fff;
+    border: 1px solid #f1e8e8;
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(31, 41, 55, 0.07);
+}
+
+.comments-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.comments-lead {
+    color: #8b5d5d;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.comments-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #2f2a28;
+    margin: 0;
+}
+
+.count-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #fff4f4;
+    border: 1px solid #ffd3d3;
+    border-radius: 999px;
+    color: #c25555;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.comment-list {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.comment-card {
+    background: #fff9f9;
+    border: 1px solid #f3e2e2;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 8px 18px rgba(31, 41, 55, 0.05);
+}
+
+.comment-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #8a6a6a;
+}
+
+.comment-author {
+    font-weight: 800;
+    color: #5c4545;
+}
+
+.comment-content {
+    margin-top: 8px;
+    line-height: 1.6;
+    color: #3c3533;
+}
+
+.empty-comments {
+    text-align: center;
+    padding: 30px 10px;
+    color: #9c7a7a;
+    background: #fff9f9;
+    border: 1px dashed #f2d3d3;
+    border-radius: 14px;
+}
+
+.comment-form {
+    margin-top: 20px;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 15px 14px;
+    border: 1px solid #eadede;
+    border-radius: 12px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 110px;
+    background: #fff;
+    color: #3c3533;
+}
+
+.comment-form button {
+    margin-top: 10px;
+}
+
+.login-prompt {
+    text-align: center;
+    color: #9c7a7a;
+    padding: 18px 0 6px;
+}
+
+@media (max-width: 768px) {
+    .recipe-detail-shell {
+        margin: 22px auto 40px;
+    }
+    .hero-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .recipe-title {
+        font-size: 24px;
+    }
+    .meta-line {
+        flex-direction: column;
+        gap: 6px;
+    }
+    .action-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .admin-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    .comment-meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .recipe-images img {
+        height: 200px;
+    }
+}
+</style>
+
+<div class="recipe-detail-shell">
+    <div class="recipe-hero">
+        <div class="hero-top">
+            <div>
+                <span class="category-chip">{{ post.get_category_display_name }} <small>오늘 밥상</small></span>
+                <h1 class="recipe-title">{{ post.title }}</h1>
+                <div class="meta-line">
+                    <span class="meta-pill">{{ post.author.nickname|default:post.author.username }} 님의 부엌 이야기</span>
+                    <span class="meta-pill">{{ post.created_at|date:"Y.m.d H:i" }}에 올린 따끈한 기록</span>
+                    <span class="meta-pill">{{ post.views|intcomma }}명이 들여다보고 갔어요</span>
+                </div>
+            </div>
+            <div class="meta-soft">
+                오늘 저녁 메뉴 고민 중인 엄마들에게<br>작은 영감이 되길 바라요.
+            </div>
+        </div>
+        <div class="reader-note">
+            한 입 먹기 전, 마음부터 데워요. 오늘은 어떤 순간을 위한 밥상이었나요?
+        </div>
+    </div>
+
+    <div class="recipe-body">
+        {% if images %}
+        <div class="recipe-images">
+            {% for image in images %}
+            <img src="{{ image.image.url }}" alt="{{ post.title }}">
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="recipe-content">
+            {{ post.content|linebreaksbr }}
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <a href="{% url 'recipes:recipe_list' %}" class="btn-ghost">← 목록으로 돌아가기</a>
+        <a href="#comment-form" class="btn-accent">💬 댓글로 응원 남기기</a>
+        {% if user == post.author %}
+        <div class="admin-actions">
+            <a href="{% url 'recipes:recipe_update' post.pk %}" class="btn-soft">✏️ 수정</a>
+            <form method="post" action="{% url 'recipes:recipe_delete' post.pk %}" style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger-soft">🗑 삭제</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="comments-section" id="comment-section">
+        <div class="comments-head">
+            <div>
+                <div class="comments-lead">따뜻한 한마디가 큰 힘이 돼요</div>
+                <h3 class="comments-title">이 레시피, 어떠셨어요? <span class="count-pill">{{ comments.count }}명 이야기</span></h3>
+            </div>
+        </div>
+
+        <div class="comment-list">
+            {% for comment in comments %}
+            <div class="comment-card">
+                <div class="comment-meta">
+                    <span class="comment-author">{{ comment.author.nickname|default:comment.author.username }}</span>
+                    <span>{{ comment.created_at|date:"Y.m.d H:i" }}</span>
+                    {% if user == comment.author %}
+                    <form method="post" action="{% url 'recipes:comment_delete' post.pk comment.pk %}" onsubmit="return confirm('댓글을 삭제하시겠습니까?');" style="margin-left:auto;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger-soft" style="padding:6px 10px; font-size:12px;">삭제</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="comment-content">{{ comment.content }}</div>
+            </div>
+            {% empty %}
+            <div class="empty-comments">
+                아직 응원 한마디가 없어요. 첫 댓글로 오늘의 밥상을 따뜻하게 채워주세요.
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="comment-form" id="comment-form">
+            <form method="post" action="{% url 'recipes:comment_create' post.pk %}">
+                {% csrf_token %}
+                {{ comment_form.content }}
+                <button type="submit" class="btn-accent" style="margin-top:10px;">따뜻한 댓글 남기기</button>
+            </form>
+        </div>
+        {% else %}
+        <p class="login-prompt">
+            <a href="{% url 'accounts:login' %}">로그인</a>하면 오늘의 밥상에 응원을 남길 수 있어요.
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

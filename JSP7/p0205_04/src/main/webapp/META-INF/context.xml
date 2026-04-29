@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+  <!-- Tomcat JNDI DataSource for Oracle XE (Tomcat 9 / DBCP2) -->
+  <Resource name="jdbc/Oracle21"
+            auth="Container"
+            type="javax.sql.DataSource"
+            driverClassName="oracle.jdbc.OracleDriver"
+            url="jdbc:oracle:thin:@localhost:1521:xe"
+            username="system"
+            password="1234"
+            maxTotal="50"
+            maxIdle="10"
+            maxWaitMillis="1000"/>
+</Context>

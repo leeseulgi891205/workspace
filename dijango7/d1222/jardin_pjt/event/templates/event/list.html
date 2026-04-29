@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div id="container">
+    <div id="location">
+        <ol>
+            <li><a href="/">HOME</a></li>
+            <li class="last">이벤트</li>
+        </ol>
+    </div>
+    
+    <div id="outbox">
+        <div id="left">
+            <div id="title2">EVENT<span>이벤트</span></div>
+            <ul>
+                <li><a href="/event/list/" id="leftNavi1">진행중인 이벤트</a></li>
+                <li><a href="#" id="leftNavi2">종료된 이벤트</a></li>
+                <li class="last"><a href="#" id="leftNavi3">당첨자발표</a></li>
+            </ul>
+        </div>
+
+        <div id="contents">
+            <div id="event">
+                <h2><strong>이벤트</strong><span>JARDIN의 다양한 이벤트에 참여하세요.</span></h2>
+                
+                <div class="informbox">
+                    <div class="inform">
+                        <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: #f5f5f5;">
+                                    <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">번호</th>
+                                    <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">제목</th>
+                                    <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">기간</th>
+                                    <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">1</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;"><a href="#">2025 신년 맞이 50% 할인 이벤트</a></td>
+                                    <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">2025-01-01 ~ 2025-01-31</td>
+                                    <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">진행중</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">2</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;"><a href="#">구매 후기 작성 이벤트</a></td>
+                                    <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">2024-12-01 ~ 2024-12-31</td>
+                                    <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">진행중</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">3</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;"><a href="#">친구 초대 이벤트</a></td>
+                                    <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">2024-11-01 ~ 2024-12-25</td>
+                                    <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">종료</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="btn" style="margin-top: 20px; text-align: center;">
+                            <a href="#" class="sbtn">이벤트 참여</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

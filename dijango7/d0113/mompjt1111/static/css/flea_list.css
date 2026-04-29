@@ -1,0 +1,176 @@
+/* =========================
+   마켓 검색 / 목록
+========================= */
+
+.flea-container{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.flea-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px;
+  padding-bottom:12px;
+  border-bottom:2px solid #ff6b6b;
+}
+
+.market-title{
+  margin:0;
+  font-size:22px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.flea-header-form-div{
+  display:flex;
+  gap:8px;
+  flex:1;
+}
+
+.flea-header input[type="text"]{
+  flex:1;
+  height:36px;
+  padding:0 14px;
+  border:1px solid #dee2e6;
+  border-radius:8px;
+  font-size:14px;
+}
+
+/* 검색/상품작성 버튼 공통 */
+.market-btn{
+  height:36px;
+  padding:0 14px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.btn-search{
+  background:#ff6b6b;
+  color:#fff;
+  border:0;
+}
+
+.btn-write{
+  background:#6c757d;
+  color:#fff;
+  text-decoration:none;
+}
+
+.flea-table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  border:1px solid #eee;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.flea-table th,
+.flea-table td{
+  padding: 22px 12px;
+  border-bottom:1px solid #f1f1f1;
+  vertical-align: middle;
+  text-align: center;
+}
+
+/* 헤더 더 선명하게 */
+.flea-table thead th{
+  background:#fafafa;
+  font-weight:900;
+  font-size: 13px;
+  color:#222;
+}
+
+/* 제목(2열)은 왼쪽 + 크게 */
+.flea-table thead th:nth-child(2),
+.flea-table tbody td:nth-child(2){
+  text-align: left;
+}
+
+.flea-table-link{
+  color:#222;
+  text-decoration:none;
+  font-weight:900;
+  font-size: 15px;   /* ✅ 제목 잘 보이게 */
+  line-height: 1.2;
+}
+/* ✅ 행 전체 클릭 + hover 표시 */
+.flea-table tbody tr.flea-row{
+  cursor: pointer;
+  transition: background-color .15s ease;
+}
+
+.flea-table tbody tr.flea-row:hover{
+  background-color: #fff7f7; /* 너희 사이트 톤(연핑크) */
+}
+
+
+/* 작성자도 조금 키우고 진하게 */
+.col-author{
+  font-size: 14px;
+  font-weight: 800;
+  color:#333;
+  white-space: nowrap;
+}
+
+.col-price{
+  color:#ff6b6b;
+  font-weight:900;
+  white-space:nowrap;
+  font-size: 14px;
+}
+
+/* 썸네일 살짝 키우기 */
+.flea-table-thumb{
+  width: 96px;
+  height: 74px;
+  border-radius:10px;
+  object-fit:cover;
+  background:#f2f2f2;
+  display:block;
+}
+
+.flea-table-thumb.placeholder{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  color:#999;
+}
+
+.flea-table-badge{
+  margin-left:6px;
+  padding:3px 8px;
+  border-radius:999px;
+  background:#666;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+}
+
+.pagination-container{
+  margin:20px 0;
+  text-align:center;
+}
+
+.pagination-btn{
+  display:inline-block;
+  padding:6px 10px;
+  border:1px solid #ddd;
+  border-radius:6px;
+  margin:0 4px;
+  text-decoration:none;
+  font-weight:700;
+}
+
+.pagination-btn.active{
+  background:#495057;
+  color:#fff;
+}

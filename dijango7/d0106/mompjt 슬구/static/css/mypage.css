@@ -1,0 +1,250 @@
+/* =========================
+   MyPage (Sidebar + Card)
+========================= */
+
+.mypage-wrap{
+  max-width: 980px;
+  margin: 22px auto;
+  display:flex;
+  gap: 14px;
+  padding: 0 12px;
+}
+
+.mypage-side{
+  width: 200px;
+  background:#fff;
+  border:1px solid #eee;
+  border-radius: 14px;
+  padding: 14px;
+  height: fit-content;
+}
+
+.mypage-side__title{
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.mypage-nav{
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mypage-nav__item{
+  display:block;
+  padding: 9px 11px;
+  border-radius: 10px;
+  text-decoration: none;
+  color:#333;
+  border: 1px solid #f0f0f0;
+  background:#fafafa;
+  font-size: 13px;
+}
+
+.mypage-nav__item.is-active{
+  border-color:#ddd;
+  background:#fff;
+  font-weight:700;
+}
+
+.mypage-nav__item.is-disabled{
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mypage-logout{
+  margin-top: 12px;
+}
+
+.mypage-logout__btn{
+  width:100%;
+  padding:9px 11px;
+  border-radius:10px;
+  border:1px solid #eee;
+  background:#fff;
+  cursor:pointer;
+  font-size: 13px;
+}
+
+.mypage-main{ flex: 1; }
+
+.mypage-card{
+  background:#fff;
+  border:1px solid #eee;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.mypage-h2{
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.mypage-msg{ margin-bottom: 10px; }
+
+.mypage-msg__item{
+  padding: 9px 11px;
+  border-radius: 10px;
+  border:1px solid #eee;
+  margin-bottom: 8px;
+  background:#fafafa;
+  font-size: 13px;
+}
+
+
+/* =========================
+   Profile Form (빨간선/중앙 정렬 최종)
+   - 기준선 폭: 520px
+   - 카드 안에서 520px 덩어리를 가운데로
+   - 이메일 인증 2줄(발송/확인) 폭 완전 동일
+========================= */
+
+#profileForm{
+  --formW: 520px; /* ✅ 필요하면 560/600으로만 바꾸면 전체 같이 변경 */
+}
+
+/* ✅ 카드 안에서 520px 덩어리 "가운데" */
+#profileForm .field,
+#profileForm .grid,
+#profileForm .actions,
+#profileForm .row{
+  max-width: var(--formW);
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* field spacing */
+#profileForm .field{ margin-bottom: 12px; }
+
+/* label */
+#profileForm .field__label{
+  display:block;
+  font-weight:700;
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+
+/* input */
+#profileForm .field__input{
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  box-sizing: border-box;
+  max-width: none !important;
+}
+
+#profileForm .field__input:focus{
+  outline: none;
+  border-color: #222;
+}
+
+#profileForm .field__input[readonly]{
+  background:#f3f4f6;
+  cursor:not-allowed;
+}
+
+#profileForm .field__help{
+  font-size: 12px;
+  color:#777;
+  margin-top: 5px;
+}
+
+#profileForm .field__msg{
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* row: input + button (윗줄/아랫줄 동일 규칙) */
+#profileForm .row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-top: 8px;
+}
+
+#profileForm .row--tight{ margin-top: 0; }
+
+#profileForm .row .field__input{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ✅ 이메일 인증 2줄 완전 동일 (id=emailVerifyArea도 row 규칙 그대로) */
+#profileForm #emailVerifyArea{
+  margin-top: 8px; /* 윗줄과 리듬 맞추기 */
+}
+
+/* buttons */
+#profileForm .btn{
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border:1px solid #ddd;
+  background:#fff;
+  cursor:pointer;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+#profileForm .btn:hover{
+  background:#f5f5f5;
+}
+
+#profileForm .btn--sub{ background:#fafafa; }
+
+#profileForm .btn--primary{
+  border-color:#222;
+  background:#222;
+  color:#fff;
+}
+
+#profileForm .btn--primary:hover{
+  background:#333;
+}
+
+/* actions: save button */
+#profileForm .actions{
+  margin-top: 14px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+/* grid */
+#profileForm .grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+/* hidden */
+#profileForm .is-hidden{ display:none !important; }
+
+/* small screen (선택) */
+@media (max-width: 840px){
+  #profileForm{ --formW: 100%; }
+}
+
+/* 카드 제목도 폼 기준선(520px) 안으로 중앙 정렬 */
+.mypage-card .mypage-h2{
+  max-width: 520px;     /* #profileForm --formW랑 동일 */
+  margin: 0 auto 12px;  /* 가운데 + 아래 간격 */
+}
+
+/* 닉네임 중복체크 UX */
+#profileForm #nickname.is-ok{
+  border-color: #2ecc71;
+}
+
+#profileForm #nickname.is-bad{
+  border-color: #e74c3c;
+}
+
+#profileForm #nickname.is-wait{
+  border-color: #999;
+}

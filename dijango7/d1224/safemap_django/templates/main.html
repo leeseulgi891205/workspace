@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %} {# 🔧 정적 파일 사용을 위해 static 태그 로드 (TemplateSyntaxError 해결) #}
+{% block title %}SafeMap | 메인{% endblock %}
+
+{% block content %}
+<div class="grid">
+  <section class="card">
+    <div class="top" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+      <div>
+        <h2 style="margin:0">안전 지도</h2>
+        <div class="muted">GeoJSON 경계 + 제보 마커 + 상태 색상</div>
+      </div>
+      <a class="btn" href="{% url 'reports:new' %}">+ 제보 등록</a>
+    </div>
+    <div style="margin-top:12px">
+      <div id="map"></div>
+      <div class="help" style="margin-top:10px;">지도에서 지역(폴리곤) 클릭 / 제보 마커 클릭 가능</div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <h3 style="margin:0 0 8px;">메인 바로가기</h3>
+    <div class="quick" style="margin-bottom:14px;">
+      <a href="{% url 'accounts:signup' %}"><div style="font-weight:800">01. 회원가입</div><div class="muted">민혁</div></a>
+      <a href="{% url 'mypage:index' %}"><div style="font-weight:800">02. 마이페이지</div><div class="muted">규리</div></a>
+      <a href="{% url 'notices:list' %}"><div style="font-weight:800">03. 공지사항</div><div class="muted">혜은</div></a>
+      <a href="{% url 'chatbot:chat' %}"><div style="font-weight:800">04. 챗봇·게시판</div><div class="muted">성훈</div></a>
+    </div>
+
+    <h3 style="margin:0 0 8px;">최근 제보 요약</h3>
+    <div class="list">
+      {% for r in reports %}
+        <div class="item">
+          <div class="top">
+            <div class="title">{{ r.title }}</div>
+            {% if r.status == 'received' %}
+              <span class="badge done">접수됨</span>
+            {% elif r.status == 'processing' %}
+              <span class="badge warn">처리중</span>
+            {% else %}
+              <span class="badge ok">완료</span>
+            {% endif %}
+          </div>
+          <div class="muted" style="margin-top:6px;">{{ r.summary }}</div>
+        </div>
+      {% empty %}
+        <div class="muted">아직 제보가 없습니다. 첫 제보 ㄱㄱ</div>
+      {% endfor %}
+    </div>
+
+    {% if user.is_staff %}
+      <div style="margin-top:14px">
+        <a class="btn ghost" href="{% url 'reports:admin_panel' %}">관리자 상태 변경 패널</a>
+      </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ===== Map init =====
+  const map = L.map('map', { zoomControl: true }).setView([37.535, 126.97], 11);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  // ===== GeoJSON boundary =====
+  fetch("{% static 'data/sample_area.geojson' %}")
+    .then(r => r.json())
+    .then(gj => {
+      const layer = L.geoJSON(gj, {
+        style: () => ({ weight: 2, opacity: 1, fillOpacity: 0.08 }),
+        onEachFeature: (feature, layer) => {
+          layer.on('click', () => {
+            const name = feature?.properties?.name || '지역';
+            layer.bindPopup(`<b>${name}</b><br/>GeoJSON 경계 샘플`).openPopup();
+          });
+        }
+      });
+      layer.addTo(map);
+    });
+
+  // ===== Report markers =====
+  const statusColor = (s) => {
+    if (s === 'received') return '#5aa6ff';
+    if (s === 'processing') return '#ffb020';
+    return '#39d98a';
+  }
+
+  function loadReports(){
+    fetch("{% url 'reports:api_reports' %}")
+      .then(r => r.json())
+      .then(data => {
+        (data.reports || []).forEach(item => {
+          const m = L.circleMarker([item.lat, item.lng], {
+            radius: 7,
+            weight: 2,
+            color: statusColor(item.status),
+            fillOpacity: 0.6
+          }).addTo(map);
+          m.bindPopup(`<b>${item.title}</b><br/>${item.summary}<br/><small>상태: ${item.status_kr}</small>`);
+        });
+      });
+  }
+  loadReports();
+</script>
+{% endblock %}

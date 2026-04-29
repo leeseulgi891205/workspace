@@ -1,0 +1,38 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sample Area (Seoul-ish)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              126.88,
+              37.56
+            ],
+            [
+              127.05,
+              37.56
+            ],
+            [
+              127.05,
+              37.49
+            ],
+            [
+              126.88,
+              37.49
+            ],
+            [
+              126.88,
+              37.56
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

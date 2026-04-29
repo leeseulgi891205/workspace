@@ -1,0 +1,343 @@
+<!--
+═══════════════════════════════════════════════════════════════════════
+free_list.html - 자유게시판 목록
+═══════════════════════════════════════════════════════════════════════
+작성일: 2025-12-29
+기능: 자유게시판 목록 표시, 글쓰기
+26-01-02 혜은 추가: 카테고리 기능 (육아수다, 남편뒷담화, 시댁/친정, 임신출산)
+-->
+{% extends 'base.html' %}
+{% load humanize %}
+{% block content %}
+<style>
+.free-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.free-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ff6b6b;
+}
+
+.free-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+}
+
+.free-create-btn {
+    padding: 10px 20px;
+    background: #ff6b6b;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.free-create-btn:hover {
+    background: #ff5252;
+}
+
+.category-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.category-tab {
+    padding: 8px 16px;
+    background: #f8f9fa;
+    color: #666;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: .2s;
+}
+
+.category-tab.active {
+    background: #ff6b6b;
+    color: white;
+}
+
+.category-tab:hover {
+    background: #ffdede;
+}
+
+.free-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.free-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: .3s;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.free-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.free-category-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #ffe0e0;
+    color: #ff6b6b;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    width: fit-content;
+}
+
+.free-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    min-height: 40px;
+}
+
+.free-content-preview {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    flex-grow: 1;
+}
+
+.free-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #999;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 10px;
+}
+
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.pagination-container {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 30px;
+}
+
+.pagination-btn {
+    display: inline-block;
+    margin: 0 5px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: .2s;
+    min-width: 36px;
+    text-align: center;
+}
+
+.pagination-btn:hover {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+    background: #fff5f5;
+}
+
+.pagination-btn.active {
+    background: #495057;
+    color: white;
+    border-color: #495057;
+}
+
+.pagination-btn.disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    border-color: #eee;
+}
+
+@media (max-width: 768px) {
+    .free-container {
+        padding: 15px;
+    }
+
+    .free-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .free-create-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .category-tabs {
+        gap: 8px;
+    }
+
+    .category-tab {
+        padding: 7px 12px;
+        font-size: 13px;
+    }
+
+    .free-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .free-title {
+        font-size: 15px;
+    }
+
+    .free-content-preview {
+        font-size: 12px;
+    }
+}
+</style>
+
+<div class="free-container">
+    <div class="free-header">
+        <h2>자유게시판</h2>
+        {% if user.is_authenticated %}
+        <a href="{% url 'board:free_create' %}" class="free-create-btn">글쓰기</a>
+        {% endif %}
+    </div>
+    
+    <!-- 카테고리 탭 -->
+    <div class="category-tabs">
+        <a href="?category=all" class="category-tab {% if selected_category == 'all' %}active{% endif %}">전체보기</a>
+        <a href="?category=mom" class="category-tab {% if selected_category == 'mom' %}active{% endif %}">육아수다</a>
+        <a href="?category=husband" class="category-tab {% if selected_category == 'husband' %}active{% endif %}">남편뒷담화</a>
+        <a href="?category=family" class="category-tab {% if selected_category == 'family' %}active{% endif %}">시댁/친정</a>
+        <a href="?category=preg" class="category-tab {% if selected_category == 'preg' %}active{% endif %}">임신출산</a>
+    </div>
+    
+    <!-- 자유게시판 목록 (카드 그리드) -->
+    {% if posts %}
+    <div class="free-grid">
+        {% for post in posts %}
+        <a href="{% url 'board:free_detail' post.pk %}?category={{ selected_category }}&page={{ page_obj.number }}" style="text-decoration: none; color: inherit;">
+            <div class="free-card">
+                <span class="free-category-badge">
+                    {% if selected_category == 'all' %}
+                        {% if post.category == 'mom' %}육아수다
+                        {% elif post.category == 'husband' %}남편뒷담화
+                        {% elif post.category == 'family' %}시댁/친정
+                        {% elif post.category == 'preg' %}임신출산
+                        {% else %}{{ post.get_category_display }}{% endif %}
+                    {% else %}
+                        {% if post.category == 'mom' %}육아수다
+                        {% elif post.category == 'husband' %}남편뒷담화
+                        {% elif post.category == 'family' %}시댁/친정
+                        {% elif post.category == 'preg' %}임신출산
+                        {% else %}{{ post.get_category_display }}{% endif %}
+                    {% endif %}
+                </span>
+                <div class="free-title">{{ post.title }}</div>
+                <div class="free-content-preview">
+                    {% if post.content %}
+                        {{ post.content|truncatewords:20 }}
+                    {% else %}
+                        내용 없음
+                    {% endif %}
+                </div>
+                <div class="free-meta">
+                    <span>
+                        {% if post.is_anonymous %}익명{% else %}{{ post.author.nickname|default:post.author.username }}{% endif %}
+                    </span>
+                    <span>{{ post.created_at|date:"m-d" }}</span>
+                    <span>조회 {{ post.views }}</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-results">
+        <p>등록된 게시글이 없습니다.</p>
+        {% if user.is_authenticated %}
+        <p><a href="{% url 'board:free_create' %}" style="color: #ff6b6b; text-decoration: none;">첫 번째 글을 작성해보세요!</a></p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- 페이지네이션 -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="pagination-container">
+        <!-- 처음 페이지 -->
+        {% if page_obj.number > 1 %}
+        <a href="?category={{ selected_category }}&page=1" class="pagination-btn">«</a>
+        {% else %}
+        <span class="pagination-btn disabled">«</span>
+        {% endif %}
+        
+        <!-- 이전 페이지 -->
+        {% if page_obj.has_previous %}
+        <a href="?category={{ selected_category }}&page={{ page_obj.previous_page_number }}" class="pagination-btn">‹</a>
+        {% else %}
+        <span class="pagination-btn disabled">‹</span>
+        {% endif %}
+        
+        <!-- 페이지 번호 (5개 표시) -->
+        {% with start_page=page_obj.number|add:'-2'|add:'0' end_page=page_obj.number|add:'2'|add:'0' %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if num >= start_page and num <= end_page %}
+                {% if num == page_obj.number %}
+                <span class="pagination-btn active">{{ num }}</span>
+                {% else %}
+                <a href="?category={{ selected_category }}&page={{ num }}" class="pagination-btn">{{ num }}</a>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {% endwith %}
+        
+        <!-- 다음 페이지 -->
+        {% if page_obj.has_next %}
+        <a href="?category={{ selected_category }}&page={{ page_obj.next_page_number }}" class="pagination-btn">›</a>
+        {% else %}
+        <span class="pagination-btn disabled">›</span>
+        {% endif %}
+        
+        <!-- 마지막 페이지 -->
+        {% if page_obj.number < page_obj.paginator.num_pages %}
+        <a href="?category={{ selected_category }}&page={{ page_obj.paginator.num_pages }}" class="pagination-btn">»</a>
+        {% else %}
+        <span class="pagination-btn disabled">»</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

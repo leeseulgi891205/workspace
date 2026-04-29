@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width:900px; margin:50px auto; padding:20px;">
+
+    <!-- 제목 -->
+    <h2 style="text-align:center; margin-bottom:10px; font-weight:800;">
+        {{ post.title }}
+    </h2>
+
+    <!-- 카테고리 배지 -->
+    <div style="text-align:center; margin-bottom:20px;">
+        <span style="display:inline-block; padding:6px 14px; background:#ff6b6b; color:#fff; border-radius:999px; font-size:13px; font-weight:600;">
+            {{ post.get_category_display }}
+        </span>
+    </div>
+
+    <!-- 작성 정보 -->
+    <div style="border-top:2px solid #333; padding:20px 0; color:#555;">
+        <p><strong>작성자:</strong> 
+            {% if post.is_anonymous %}
+                익명 
+            {% else %}
+                {{ post.author.nickname|default:post.author.username }}
+            {% endif %}
+        </p>
+        <p><strong>작성일:</strong> {{ post.created_at|date:"Y-m-d H:i" }}</p>
+        {% if post.views %}
+        <p><strong>조회수:</strong> {{ post.views }}</p>
+        {% endif %}
+    </div>
+
+    <!-- (이미지 첨부 미리보기 같은 거 있으면 여기 사이에 있어도 됨) -->
+
+    <!-- 본문 내용 -->
+    <div style="padding:20px 0; min-height:200px; line-height:1.7;">
+        {{ post.content|linebreaks }}
+    </div>
+
+    <!-- 감정 리액션 버튼 영역 (26-01-02 추가) -->
+    <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-top: 20px; margin-bottom: 20px;">
+        <style>
+            .reaction-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .reaction-btn {
+                padding: 8px 14px;
+                border: 1px solid #ddd;
+                border-radius: 20px;
+                background: #fff;
+                cursor: pointer;
+                font-size: 14px;
+                transition: .2s;
+                white-space: nowrap;
+            }
+            
+            .reaction-btn:hover {
+                border-color: #ff6b6b;
+                background: #fff5f5;
+            }
+            
+            .reaction-count {
+                margin-left: 4px;
+                font-weight: 600;
+                color: #ff6b6b;
+            }
+            
+            @media (max-width: 768px) {
+                .reaction-buttons {
+                    gap: 6px;
+                }
+                
+                .reaction-btn {
+                    padding: 7px 12px;
+                    font-size: 13px;
+                    flex: 1 1 calc(50% - 3px);
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .reaction-buttons {
+                    gap: 5px;
+                }
+                
+                .reaction-btn {
+                    padding: 6px 10px;
+                    font-size: 12px;
+                    flex: 1 1 calc(100% - 5px);
+                }
+            }
+        </style>
+        
+        <p style="margin: 0 0 12px 0; font-size: 14px; color: #666; font-weight: 600;">💝 이 글에 감정을 표현해보세요:</p>
+        <div class="reaction-buttons">
+            {% if user.is_authenticated %}
+                <!-- 공감해요 -->
+                <button class="reaction-btn" data-type="empathy" onclick="addReaction({{ post.pk }}, 'empathy', this)">
+                    🤝 공감 <span class="reaction-count">{{ post.reaction_empathy }}</span>
+                </button>
+                <!-- 힘내세요 -->
+                <button class="reaction-btn" data-type="courage" onclick="addReaction({{ post.pk }}, 'courage', this)">
+                    💪 힘내 <span class="reaction-count">{{ post.reaction_courage }}</span>
+                </button>
+                <!-- 축하해요 -->
+                <button class="reaction-btn" data-type="cheer" onclick="addReaction({{ post.pk }}, 'cheer', this)">
+                    🎉 축하 <span class="reaction-count">{{ post.reaction_cheer }}</span>
+                </button>
+                <!-- 응원해요 -->
+                <button class="reaction-btn" data-type="support" onclick="addReaction({{ post.pk }}, 'support', this)">
+                    👏 응원 <span class="reaction-count">{{ post.reaction_support }}</span>
+                </button>
+                <!-- 고마워요 -->
+                <button class="reaction-btn" data-type="thanks" onclick="addReaction({{ post.pk }}, 'thanks', this)">
+                    🙏 감사 <span class="reaction-count">{{ post.reaction_thanks }}</span>
+                </button>
+            {% else %}
+                <p style="color: #999; font-size: 14px;">
+                    감정을 표현하려면 <a href="{% url 'accounts:login' %}">로그인</a>해주세요.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+        <!-- 버튼 영역 -->
+    <div style="text-align:right; margin-top:30px;">
+
+        <!-- 버튼 스타일 (여기서 크기를 강제로 통일) -->
+        <style>
+            .detail-btn-wrap .detail-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                width: 110px;          /* ▶ 가로 길이 고정 */
+                height: 42px;          /* ▶ 세로 길이 고정 */
+
+                background: #495057;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 5px;
+                margin-left: 8px;
+
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 500;
+
+                box-sizing: border-box;
+            }
+
+            .detail-btn-wrap .detail-btn:hover {
+                background: #343a40;
+            }
+        </style>
+
+        <div class="detail-btn-wrap" style="display:inline-block;">
+
+            <!-- 목록 -->
+            <a href="{% url 'board:free_list' %}?category={{ request.GET.category|default:'all' }}&page={{ request.GET.page|default:1 }}" class="detail-btn">
+                목록으로
+            </a>
+
+            <!-- 수정 (작성자 또는 관리자만) -->
+            {% if user == post.author or user.is_staff %}
+            <a href="{% url 'board:free_update' post.pk %}" class="detail-btn">
+                수정
+            </a>
+
+            <!-- 삭제 (작성자 또는 관리자만) -->
+            <form action="{% url 'board:free_delete' post.pk %}"
+                  method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit"
+                        class="detail-btn"
+                        onclick="return confirm('정말 삭제하시겠습니까?');">
+                    삭제
+                </button>
+            </form>
+            {% endif %}
+
+        </div>
+    </div>
+
+
+    <!-- ================== 게시판 목록 영역 ================== -->
+    <hr style="margin:40px 0; border:none; border-top:1px solid #ddd;">
+
+    <h2 style="text-align: center; margin-bottom: 10px; font-weight: 800;">
+        <a href="{% url 'board:free_list' %}" style="text-decoration: none; color: #333;">
+            자유게시판
+        </a>
+    </h2>
+
+    <!-- 총 게시글 개수 -->
+    <div style="text-align: right; margin-bottom: 10px; color: #666; font-size: 14px;">
+        총 <strong>{{ total_count }}</strong>개
+    </div>
+    
+    <table style="width: 100%; border-collapse: collapse; border-top: 2px solid #333;">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 1px solid #ddd;">
+                <th style="padding: 15px; width: 10%;">번호</th>
+                <th style="padding: 15px; text-align: left;">제목</th>
+                <th style="padding: 15px; width: 15%;">작성자</th>
+                <th style="padding: 15px; width: 15%;">날짜</th>
+                <th style="padding: 15px; width: 10%;">조회</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if posts %}
+                {% for item in posts %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <!-- 리스트 번호 -->
+                    <td style="padding: 15px; text-align: center;">
+                        {{ item.number }}
+                    </td>
+
+                    <!-- 제목 (현재 페이지 번호 유지해서 상세로 이동) -->
+                    <td style="padding: 15px;">
+                        <a href="{% url 'board:free_detail' item.pk %}?page={{ page_obj.number }}"
+                           style="text-decoration: none; color: #333; font-weight: 500;">
+                            {{ item.title }}
+                        </a>
+                    </td>
+
+                    <!-- 작성자 -->
+                    <td style="padding: 15px; text-align: center; color: #666;">
+                        {{ item.author.nickname|default:item.author.username }}
+                    </td>
+
+                    <!-- 작성일 -->
+                    <td style="padding: 15px; text-align: center; color: #666;">
+                        {{ item.created_at|date:"Y-m-d" }}
+                    </td>
+
+                    <!-- 조회수 -->
+                    <td style="padding: 15px; text-align: center; color: #666;">
+                        {{ item.views }}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:30px;">
+                        등록된 게시글이 없습니다.
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <!-- 페이지네이션 -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div style="text-align:center; margin-top:20px;">
+        <div style="display:inline-block;">
+
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"
+               style="margin:0 5px; padding:6px 10px; border:1px solid #ddd; 
+                      border-radius:4px; text-decoration:none; color:#333;">
+                &lt;
+            </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                <span style="margin:0 5px; padding:6px 10px; 
+                             border-radius:4px; background:#495057; color:#fff;">
+                    {{ num }}
+                </span>
+                {% else %}
+                <a href="?page={{ num }}"
+                   style="margin:0 5px; padding:6px 10px; border:1px solid #ddd; 
+                          border-radius:4px; text-decoration:none; color:#333;">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"
+               style="margin:0 5px; padding:6px 10px; border:1px solid #ddd; 
+                      border-radius:4px; text-decoration:none; color:#333;">
+                &gt;
+            </a>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endif %}
+    <!-- ================== 게시판 목록 영역 끝 ================== -->
+
+</div>
+
+<!-- 감정 리액션 JavaScript (26-01-02 추가) -->
+<script>
+// CSRF 토큰 가져오기
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function addReaction(postId, reactionType, buttonElement) {
+    // 로그인 체크
+    if (!{{ user.is_authenticated|lower }}) {
+        alert('로그인 후 사용 가능합니다.');
+        return;
+    }
+
+    // 버튼 비활성화 (중복 클릭 방지)
+    buttonElement.disabled = true;
+    buttonElement.style.opacity = '0.6';
+
+    // FormData 생성
+    const formData = new FormData();
+    formData.append('reaction_type', reactionType);
+    formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+    // AJAX 요청
+    fetch(`/board/free/${postId}/reaction/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // 버튼 상태 업데이트
+            const counts = data.counts;
+            
+            // 각 버튼의 카운트 업데이트
+            updateButtonCount('empathy', counts.empathy);
+            updateButtonCount('courage', counts.courage);
+            updateButtonCount('cheer', counts.cheer);
+            updateButtonCount('support', counts.support);
+            updateButtonCount('thanks', counts.thanks);
+            
+            // 현재 버튼 스타일 토글
+            if (data.is_active) {
+                buttonElement.style.background = '#ffcdd2';
+                buttonElement.style.borderColor = '#ff6b6b';
+                buttonElement.style.fontWeight = '600';
+            } else {
+                buttonElement.style.background = '#fff';
+                buttonElement.style.borderColor = '#ddd';
+                buttonElement.style.fontWeight = '400';
+            }
+        } else {
+            alert(data.error || '오류가 발생했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('요청 중 오류가 발생했습니다.\n' + error.message);
+    })
+    .finally(() => {
+        // 버튼 다시 활성화
+        buttonElement.disabled = false;
+        buttonElement.style.opacity = '1';
+    });
+}
+
+function updateButtonCount(type, count) {
+    const button = document.querySelector(`.reaction-btn[data-type="${type}"]`);
+    if (button) {
+        button.querySelector('.reaction-count').textContent = count;
+    }
+}
+</script>
+
+{% endblock %}

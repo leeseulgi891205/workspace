@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>학생 성적 등록</title>
+</head>
+<body>
+    <h2>학생 성적 등록</h2>
+
+    <!--
+        form: 사용자가 입력한 값을 서버로 보내는 태그
+        action: 어디로 보낼지 (여기서는 stuscore:write 라는 URL 이름으로 보냄)
+        method="post": POST 방식(주소창에 안 보이게 데이터 전송)
+    -->
+    <form action="{% url 'stuscore:write' %}" method="post">
+        <!-- CSRF 토큰: 장고에서 POST 요청을 허용하기 위한 필수 보안 코드 -->
+        {% csrf_token %}
+
+        <label>이름</label>
+        <input type="text" name="name"><br>
+
+        <label>국어 점수</label>
+        <input type="text" name="kor"><br>
+
+        <label>영어 점수</label>
+        <input type="text" name="eng"><br>
+
+        <label>수학 점수</label>
+        <input type="text" name="math"><br>
+
+        <br>
+        <!-- 이 버튼을 누르면 form 안의 값들이 서버로 전송된다. -->
+        <input type="submit" value="성적 등록">
+    </form>
+
+    <br>
+    <!-- 성적 리스트 페이지로 이동 -->
+    <a href="{% url 'stuscore:list' %}">성적 리스트 보기</a> |
+    <a href="/">메인페이지</a>
+</body>
+</html>

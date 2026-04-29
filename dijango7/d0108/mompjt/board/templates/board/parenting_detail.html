@@ -1,0 +1,495 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<style>
+.parenting-shell {
+    max-width: 960px;
+    margin: 32px auto 60px;
+    padding: 0 16px;
+}
+
+.guide-hero {
+    background: linear-gradient(180deg, #FDECEA 0%, #FFFFFF 100%);
+    border: none;
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: none;
+}
+
+.hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    background: #fff;
+    color: #374151;
+    border: 1px solid #E5E7EB;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: none;
+}
+
+.category-chip small {
+    color: #6B7280;
+    font-weight: 600;
+}
+
+.meta-soft {
+    text-align: right;
+    color: #6B7280;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.guide-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #111827;
+    margin: 14px 0 10px;
+    line-height: 1.25;
+}
+
+.meta-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.reader-note {
+    margin: 22px 0 0;
+    padding: 14px 16px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #E5E7EB;
+    color: #6B7280;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.guide-body {
+    margin-top: 26px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+    overflow: hidden;
+}
+
+.guide-content {
+    padding: 20px 22px 24px;
+    line-height: 1.8;
+    font-size: 16px;
+    color: #111827;
+    white-space: pre-wrap;
+}
+
+.action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 26px;
+}
+
+.btn-ghost,
+.btn-accent,
+.btn-soft,
+.btn-danger-soft {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.btn-ghost {
+    background: #fff;
+    color: #744f4f;
+    border-color: #f1dcdc;
+}
+
+.btn-accent {
+    background: #ff6b6b;
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(255, 143, 143, 0.35);
+}
+
+.btn-soft {
+    background: #faf7f7;
+    color: #8a6a6a;
+    border-color: #eadede;
+}
+
+.btn-danger-soft {
+    background: #fff7f7;
+    color: #c25555;
+    border-color: #f2cfcf;
+}
+
+.btn-ghost:hover,
+.btn-accent:hover,
+.btn-soft:hover,
+.btn-danger-soft:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(31, 41, 55, 0.08);
+}
+
+.admin-actions {
+    display: inline-flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.development-info {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 4px solid #ff6b6b;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(255,107,107,0.1);
+}
+
+.development-info h3 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff6b6b;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dev-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.dev-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.dev-item-label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.dev-item-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff6b6b;
+}
+
+.dev-item-value.physical { color: #ff6b6b; }
+.dev-item-value.cognitive { color: #ff6b6b; }
+.dev-item-value.language { color: #ff6b6b; }
+.dev-item-value.social { color: #ff6b6b; }
+.dev-item-value.height { color: #ff6b6b; }
+.dev-item-value.weight { color: #ff6b6b; }
+
+.comments-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.parenting-gallery {
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 14px;
+}
+.parenting-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+}
+.parenting-gallery-grid img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.comments-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.comments-lead {
+    color: #8b5d5d;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.comments-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #2f2a28;
+    margin: 0;
+}
+
+.count-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: #fff4f4;
+    border: 1px solid #ffd3d3;
+    border-radius: 999px;
+    color: #c25555;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.empty-comments {
+    margin-top: 18px;
+    text-align: center;
+    padding: 30px 10px;
+    color: #9c7a7a;
+    background: #fff9f9;
+    border: 1px dashed #f2d3d3;
+    border-radius: 14px;
+    line-height: 1.6;
+}
+
+.comment-placeholder {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #8a6a6a;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .parenting-shell {
+        margin: 22px auto 40px;
+    }
+    .hero-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .guide-title {
+        font-size: 24px;
+    }
+    .meta-line {
+        flex-direction: column;
+        gap: 6px;
+    }
+    .action-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .admin-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+</style>
+
+<div class="parenting-shell">
+    <div class="guide-hero">
+        <div class="hero-top">
+            <div>
+                <span class="category-chip">{{ post.get_category_display }} <small>육아 가이드</small></span>
+                <h1 class="guide-title">{{ post.title }}</h1>
+                <div class="meta-line">
+                    <span class="meta-pill">{{ post.author.nickname|default:post.author.username }} 님이 정성껏 적은 기록</span>
+                    <span class="meta-pill">{{ post.created_at|date:"Y.m.d H:i" }}에 나눈 이야기</span>
+                    <span class="meta-pill">{{ post.views|intcomma }}명의 엄마가 읽었어요</span>
+                </div>
+            </div>
+            <div class="meta-soft">
+                낯선 정보도 덜어내고,<br>조금 더 안심할 수 있도록<br>따뜻하게 담았어요.
+            </div>
+        </div>
+        <div class="reader-note">
+            마음이 쪼그라드는 날엔, 비슷한 길을 걷는 엄마들의 이야기가 힘이 되죠. 이 글이 오늘 하루를 조금 더 가볍게 만들어주길 바라요.
+        </div>
+    </div>
+
+    {% if post.category == 'development' and post.month_age %}
+    <div class="development-info">
+        <h3>📊 월령별 발달 데이터 ({{ post.month_age }}개월)</h3>
+        <div class="dev-grid">
+            {% if post.physical_score %}
+            <div class="dev-item">
+                <div class="dev-item-label">신체발달</div>
+                <div class="dev-item-value physical">{{ post.physical_score }}점</div>
+            </div>
+            {% endif %}
+            {% if post.cognitive_score %}
+            <div class="dev-item">
+                <div class="dev-item-label">인지발달</div>
+                <div class="dev-item-value cognitive">{{ post.cognitive_score }}점</div>
+            </div>
+            {% endif %}
+            {% if post.language_score %}
+            <div class="dev-item">
+                <div class="dev-item-label">언어발달</div>
+                <div class="dev-item-value language">{{ post.language_score }}점</div>
+            </div>
+            {% endif %}
+            {% if post.social_score %}
+            <div class="dev-item">
+                <div class="dev-item-label">사회성발달</div>
+                <div class="dev-item-value social">{{ post.social_score }}점</div>
+            </div>
+            {% endif %}
+            {% if post.height %}
+            <div class="dev-item">
+                <div class="dev-item-label">키</div>
+                <div class="dev-item-value height">{{ post.height }}cm</div>
+            </div>
+            {% endif %}
+            {% if post.weight %}
+            <div class="dev-item">
+                <div class="dev-item-label">몸무게</div>
+                <div class="dev-item-value weight">{{ post.weight }}kg</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="guide-body">
+        <div class="guide-content">
+            {{ post.content|linebreaks }}
+        </div>
+    </div>
+
+    {% if post.images.all %}
+    <div class="parenting-gallery">
+        <div class="parenting-gallery-grid">
+            {% for image in post.images.all %}
+            <img src="{{ image.image.url }}" alt="첨부 이미지 {{ forloop.counter }}">
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="action-bar">
+        <a href="{% url 'board:parenting_list' %}" class="btn-ghost">← 목록으로 돌아가기</a>
+        <a href="#comments" class="btn-accent">💬 공감/댓글 남기기</a>
+        {% if user == post.author %}
+        <div class="admin-actions">
+            <a href="{% url 'board:parenting_update' post.pk %}" class="btn-soft">✏️ 수정</a>
+            <form method="post" action="{% url 'board:parenting_delete' post.pk %}" style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger-soft">🗑 삭제</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="comments-section" id="comments">
+        <div class="comments-head">
+            <div>
+                <div class="comments-lead">따뜻한 한마디가 다른 엄마의 하루를 덜 무겁게 해요</div>
+                <h3 class="comments-title">이 가이드, 어떠셨어요? <span class="count-pill">{{ post.comment_count|default:0 }}명 공감</span></h3>
+            </div>
+        </div>
+
+        {% if comments %}
+        <div class="comment-list" style="margin-top:18px; display:flex; flex-direction:column; gap:12px;">
+            {% for comment in comments %}
+            <div class="comment-card" id="comment-{{ comment.id }}" style="padding:15px; border-radius:8px; background:#f9f9f9;">
+                <div class="comment-meta" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                    <div>
+                        <span class="comment-author" style="font-weight:700; color:#333;">{{ comment.author.nickname|default:comment.author.username }}</span>
+                        <span style="margin-left:8px; color:#999; font-size:12px;">{{ comment.created_at|date:"Y.m.d H:i" }}</span>
+                    </div>
+                    {% if user.is_staff or user == comment.author %}
+                    <div class="comment-actions" style="display:flex; gap:6px;">
+                        <button type="button" class="btn-soft" style="padding:6px 10px; border:1px solid #eadede; border-radius:8px; background:#faf7f7; color:#8a6a6a; font-size:12px;" onclick="toggleEdit({{ comment.id }})">수정</button>
+                        <form method="post" action="{% url 'board:parenting_comment_delete' comment.id %}" onsubmit="return confirm('댓글을 삭제하시겠어요?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-danger-soft" style="padding:6px 10px; border:1px solid #f2cfcf; border-radius:8px; background:#fff7f7; color:#c25555; font-size:12px;">삭제</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="comment-content" id="comment-content-{{ comment.id }}" style="margin-top:8px; line-height:1.6; color:#333;">{{ comment.content|linebreaksbr }}</div>
+
+                <!-- 댓글 수정 폼 (숨김) -->
+                <form method="post" action="{% url 'board:parenting_comment_update' comment.id %}#comment-{{ comment.id }}" id="comment-edit-form-{{ comment.id }}" style="display:none; margin-top:10px;">
+                    {% csrf_token %}
+                    <textarea name="content" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">{{ comment.content }}</textarea>
+                    <div style="margin-top:8px; display:flex; gap:8px;">
+                        <button type="submit" class="btn-accent" style="padding:8px 12px; border-radius:8px; background:#ff6b6b; color:#fff;">저장</button>
+                        <button type="button" class="btn-soft" style="padding:8px 12px; border-radius:8px; border:1px solid #eadede; background:#faf7f7; color:#8a6a6a;" onclick="toggleEdit({{ comment.id }}, true)">취소</button>
+                    </div>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-comments">
+            아직 댓글이 없어요. 비슷한 경험이나 위로 한마디를 남겨주시면 큰 힘이 돼요.
+        </div>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'board:parenting_comment_create' post.pk %}#comments" style="margin-top:16px;">
+            {% csrf_token %}
+            <textarea name="content" rows="3" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:8px; background:#fff; color:#333;" placeholder="오늘 경험하신 것, 위로 한마디, 같은 고민을 나눠주세요 :)" required></textarea>
+            <button type="submit" class="btn-accent" style="margin-top:10px; background:#ff6b6b; color:#fff;">따뜻한 댓글 남기기</button>
+        </form>
+        {% else %}
+        <div class="comment-placeholder" style="margin-top:14px;">
+            <a href="{% url 'accounts:login' %}">로그인</a>하면 오늘의 가이드에 응원을 남길 수 있어요.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+<script>
+function toggleEdit(id, cancel=false) {
+    const contentEl = document.getElementById('comment-content-' + id);
+    const formEl = document.getElementById('comment-edit-form-' + id);
+    if (!contentEl || !formEl) return;
+    if (cancel || formEl.style.display === 'block') {
+        formEl.style.display = 'none';
+        contentEl.style.display = 'block';
+    } else {
+        formEl.style.display = 'block';
+        contentEl.style.display = 'none';
+    }
+}
+</script>

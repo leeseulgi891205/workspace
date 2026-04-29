@@ -1,0 +1,1047 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<style>
+  /* ==================== 1. 배너 슬라이더 스타일 (최종 수정) ==================== */
+  .banner-slider {
+    position: relative;
+    width: 100%;
+    height: 280px; /* ✅ 배너 전체 높이 설정 */
+    margin-bottom: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    overflow: hidden; /* 둥근 모서리 적용을 위해 넘치는 부분 숨김 */
+  }
+  .banner-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .banner-item {
+    min-width: 100%;
+    height: 100%; /* ✅ 부모 높이에 맞춤 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 50px;
+    box-sizing: border-box;
+    position: relative;
+    /* border-radius, overflow는 부모(banner-slider)에서 처리하므로 여기선 제거 */
+  }
+  
+  /* 텍스트 영역 */
+  .banner-text { 
+    flex: 1; 
+    z-index: 2; 
+    max-width: 55%;
+  }
+  .banner-text h2 { 
+    font-size: 28px;
+    font-weight: 800; 
+    color: #333; 
+    margin: 0 0 15px 0; 
+    line-height: 1.3;
+    word-break: keep-all;
+  }
+  .banner-text p { 
+    font-size: 16px; 
+    color: #555; 
+    margin: 0; 
+    opacity: 0.9; 
+  }
+
+  /* ★★★ [핵심 수정] 이미지 스타일 ★★★ */
+  .banner-image {
+    height: 190px; /* ✅ 이미지 크기 키움 */
+    width: auto;
+    object-fit: contain; /* 비율 유지하며 안에 맞춤 */
+    
+    /* mix-blend-mode 제거: 이미지 본연의 색상 유지 */
+    
+    /* 위치 조정: 오른쪽 아래로 배치 */
+    
+    
+    margin-right: -30px;  /* 오른쪽에 딱 붙게 조정 */
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.05)); /* 살짝 그림자 추가 */
+  }
+
+  /* 화살표 버튼 */
+  .slider-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8); color: #333; border: none;
+    width: 40px; height: 40px; border-radius: 50%;
+    font-size: 18px; cursor: pointer; z-index: 10;
+    transition: all 0.3s;
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .slider-btn:hover { background: #fff; transform: translateY(-50%) scale(1.1); }
+  .prev-btn { left: 15px; }
+  .next-btn { right: 15px; }
+
+
+  /* ==================== 2. 등급/퀘스트 스타일 (기존 유지) ==================== */
+  .user-grade-chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+    border-radius: 999px; background: linear-gradient(135deg, #fff0f3, #ffe4ec);
+    color: #d6336c; font-size: 12px; font-weight: 700;
+    box-shadow: 0 3px 8px rgba(214, 51, 108, .12);
+    transform: translateY(-12px); position: relative;
+    will-change: transform, box-shadow, filter;
+  }
+  .grade-suffix { font-size: 10px; opacity: .7; font-weight: 600; }
+
+  @keyframes toastPop {
+    0%   { transform: translateY(-4px) scale(.98); opacity: 0; }
+    30%  { transform: translateY(0)   scale(1.06); opacity: 1; }
+    70%  { transform: translateY(0)   scale(1.00); opacity: 1; }
+    100% { transform: translateY(-4px) scale(1.00); opacity: 0; }
+  }
+  #point-toast.is-pop { animation: toastPop 1400ms cubic-bezier(.2, .9, .2, 1); }
+  #point-toast.is-levelup {
+    box-shadow: 0 10px 22px rgba(255, 92, 138, .25), 0 0 0 6px rgba(255, 92, 138, .12);
+  }
+
+  .user-grade-chip.is-levelup {
+    animation: chipBounce 520ms cubic-bezier(.2, .9, .2, 1), chipGlow 900ms ease-out;
+  }
+  @keyframes chipBounce {
+    0%   { transform: translateY(-12px) scale(1); }
+    35%  { transform: translateY(-18px) scale(1.06); }
+    65%  { transform: translateY(-10px) scale(.98); }
+    100% { transform: translateY(-12px) scale(1); }
+  }
+  @keyframes chipGlow {
+    0% { box-shadow: 0 3px 8px rgba(214, 51, 108, .12); filter: saturate(1); }
+    35% { box-shadow: 0 10px 24px rgba(255, 92, 138, .38), 0 0 0 6px rgba(255, 92, 138, .18); filter: saturate(1.25); }
+    100% { box-shadow: 0 3px 8px rgba(214, 51, 108, .12); filter: saturate(1); }
+  }
+  @keyframes barPopStrong {
+    0% { transform: scaleX(1); } 45% { transform: scaleX(1.08); } 100% { transform: scaleX(1); }
+  }
+  .grade-bar-animate { animation: barPopStrong 0.32s cubic-bezier(.2, .9, .2, 1); transform-origin: left; }
+
+  /* 레이아웃 */
+  .content-wrapper { display: flex; gap: 30px; max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .main-left { flex: 3; min-width: 0; }
+  .main-right { flex: 1; min-width: 300px; position: sticky; top: 20px; }
+
+  /* 로그인 박스 */
+  .login-box { width: 100%; box-sizing: border-box; }
+
+  /* 인기글 섹션 */
+  .hot-posts { margin-top: 40px; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 15px; }
+  
+  /* 탭 스타일 */
+  .hot-posts-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+  .tab-btn {
+    padding: 10px 18px;
+    border: none;
+    background: #f5f5f5;
+    color: #666;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+  .tab-btn:hover {
+    background: #efefef;
+  }
+  .tab-btn.active {
+    background: #ff6b6b;
+    color: white;
+    border-color: #ff6b6b;
+  }
+  
+  /* 탭 콘텐츠 */
+  .tab-content {
+    position: relative;
+  }
+  .tab-pane {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  .tab-pane.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  /* 카테고리 제목 */
+  .hot-posts-category-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2633;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ff6b6b;
+    display: inline-block;
+  }
+  
+  /* 포스트 그리드 */
+  .post-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  
+  /* 공통 포스트 카드 */
+  .post-card { background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #eee; transition: transform 0.2s, box-shadow 0.2s; }
+  .post-card:hover { border-color: #ff6b6b; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+  .post-card .title { font-weight: bold; color: #333; text-decoration: none; display: block; margin: 12px 0 8px 0; font-size: 16px; line-height: 1.4; }
+  .post-card .title:hover { color: #ff6b6b; }
+  .post-info { font-size: 13px; color: #888; margin-top: 10px; }
+  
+  /* 이슈 카드 */
+  .issue-card {
+    border-top: 4px solid #ff6b6b;
+  }
+  .issue-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .issue-badge {
+    background: #ffe6e6;
+    color: #d63031;
+  }
+  .post-snippet {
+    font-size: 13px;
+    color: #666;
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+  
+  /* 공감 카드 */
+  .empathy-card {
+    border-left: 4px solid #ff6b6b;
+  }
+  .empathy-mood {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+  
+  /* 정보 카드 */
+  .info-card {
+    border-right: 4px solid #2196f3;
+  }
+  .info-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    background: #e3f2fd;
+    color: #2196f3;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  
+  /* 인기도 아이콘 스타일 */
+  .popularity-icon {
+    display: inline-block;
+    font-size: 14px;
+    margin-right: 4px;
+    font-weight: bold;
+  }
+  
+  /* 운영진 고정글 배지 */
+  .pinned-badge {
+    display: inline-block;
+    background: #667eea;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 8px;
+  }
+  
+  /* "왜"카드 - 운영진 픽 */
+  .why-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .why-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .why-card {
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+  }
+  .why-card-link:hover .why-card {
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    transform: translateY(-4px);
+    border-left-color: #ff6b6b;
+  }
+  .why-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1f2633;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  .why-card-link:hover .why-title {
+    color: #667eea;
+  }
+  .why-description {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .why-footer {
+    font-size: 12px;
+    color: #999;
+  }
+
+
+  /* 배너 */
+
+  /* banner-track이 flex로 슬라이드를 나열한다고 가정 */
+  .banner-track {display: flex;}
+
+  /* 한 화면에 1장씩 */
+  .banner-link {flex: 0 0 100%; width: 100%; max-width: 100%; display: block; text-decoration: none; color: inherit; }
+
+  /* 내부 배너는 폭 100%로 */
+  .banner-link .banner-item { width: 100%; }
+
+
+</style>
+
+<div class="content-wrapper">
+  <div class="main-left">
+    <section class="main-banner">
+      <div class="banner-slider">
+        <div class="banner-track" style="transform: translateX(-200%);">
+
+<!-- 혜은 260106 -->
+          <!-- 1 -->
+          <a href="/board/question_card/" class="banner-link">
+            <div class="banner-item" style="background-color:#fdf3e6; border-radius: 20px;">
+              <div class="banner-text">
+                <h2>오늘의 질문카드!</h2>
+                <p>육아맘들의 최대 관심사는?</p>
+              </div>
+              <img src="/static/images/image_3.png" class="banner-image" onerror="this.style.display='none'">
+            </div>
+          </a>
+
+          <!-- 2 -->
+          <a href="/recipes/?category=baby" class="banner-link">
+            <div class="banner-item" style="background-color:#e6f7ff; border-radius: 20px;">
+              <div class="banner-text">
+                <h2>우리 아이<br>첫 이유식 가이드</h2>
+                <p>초기부터 완료기까지 단계별 레시피!</p>
+              </div>
+              <img src="/static/images/image_2.png" class="banner-image" onerror="this.style.display='none'">
+            </div>
+          </a>
+
+          <!-- 3 -->
+          <a href="/flea/" class="banner-link">
+            <div class="banner-item" style="background-color:#fff0f6; border-radius: 20px;">
+              <div class="banner-text">
+                <h2>계절별 실내놀이<br>BEST 5</h2>
+                <p>아이들과 실내에서 뭘하고 놀아야할까?</p>
+              </div>
+              <img src="/static/images/image_4.png" class="banner-image" onerror="this.style.display='none'">
+            </div>
+          </a>
+
+          <!-- 4 -->
+          <a href="board/flea/" class="banner-link">
+            <div class="banner-item" style="background-color:#f6ffed; border-radius: 20px;">
+              <div class="banner-text">
+                <h2>육아용품<br>중고장터 OPEN</h2>
+                <p>안 쓰는 장난감, 깨끗하게 나누세요</p>
+              </div>
+              <img src="/static/images/image_5.png" class="banner-image" onerror="this.style.display='none'">
+            </div>
+          </a>
+
+          <!-- 5 -->
+          <a href="/accounts/signup/" class="banner-link">
+            <div class="banner-item" style="background-color:#fff7e6; border-radius: 20px;">
+              <div class="banner-text">
+                <h2>맘스로그<br>신규가입 이벤트</h2>
+                <p>지금 가입하면 포인트 2배 적립! ✨</p>
+              </div>
+              <img src="/static/images/image_1.png" class="banner-image" onerror="this.style.display='none'">
+            </div>
+          </a>
+<!-- 혜은 260106 -->
+          
+        </div>
+
+        <button class="slider-btn prev-btn" id="btnPrev">❮</button>
+        <button class="slider-btn next-btn" id="btnNext">❯</button>
+      </div>
+    </section>
+
+    <section class="hot-posts">
+      <div class="section-header">
+        <h3>엄마들 지금 이 글에서 멈췄어요</h3>
+        <a href="{% url 'main:realtime_feed' %}" class="more-link" style="color:#666; text-decoration:none; font-size:14px;">실시간 반응 전체 보기 ></a>
+      </div>
+
+
+      <style>
+        /* 핫이슈 섹션 전용 스타일: 텍스트로 이유를 보여주는 톤다운 카드 */
+        .hot-posts .feature-wrap { display: grid; gap: 12px; margin-bottom: 14px; }
+        .hot-posts .feature-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 10px; border: 1px solid #e5e7eb; background: #ffffff; text-decoration: none; }
+        .hot-posts .feature-head { display: flex; flex-direction: column; gap: 6px; }
+        .hot-posts .feature-reason { color: #ef4444; font-size: 12px; font-weight: 700; letter-spacing: -0.01em; }
+        .hot-posts .feature-sub { color: #6b7280; font-size: 12px; font-weight: 600; letter-spacing: -0.01em; }
+        .hot-posts .feature-title { font-size: 18px; font-weight: 700; color: #111827; line-height: 1.35; max-height: 2.7em; overflow: hidden; }
+        .hot-posts .meta-line { display: inline-flex; gap: 10px; align-items: center; color: #6b7280; font-size: 12px; font-weight: 700; letter-spacing: -0.01em; }
+        .hot-posts .meta-line .metric { display: inline-flex; align-items: center; gap: 4px; }
+
+        .hot-posts .list-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+        .hot-posts .list-card { position: relative; padding: 12px; border-radius: 10px; border: 1px solid #e5e7eb; background: #ffffff; display: grid; gap: 6px; min-height: 110px; text-decoration: none; transition: box-shadow 0.15s ease, transform 0.15s ease; }
+        .hot-posts .list-card:hover { box-shadow: 0 8px 22px rgba(0,0,0,0.04); transform: translateY(-1px); }
+        .hot-posts .list-card .title { font-weight: 700; font-size: 14px; color: #1f2937; line-height: 1.35; max-height: 2.7em; overflow: hidden; }
+        .hot-posts .list-card .sub { color: #9ca3af; font-size: 11.5px; font-weight: 600; letter-spacing: -0.01em; }
+        .hot-posts .list-card .meta-line { font-size: 11px; gap: 8px; }
+        .hot-posts .list-card .status { color: #ef4444; font-size: 11px; font-weight: 700; }
+
+        .hot-posts .level-top { border-color: #ef4444; }
+        .hot-posts .level-mid { border-color: #cbd5e1; }
+        .hot-posts .level-base { border-color: #e5e7eb; }
+
+        @media (max-width: 640px) {
+          .hot-posts .feature-card { padding: 14px; }
+          .hot-posts .feature-title { font-size: 16px; }
+          .hot-posts .list-card { min-height: auto; }
+        }
+      </style>
+
+      <!-- 탭 필터 -->
+      <div class="hot-posts-tabs">
+        <button class="tab-btn active" data-tab="trending">지금 반응 오르는 글</button>
+        <button class="tab-btn" data-tab="empathy">엄마들 속 얘기</button>
+        <button class="tab-btn" data-tab="info">실전 육아 정보</button>
+        <button class="tab-btn" data-tab="why">중고물품판매해요</button>
+      </div>
+
+      <!-- 탭 콘텐츠 -->
+      <div class="tab-content">
+        <!-- 1️⃣ 지금 동네에서 터지는 이야기 - 실시간 반응 스트림 -->
+        <div class="tab-pane active" id="trending">
+          <div class="hot-posts-category-title">지금 댓글 달리고 있는 글</div>
+          {% if hot_posts %}
+            <style>
+              .rotating-feature-wrap { position: relative; overflow: hidden; }
+              .rotating-card { position: absolute; opacity: 0; width: 100%; transition: opacity 0.5s ease; pointer-events: none; }
+              .rotating-card.active { position: static; opacity: 1; transition: opacity 0.5s ease; pointer-events: auto; }
+            </style>
+
+            <div class="rotating-feature-wrap">
+              {% for post in hot_posts %}
+              {% with views=post.views|default:0 comments=post.comment_count|default:0 %}
+              <div class="rotating-card {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                <div class="feature-wrap">
+                  <a class="feature-card level-top" href="{% if post.post_type == 'free' %}{% url 'board:free_detail' post.pk %}{% elif post.post_type == 'hotdeal' %}{% url 'board:hotdeal_detail' post.pk %}{% else %}{% url 'board:parenting_detail' post.pk %}{% endif %}">
+                    <div class="feature-head">
+                      <div class="feature-reason">최근 10분 동안 댓글이 {{ comments }}개 늘었어요</div>
+                      <div class="feature-title">{{ post.title }}</div>
+                    </div>
+                    <div class="meta-line">
+                      <span class="metric comments">댓글 {{ comments }}</span>
+                      <span class="metric time">· {{ post.created_at|timesince }} 전</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+
+            <script>
+              (function() {
+                const cards = document.querySelectorAll('.rotating-card');
+                let currentIndex = 0;
+
+                if (cards.length > 1) {
+                  setInterval(() => {
+                    // 현재 카드 비활성화
+                    cards[currentIndex].classList.remove('active');
+                    
+                    // 다음 카드 활성화
+                    currentIndex = (currentIndex + 1) % cards.length;
+                    cards[currentIndex].classList.add('active');
+                  }, 3000);
+                }
+              })();
+            </script>
+          {% else %}
+            <p style="color:#777;">지금 반응 중인 글이 없습니다.</p>
+          {% endif %}
+        </div>
+
+        <!-- 2️⃣ 엄마들 진짜 속 얘기 -->
+        <div class="tab-pane" id="empathy">
+          <div class="hot-posts-category-title">공감 폭발 글</div>
+          {% if empathy_posts %}
+            <div class="rotating-feature-wrap">
+              {% for post in empathy_posts %}
+              {% with comments=post.comment_count|default:0 %}
+              <div class="rotating-card {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                <div class="feature-wrap">
+                  <a class="feature-card level-top" href="{% url 'board:free_detail' post.pk %}">
+                    <div class="feature-head">
+                      <div class="feature-reason">공감이 많은 글이에요</div>
+                      <div class="feature-title">{{ post.title }}</div>
+                    </div>
+                    <div class="meta-line">
+                      <span class="metric comments">댓글 {{ comments }}</span>
+                      <span class="metric time">· {{ post.created_at|timesince }} 전</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+
+            <script>
+              (function() {
+                const cards = document.querySelectorAll('#empathy .rotating-card');
+                let currentIndex = 0;
+
+                if (cards.length > 1) {
+                  setInterval(() => {
+                    cards[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % cards.length;
+                    cards[currentIndex].classList.add('active');
+                  }, 3000);
+                }
+              })();
+            </script>
+          {% else %}
+            <p style="color:#777;">게시글이 없습니다.</p>
+          {% endif %}
+        </div>
+
+        <!-- 3️⃣ 실전 육아 정보 -->
+        <div class="tab-pane" id="info">
+          <div class="hot-posts-category-title">다들 북마크한 글</div>
+          {% if parenting_info_posts %}
+            <div class="rotating-feature-wrap">
+              {% for post in parenting_info_posts %}
+              {% with comments=post.comment_count|default:0 %}
+              <div class="rotating-card {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                <div class="feature-wrap">
+                  <a class="feature-card level-top" href="{% url 'board:parenting_detail' post.pk %}">
+                    <div class="feature-head">
+                      <div class="feature-reason">엄마들이 자주 찾는 정보예요</div>
+                      <div class="feature-title">{{ post.title }}</div>
+                    </div>
+                    <div class="meta-line">
+                      <span class="metric comments">댓글 {{ comments }}</span>
+                      <span class="metric time">· {{ post.created_at|timesince }} 전</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+
+            <script>
+              (function() {
+                const cards = document.querySelectorAll('#info .rotating-card');
+                let currentIndex = 0;
+
+                if (cards.length > 1) {
+                  setInterval(() => {
+                    cards[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % cards.length;
+                    cards[currentIndex].classList.add('active');
+                  }, 3000);
+                }
+              })();
+            </script>
+          {% else %}
+            <p style="color:#777;">육아정보 게시판에 글이 없습니다.</p>
+          {% endif %}
+
+        <!-- 4️⃣ 중고물품판매 -->
+        <div class="tab-pane" id="why">
+          <div class="hot-posts-category-title">판매 중인 물품</div>
+          {% if flea_posts %}
+            <div class="rotating-feature-wrap">
+              {% for post in flea_posts %}
+              {% with comments=post.comment_count|default:0 %}
+              <div class="rotating-card {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                <div class="feature-wrap">
+                  <a class="feature-card level-top" href="{% url 'board:flea_detail' post.pk %}">
+                    <div class="feature-head">
+                      <div class="feature-reason">{{ post.price|intcomma }}원</div>
+                      <div class="feature-title">{{ post.title }}</div>
+                    </div>
+                    <div class="meta-line">
+                      <span class="metric comments">댓글 {{ comments }}</span>
+                      <span class="metric time">· {{ post.created_at|timesince }} 전</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+
+            <script>
+              (function() {
+                const cards = document.querySelectorAll('#why .rotating-card');
+                let currentIndex = 0;
+
+                if (cards.length > 1) {
+                  setInterval(() => {
+                    cards[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % cards.length;
+                    cards[currentIndex].classList.add('active');
+                  }, 3000);
+                }
+              })();
+            </script>
+          {% else %}
+            <p style="color:#777;">판매 중인 물품이 없습니다.</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <aside class="main-right">
+    <div class="login-box">
+      {% if user.is_authenticated %}
+        <div class="user-info-area">
+          <p class="login-text">
+            <span id="user-grade-chip" class="user-grade-chip">
+              <span id="user-grade-name" class="grade-name">{{ user.get_grade_display }}</span>
+              <span class="grade-suffix">등급</span>
+            </span><br>
+            <strong>{{ user.nickname }}</strong>님,<br>
+            오늘도 행복한 하루 되세요!
+          </p>
+
+          <div id="grade-progress-area">
+            {% if grade_progress %}
+            <div style="margin:10px 0 12px; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+              <div class="grade-top-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; font-weight:bold; color:#555;">
+                <span class="grade-top-left">
+                  <b>Lv.</b> <span id="current-grade-label">{{ grade_progress.current_label }}</span>
+                </span>
+                <span class="grade-top-mid">
+                  <span id="point-toast" style="font-weight:bold; color:#ff6b6b;"></span>
+                </span>
+                <span class="grade-top-right"><b id="point-value" style="color:#ff6b6b;">{{ grade_progress.point }}</b> P</span>
+              </div>
+
+              <div class="grade-bar-bg" style="background:#eee; height:10px; border-radius:5px; overflow:hidden;">
+                <div id="grade-bar-fill"
+                     class="grade-bar-fill"
+                     style="width:{{ grade_progress.progress_percent }}%; background: linear-gradient(90deg, #ff9a9e 0%, #ff6b6b 100%); height:100%; transition: width 0.5s;">
+                </div>
+              </div>
+
+              <div id="grade-remaining-text" style="margin-top:10px; font-size:12px; color:#888; text-align:center;">
+                {% if grade_progress.is_max %}
+                  최고 등급이에요 ⭐
+                {% else %}
+                  다음 <b>{{ grade_progress.next_label }}</b>까지 <b>{{ grade_progress.remaining }}P</b> 남았어요!
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <div id="quest-card-area">
+            {% if today_quest and not today_quest.completed and not today_quest.skipped %}
+            <div class="quest-card" style="margin:12px 0; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+              <div style="font-weight:800; color:#333; margin-bottom:5px;">🎯 오늘의 작은 목표</div>
+              <div style="margin:8px 0 15px; color:#555; font-size:14px;">{{ today_quest.content }}</div>
+
+              <div style="display:flex; gap:8px;">
+                <form method="post" action="{% url 'quests:complete_today' %}" data-quest-action="complete" style="flex:1;">
+                  {% csrf_token %}
+                  <button class="btn-login" style="width:100%; padding:10px; background:#ff6b6b; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; transition:background 0.2s;">했어요 ✓</button>
+                </form>
+
+                <form method="post" action="{% url 'quests:skip_today' %}" style="flex:1;">
+                  {% csrf_token %}
+                  <button class="btn-login" style="width:100%; padding:10px; background:#f3f4f6; color:#666; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">패스</button>
+                </form>
+              </div>
+              <div style="margin-top:10px; font-size:12px; color:#999; text-align:center;">완료 시 +3 포인트 적립</div>
+            </div>
+            {% else %}
+            <div class="quest-card" style="margin:12px 0; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; text-align:center;">
+              <div style="font-weight:700; font-size:16px;">오늘 미션 클리어! 🌟</div>
+              <div style="margin-top:6px; color:#888; font-size:14px;">내일 새로운 목표로 만나요</div>
+            </div>
+            {% endif %}
+          </div>
+
+          <a href="{% url 'accounts:profile' %}" class="btn-login" style="display:block;  text-align:center; padding:12px; background:#fff; color:#333; border:1px solid #ddd; border-radius:10px; text-decoration:none; font-weight:bold; transition:background 0.2s;">마이페이지</a>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="btn-login btn-logout" style="display:block;  text-align:center; padding:12px; margin-top:10px; background:#f1f3f5; color:#888; border-radius:10px; text-decoration:none; font-size:13px;">로그아웃</a>
+
+      {% else %}
+        <div class="user-info-area" style="padding:20px; background:white; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); text-align:center;">
+          <p class="login-text" style="margin-bottom:20px; color:#444;">
+            <strong style="font-size:18px; color:#ff6b6b;">로그인하고</strong><br>
+            나만의 육아 기록을 시작해보세요!
+          </p>
+          <a href="{% url 'accounts:login' %}" style="display:block;  padding:12px; background:#ff6b6b; color:white; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold; margin-bottom:10px; box-shadow:0 4px 10px rgba(255, 107, 107, 0.3);">로그인</a>
+          <a href="{% url 'accounts:signup' %}" style="display:block;  padding:12px; background:#fff; border:1px solid #ddd; color:#333; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold;">회원가입</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- 26-01-06 슬기 추가: 2026년 인터랙티브 달력 섹션 -->
+    <!-- 기능: 월별 달력 표시, 날짜 클릭 시 기록 작성 모달 열기, 기록 있는 날짜 표시 -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <div style="margin-top: 20px;">
+      
+      <!-- 2026년 달력 (일요일 기준, 월별 네비게이션) -->
+      <div style="background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eee;">
+        <div style="padding: 20px; border-bottom: 2px solid #ff6b6b; display: flex; align-items: center; justify-content: space-between;">
+          <button id="prevMonthBtn" style="background: #ff6b6b; color: white; border: none; border-radius: 6px; width: 40px; height: 40px; font-size: 18px; cursor: pointer; font-weight: bold; transition: all 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">◀</button>
+          <h3 id="monthTitle" style="margin: 0; font-size: 20px; font-weight: 800; color: #1f2633; flex: 1; text-align: center;">1월</h3>
+          <button id="nextMonthBtn" style="background: #ff6b6b; color: white; border: none; border-radius: 6px; width: 40px; height: 40px; font-size: 18px; cursor: pointer; font-weight: bold; transition: all 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">▶</button>
+        </div>
+        
+        <div style="padding: 30px; display: flex; justify-content: center; align-items: center;">
+          <div id="calendarContainer" style="width: 100%;">
+            <!-- 달력이 여기에 동적으로 표시됩니다 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ═══════════════════════════════════════════════════════════════════════
+      // 26-01-06 슬기 추가: 인터랙티브 달력 기능 (기록 작성 및 관리)
+      // 설명: 사용자가 달력의 날짜를 클릭하면 모달창에서 육아 기록을 작성하고 저장
+      //      로컬스토리지에 저장되어 브라우저를 닫아도 데이터 유지됨
+      //      기록이 있는 날짜에는 우측 하단에 빨간 동그라미 표시
+      // ═══════════════════════════════════════════════════════════════════════
+      
+      // 로컬스토리지에서 기록 불러오기
+      function getCalendarRecords() {
+        const records = localStorage.getItem('calendarRecords');
+        return records ? JSON.parse(records) : {};
+      }
+      
+      // 로컬스토리지에 기록 저장하기
+      function saveCalendarRecords(records) {
+        localStorage.setItem('calendarRecords', JSON.stringify(records));
+      }
+      
+      // 날짜 키 생성 (YYYY-MM-DD 형식)
+      function getDateKey(year, month, day) {
+        return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      }
+      
+      // 모달 열기
+      function openCalendarModal(year, month, day) {
+        const dateKey = getDateKey(year, month, day);
+        const records = getCalendarRecords();
+        const currentRecord = records[dateKey] || '';
+        
+        const modal = document.createElement('div');
+        modal.id = 'calendarModal';
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        `;
+        
+        modal.innerHTML = `
+          <div style="background: white; border-radius: 12px; padding: 30px; max-width: 400px; width: 90%; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #1f2633;">
+              ${year}년 ${month}월 ${day}일 기록
+            </div>
+            <textarea id="recordInput" placeholder="오늘 육아 기록을 남겨보세요..." style="width: 100%; height: 150px; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; margin-bottom: 16px;">${currentRecord}</textarea>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+              <button onclick="closeModal()" style="padding: 10px 20px; background: #f3f4f6; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">취소</button>
+              <button onclick="saveRecord('${dateKey}')" style="padding: 10px 20px; background: #ff6b6b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">저장</button>
+            </div>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+        document.getElementById('recordInput').focus();
+      }
+      
+      function closeModal() {
+        const modal = document.getElementById('calendarModal');
+        if (modal) modal.remove();
+      }
+      
+      function saveRecord(dateKey) {
+        const content = document.getElementById('recordInput').value;
+        const records = getCalendarRecords();
+        
+        if (content.trim()) {
+          records[dateKey] = content;
+        } else {
+          delete records[dateKey];
+        }
+        
+        saveCalendarRecords(records);
+        closeModal();
+        renderCalendar(currentMonthIndex); // 달력 새로고침
+      }
+      
+      // 달력 생성 함수
+      function renderCalendar(monthIndex) {
+        const monthsData = {{ months_calendar|safe }};
+        const monthData = monthsData[monthIndex];
+        const year = 2026;
+        const month = monthData.month;
+        
+        // 제목 업데이트
+        document.getElementById('monthTitle').textContent = monthData.name;
+        
+        // HTML 생성
+        let html = '';
+        
+        // 요일 헤더
+        html += '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 15px;">';
+        monthData.weekdays.forEach(day => {
+          const color = day === '토' ? '#4ecdc4' : (day === '일' ? '#ff6b6b' : '#666');
+          html += `<div style="text-align: center; font-size: 16px; font-weight: 700; color: ${color}; padding: 12px 0; height: 40px; display: flex; align-items: center; justify-content: center;">${day}</div>`;
+        });
+        html += '</div>';
+        
+        // 날짜
+        html += '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">';
+        const records = getCalendarRecords();
+        
+        monthData.days.forEach(week => {
+          week.forEach(day => {
+            if (day === 0) {
+              html += '<div style="aspect-ratio: 1;"></div>';
+            } else {
+              const dateKey = getDateKey(year, month, day);
+              const hasRecord = records[dateKey] ? true : false;
+              const recordDot = hasRecord ? `<div style="position: absolute; width: 8px; height: 8px; background: #ff6b6b; border-radius: 50%; bottom: 4px; right: 4px;"></div>` : '';
+              
+              html += `<div style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: white; border: 2px solid #eee; border-radius: 8px; font-size: 16px; font-weight: 600; color: #333; cursor: pointer; transition: all 0.2s; position: relative;" onmouseover="this.style.borderColor='#ff6b6b'; this.style.background='#fff5f5';" onmouseout="this.style.borderColor='#eee'; this.style.background='white';" onclick="openCalendarModal(${year}, ${month}, ${day})">${day}${recordDot}</div>`;
+            }
+          });
+        });
+        html += '</div>';
+        
+        document.getElementById('calendarContainer').innerHTML = html;
+      }
+      
+      // 초기 달력 렌더링 (1월)
+      let currentMonthIndex = 0;
+      renderCalendar(currentMonthIndex);
+      
+      // 이전 달 버튼
+      document.getElementById('prevMonthBtn').addEventListener('click', () => {
+        if (currentMonthIndex > 0) {
+          currentMonthIndex--;
+          renderCalendar(currentMonthIndex);
+        }
+      });
+      
+      // 다음 달 버튼
+      document.getElementById('nextMonthBtn').addEventListener('click', () => {
+        if (currentMonthIndex < 11) {
+          currentMonthIndex++;
+          renderCalendar(currentMonthIndex);
+        }
+      });
+      
+      // ESC 키로 모달 닫기
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      });
+    </script>
+
+  </aside>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  /* 1. 배너 슬라이더 로직 */
+  const track = document.querySelector('.banner-track');
+  const items = document.querySelectorAll('.banner-item');
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  
+  if (track && items.length > 0) {
+      let currentSlide = 0;
+      const totalSlides = items.length;
+
+      function updateSlidePosition() {
+          const offset = -currentSlide * 100;
+          track.style.transform = `translateX(${offset}%)`;
+      }
+
+      function moveNext() {
+          currentSlide = (currentSlide + 1) % totalSlides;
+          updateSlidePosition();
+      }
+
+      function movePrev() {
+          currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+          updateSlidePosition();
+      }
+
+      if (nextBtn) nextBtn.addEventListener('click', moveNext);
+      if (prevBtn) prevBtn.addEventListener('click', movePrev);
+      
+      setInterval(moveNext, 5000);
+  }
+
+  /* 2. 퀘스트 & 등급 애니메이션 로직 */
+  const questArea = document.getElementById("quest-card-area");
+  const toast = document.getElementById("point-toast");
+
+  if (questArea && toast) {
+    function animateNumber(el, to, duration = 450) {
+        if (!el) return;
+        const from = parseInt(el.textContent || "0", 10);
+        const target = Number(to);
+        if (Number.isNaN(target)) return;
+        const start = performance.now();
+        function tick(now) {
+            const t = Math.min(1, (now - start) / duration);
+            const value = Math.round(from + (target - from) * t);
+            el.textContent = value;
+            if (t < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    }
+
+    function replayClass(el, className) {
+        if (!el) return;
+        el.classList.remove(className);
+        void el.offsetWidth;
+        el.classList.add(className);
+    }
+
+    function showToast({ text, bg = "#111", isLevelUp = false }) {
+        toast.textContent = text;
+        toast.style.color = bg;
+        replayClass(toast, "is-pop");
+    }
+
+    questArea.addEventListener("submit", async (e) => {
+        const form = e.target;
+        if (!form.dataset || form.dataset.questAction !== "complete") return;
+        e.preventDefault();
+
+        const btn = form.querySelector("button");
+        if (btn) btn.disabled = true;
+
+        const csrf = form.querySelector("[name=csrfmiddlewaretoken]")?.value;
+        if (!csrf) return;
+
+        try {
+            const res = await fetch(form.action, {
+                method: "POST",
+                headers: { "X-CSRFToken": csrf, "X-Requested-With": "XMLHttpRequest" },
+            });
+            const data = await res.json();
+
+            if (data.status !== "ok") return;
+
+            questArea.innerHTML = `
+                <div class="quest-card" style="margin:12px 0; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; text-align:center;">
+                    <div style="font-weight:700; font-size:16px;">오늘 미션 클리어! 🌟</div>
+                    <div style="margin-top:6px; color:#888; font-size:14px;">내일 새로운 목표로 만나요</div>
+                </div>`;
+
+            const pointEl = document.getElementById("point-value");
+            const barEl = document.getElementById("grade-bar-fill");
+            const remainingEl = document.getElementById("grade-remaining-text");
+
+            if (typeof data.point === "number") animateNumber(pointEl, data.point);
+            if (data.progress_percent !== undefined) {
+                if(barEl) barEl.style.width = `${data.progress_percent}%`;
+            }
+            if (data.remaining_text && remainingEl) remainingEl.innerHTML = data.remaining_text;
+
+            const isBonus = data.streak && [3,7,14].includes(data.streak);
+            showToast({ text: isBonus ? `🔥 +10P` : "+3P", bg: "#ff6b6b" });
+
+            if (data.leveled_up) {
+                const nameEl = document.getElementById("user-grade-name");
+                const chip = document.getElementById("user-grade-chip");
+                if (nameEl) nameEl.textContent = data.new_label;
+                if (chip) replayClass(chip, "is-levelup");
+                
+                const currentLabelEl = document.getElementById("current-grade-label");
+                if (currentLabelEl) currentLabelEl.textContent = data.new_label;
+                
+                alert(`축하합니다! ${data.new_label} 등급이 되셨어요! 🎉`);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    });
+  }
+  
+  // 실시간 인기글 탭 기능
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tabName = button.getAttribute('data-tab');
+      
+      // 모든 탭 버튼에서 active 클래스 제거
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      // 모든 탭 콘텐츠에서 active 클래스 제거
+      tabPanes.forEach(pane => pane.classList.remove('active'));
+      
+      // 클릭된 버튼에 active 클래스 추가
+      button.classList.add('active');
+      // 해당 탭 콘텐츠에 active 클래스 추가
+      const activePane = document.getElementById(tabName);
+      if (activePane) {
+        activePane.classList.add('active');
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

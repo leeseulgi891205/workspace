@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+{# 26-01-02 슬기 추가: 육아정보 상세 페이지 #}
+{% block content %}
+<style>
+    .parenting-detail-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .detail-header {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+    
+    .detail-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    
+    .detail-meta {
+        display: flex;
+        gap: 20px;
+        padding: 15px 0;
+        border-top: 1px solid #dee2e6;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .detail-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        min-height: 200px;
+        line-height: 1.8;
+    }
+    
+    .detail-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-list {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-edit {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .development-info {
+        background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+        padding: 25px;
+        border-radius: 12px;
+        border-left: 4px solid #ff6b6b;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(255,107,107,0.1);
+    }
+    
+    .development-info h3 {
+        font-size: 18px;
+        font-weight: bold;
+        color: #ff6b6b;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .dev-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .dev-item {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .dev-item-label {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+    
+    .dev-item-value {
+        font-size: 20px;
+        font-weight: bold;
+        color: #ff6b6b;
+    }
+    
+    .dev-item-value.physical { color: #ff6b6b; }
+    .dev-item-value.cognitive { color: #ff8787; }
+    .dev-item-value.language { color: #ffa5a5; }
+    .dev-item-value.social { color: #ffc9c9; }
+    .dev-item-value.height { color: #ff6b6b; }
+    .dev-item-value.weight { color: #ff6b6b; }
+</style>
+
+<div class="parenting-detail-container">
+    <div class="detail-header">
+        <div class="detail-title">{{ post.title }}</div>
+        
+        <div class="detail-meta">
+            <span><strong>카테고리:</strong> {{ post.get_category_display }}</span>
+            <span><strong>작성자:</strong> {{ post.author.nickname }}</span>
+            <span><strong>조회:</strong> {{ post.views }}</span>
+            <span><strong>작성일:</strong> {{ post.created_at|date:"Y.m.d H:i" }}</span>
+        </div>
+    </div>
+    
+    {% if post.category == 'development' and post.month_age %}
+    <div class="development-info">
+        <h3>📊 월령별 발달 데이터 ({{ post.month_age }}개월)</h3>
+        <div class="dev-grid">
+            {% if post.physical_score %}
+            <div class="dev-item">
+                <div class="dev-item-label">신체발달</div>
+                <div class="dev-item-value physical">{{ post.physical_score }}점</div>
+            </div>
+            {% endif %}
+            
+            {% if post.cognitive_score %}
+            <div class="dev-item">
+                <div class="dev-item-label">인지발달</div>
+                <div class="dev-item-value cognitive">{{ post.cognitive_score }}점</div>
+            </div>
+            {% endif %}
+            
+            {% if post.language_score %}
+            <div class="dev-item">
+                <div class="dev-item-label">언어발달</div>
+                <div class="dev-item-value language">{{ post.language_score }}점</div>
+            </div>
+            {% endif %}
+            
+            {% if post.social_score %}
+            <div class="dev-item">
+                <div class="dev-item-label">사회성발달</div>
+                <div class="dev-item-value social">{{ post.social_score }}점</div>
+            </div>
+            {% endif %}
+            
+            {% if post.height %}
+            <div class="dev-item">
+                <div class="dev-item-label">키</div>
+                <div class="dev-item-value height">{{ post.height }}cm</div>
+            </div>
+            {% endif %}
+            
+            {% if post.weight %}
+            <div class="dev-item">
+                <div class="dev-item-label">몸무게</div>
+                <div class="dev-item-value weight">{{ post.weight }}kg</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="detail-content">
+        {{ post.content|linebreaks }}
+    </div>
+    
+    <div class="detail-actions">
+        <a href="{% url 'board:parenting_list' %}" class="btn btn-list">목록으로</a>
+        
+        {% if user == post.author %}
+            <a href="{% url 'board:parenting_update' post.pk %}" class="btn btn-edit">수정</a>
+            <form method="post" action="{% url 'board:parenting_delete' post.pk %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-delete" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

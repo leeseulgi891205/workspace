@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}SafeMap | 공지 상세{% endblock %}
+{% block content %}
+<div class="card">
+  <h2 style="margin:0 0 6px;">{{ notice.title }}</h2>
+  <div class="muted">{{ notice.created_at|date:"Y-m-d H:i" }}</div>
+  <div style="height:12px"></div>
+  <div style="white-space:pre-wrap; line-height:1.6">{{ notice.content }}</div>
+</div>
+{% endblock %}

@@ -1,0 +1,238 @@
+<!--
+═══════════════════════════════════════════════════════════════════════
+base.html - 맘스로그 프로젝트 전체 레이아웃 베이스 템플릿
+═══════════════════════════════════════════════════════════════════════
+작성일: 2025-12-29
+용도:
+  - 전체 프로젝트의 공통 레이아웃 (헤더, 네비게이션, 푸터)
+  - 모든 페이지에서 extends하여 사용
+  - 통합 검색창, 로그인/로그아웃 버튼 포함
+포함 요소:
+  - 헤더: 로고, 검색창, 로그인/로그아웃
+  - 네비게이션: 공지사항, 자유게시판, 벼룩시장, 지도, 챗봇
+  - 푸터: 저작권 정보
+  - block content: 각 페이지 콘텐츠 영역
+═══════════════════════════════════════════════════════════════════════
+-->{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>맘스로그 - 엄마들의 따뜻한 공간</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/dropdown.css' %}">
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+    {% block head %}
+    {% endblock %}
+</head>
+<link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
+<link rel="icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
+<body>
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <h1 class="logo">
+                <a href="{% url 'main:index' %}">
+                    <img src="{% static 'images/logo2.png' %}" alt="맘스로그 로고">
+                </a>
+            </h1>
+                <form class="search-bar" method="get" action="{% url 'main:search' %}">
+                    <input type="text" name="q" placeholder="궁금한 정보를 검색해보세요." value="{{ q|default:'' }}">
+                    <button type="submit">:mag:</button>
+                </form>
+                <div class="top-links">
+                    {% if user.is_authenticated %}
+                        <!-- 25-12-29 슬기 수정: 알림 아이콘 추가 -->
+                        <a href="{% url 'board:notification_list' %}" class="notification-icon">
+                            :bell:
+                            {% with unread_count=user.notifications.count %}
+                            {% if unread_count > 0 %}
+                                <span class="notification-badge" id="notifBadge">{{ unread_count }}</span>
+                            {% endif %}
+                            {% endwith %}
+                        </a>
+                        <span class="grade-badge">{{ user.get_grade_display }}</span>
+                        <span> <b>{{ user.nickname }}</b>님 환영합니다!</span>
+                        | <a href="{% url 'accounts:profile_auth' %}">마이페이지</a>
+                        | <a href="{% url 'accounts:logout' %}">로그아웃</a>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}">로그인</a>
+                        | <a href="{% url 'accounts:signup' %}">회원가입</a>
+                        | <a href="/admin/">관리자</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <div class="container">
+                <ul id="mainMenu">
+                    <li><a href="{% url 'board:notice_list' %}">공지사항</a></li>
+
+                    <li class="has-sub">
+                        <a href="javascript:void(0)" onclick="toggleMenu(this)">자유게시판</a>
+                        <ul class="dropdown-menu">
+                            <!-- 260102 혜은 추가 -->
+                            <li><a href="{% url 'board:free_list' %}">전체보기</a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=mom"
+                                style="text-decoration:none; color:{% if selected_category == 'mom' %}#ff6b6b{% else %}#333{% endif %}; font-weight:700;">
+                                육아수다
+                            </a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=husband"
+                                style="text-decoration:none; color:{% if selected_category == 'husband' %}#ff6b6b{% else %}#333{% endif %}; font-weight:700;">
+                                남편뒷담화
+                            </a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=family"
+                                style="text-decoration:none; color:{% if selected_category == 'family' %}#ff6b6b{% else %}#333{% endif %}; font-weight:700;">
+                                시댁/친정
+                            </a></li>
+                            <li><a href="{% url 'board:free_list' %}?category=preg"
+                                style="text-decoration:none; color:{% if selected_category == 'preg' %}#ff6b6b{% else %}#333{% endif %}; font-weight:700;">
+                                임신출산
+                            </a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-sub">
+                        <a href="javascript:void(0)" onclick="toggleMenu(this)">핫딜공유</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">전체보기</a></li>
+                            <li><a href="#">육아용품 핫딜</a></li>
+                            <li><a href="#">생활용품 핫딜</a></li>
+                            <li><a href="#">이벤트/체험단</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-sub">
+                        <!-- 251231 규리 추가 -->
+                        <a href="{% url 'recipes:recipes_main' %}" onclick="toggleMenu(this)">요리레시피</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'recipes:recipes_main' %}">전체보기</a></li>
+                            <li><a href="{% url 'recipes:recipes_stage_1' %}">초기 이유식</a></li>
+                            <li><a href="{% url 'recipes:recipes_stage_2' %}">중기 이유식</a></li>
+                            <li><a href="{% url 'recipes:recipes_stage_3' %}">후기 이유식</a></li>
+                            <li><a href="#">유아식 반찬</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="{% url 'board:pet_list' %}">반려동물</a></li>
+
+                    <li class="has-sub">
+                        <a href="javascript:void(0)" onclick="toggleMenu(this)">육아정보</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">전체보기</a></li>
+                            <li><a href="#">월령별 발달</a></li>
+                            <li><a href="#">수면교육</a></li>
+                            <li><a href="#">훈육 노하우</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="{% url 'board:flea_list' %}">벼룩시장</a></li>
+                    <li><a href="{% url 'main:growth_chart' %}">우리아이성장기록</a></li>
+                    <li><a href="/map/">우리동네지도</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    {% if messages %}
+        <div class="msg-wrap" id="msgWrap">
+            {% for message in messages %}
+            <div class="msg
+                {% if message.tags == 'success' %}msg-success{% endif %}
+                {% if message.tags == 'error' %}msg-error{% endif %}
+                {% if message.tags == 'info' %}msg-info{% endif %}
+            ">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <script>
+            setTimeout(() => {
+                const wrap = document.getElementById('msgWrap');
+                if (!wrap) return;
+                wrap.style.opacity = '0';
+                setTimeout(() => wrap.remove(), 400);
+            }, 2500);
+        </script>
+    {% endif %}
+
+    <main class="container main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 맘스로그 베이비. All rights reserved.</p>
+        </div>
+    </footer>
+
+    {% include 'chatbot/chatbot_widget.html' %}
+
+    <script>
+        // 페이지 로드 시 모든 드롭다운 메뉴 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdowns = document.querySelectorAll('.dropdown-menu');
+            const items = document.querySelectorAll('.has-sub');
+
+            dropdowns.forEach(menu => {
+                menu.classList.remove('show');
+            });
+            items.forEach(item => {
+                item.classList.remove('active');
+            });
+        });
+
+        function toggleMenu(element) {
+            // 1. 클릭한 메뉴의 부모 li 찾기
+            const parentLi = element.parentElement;
+
+            // 2. 그 안에 있는 드롭다운 메뉴 찾기
+            const dropdown = parentLi.querySelector('.dropdown-menu');
+
+            // 3. 이미 열려있는 다른 메뉴들은 닫기 (하나만 열리게)
+            const allDropdowns = document.querySelectorAll('.dropdown-menu');
+            const allItems = document.querySelectorAll('.has-sub');
+
+            allDropdowns.forEach(menu => {
+                if (menu !== dropdown) {
+                    menu.classList.remove('show');
+                }
+            });
+            allItems.forEach(item => {
+                if (item !== parentLi) {
+                    item.classList.remove('active');
+                }
+            });
+
+            // 4. 클릭한 메뉴 토글 (열기/닫기)
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+                parentLi.classList.toggle('active');
+            }
+        }
+
+        // 화면의 빈 곳을 클릭하면 메뉴 닫기
+        window.onclick = function(event) {
+            // 메뉴 토글 버튼 클릭이 아닌 경우 모든 메뉴 닫기
+            if (!event.target.closest('.has-sub > a')) {
+                const dropdowns = document.getElementsByClassName("dropdown-menu");
+                const items = document.getElementsByClassName("has-sub");
+
+                for (let i = 0; i < dropdowns.length; i++) {
+                    if (dropdowns[i].classList.contains('show')) {
+                        dropdowns[i].classList.remove('show');
+                    }
+                }
+                for (let i = 0; i < items.length; i++) {
+                    items[i].classList.remove('active');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

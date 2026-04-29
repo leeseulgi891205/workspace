@@ -1,0 +1,886 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="mission-overlay" id="missionOverlay" aria-modal="true" role="dialog">
+  <div class="mission-card">
+    <p class="mission-kicker">맘스로그는 광고보다 사람을 먼저 보여줍니다</p>
+    <h1>광고보다 <span>사람 얘기</span>가 먼저예요</h1>
+    <p class="mission-body">광고는 좋은 점만 보여주지만, 엄마들은 진짜 경험과 감정이 필요해요.</p>
+    <p class="mission-quote">"어린이집이 좋긴 한데..."</p>
+    <p class="mission-quote">"가격은 비싼데 질이..."</p>
+    <p class="mission-quote">"아이들이 나가는 걸 싫어하더라고요."</p>
+    <p class="mission-body">이런 디테일이 실제 선택에 도움이 돼요. 그래서 이곳에선 솔직한 이야기들이 모이고, 그 속에서 우리는</p>
+    <p class="mission-emphasis">서로를 이해하고 함께 결정하고 용기를 얻습니다.</p>
+    <p class="mission-body">광고 없이 순수하게 엄마들의 목소리만 담은 커뮤니티, 이것이 맘스로그가 있는 이유입니다. 당신의 솔직한 이야기를 들려주세요. 누군가는 그 글을 읽고 결정을 내릴 거예요.</p>
+    <button class="mission-primary" id="missionOverlayClose">솔직한 이야기 남기기</button>
+  </div>
+</div>
+<div class="content-wrapper">
+  <div class="main-left">
+    <section class="main-banner">
+      <div class="banner-slider">
+        <div class="banner-track" style="transform: translateX(-200%);">
+          <div class="banner-item" style="background-color:#fdf3e6; border-radius: 20px;">
+            <div class="banner-text">
+              <h2>12월 맘스로그<br>베이비페어!</h2>
+              <p>사전등록하고 푸짐한 경품 받아가세요~</p>
+            </div>
+            <img src="/static/images/image_3.png" class="banner-image" onerror="this.style.display='none'">
+          </div>
+
+          <div class="banner-item" style="background-color:#e6f7ff; border-radius: 20px;">
+            <div class="banner-text">
+              <h2>우리 아이<br>첫 이유식 가이드</h2>
+              <p>초기부터 완료기까지 단계별 레시피!</p>
+            </div>
+            <img src="/static/images/image_2.png" class="banner-image" onerror="this.style.display='none'">
+          </div>
+
+          <div class="banner-item" style="background-color:#fff0f6; border-radius: 20px;">
+            <div class="banner-text">
+              <h2>겨울철 실내놀이<br>BEST 5</h2>
+              <p>집에서도 지루하지 않게 노는 방법</p>
+            </div>
+            <img src="/static/images/image_4.png" class="banner-image" onerror="this.style.display='none'">
+          </div>
+
+          <div class="banner-item" style="background-color:#f6ffed; border-radius: 20px;">
+            <div class="banner-text">
+              <h2>육아용품<br>중고장터 OPEN</h2>
+              <p>안 쓰는 장난감, 깨끗하게 나누세요</p>
+            </div>
+            <img src="/static/images/image_5.png" class="banner-image" onerror="this.style.display='none'">
+          </div>
+
+          <div class="banner-item" style="background-color:#fff7e6; border-radius: 20px;">
+            <div class="banner-text">
+              <h2>맘스로그<br>신규가입 이벤트</h2>
+              <p>지금 가입하면 포인트 2배 적립! ✨</p>
+            </div>
+            <img src="/static/images/image_1.png" class="banner-image" onerror="this.style.display='none'">
+          </div>
+        </div>
+
+        <button class="slider-btn prev-btn" id="btnPrev">❮</button>
+        <button class="slider-btn next-btn" id="btnNext">❯</button>
+      </div>
+    </section>
+
+    <section class="hot-posts">
+      <div class="section-header">
+        <h3>엄마들 지금 이 글에서 멈췄어요</h3>
+        <a href="{% url 'main:realtime_feed' %}" class="more-link" style="color:#666; text-decoration:none; font-size:14px;">실시간 반응 전체 보기 ></a>
+      </div>
+
+      <!-- 탭 필터 -->
+      <div class="hot-posts-tabs">
+        <button class="tab-btn active" data-tab="trending">지금 반응 오르는 글</button>
+        <button class="tab-btn" data-tab="empathy">엄마들 속 얘기</button>
+        <button class="tab-btn" data-tab="info">실전 육아 정보</button>
+        <button class="tab-btn" data-tab="why">중고물품판매해요</button>
+      </div>
+
+      <!-- 탭 콘텐츠 -->
+      <div class="tab-content">
+        <!-- 1️⃣ 지금 동네에서 터지는 이야기 - 실시간 반응 스트림 -->
+        <div class="tab-pane active" id="trending">
+          <div class="hot-posts-category-title">지금 댓글 달리고 있는 글</div>
+          {% if hot_posts %}
+            <div class="rotating-feature-wrap">
+              {% for post in hot_posts %}
+              {% with views=post.views|default:0 comments=post.comment_count|default:0 %}
+              <div class="rotating-card {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                <div class="feature-wrap">
+                  <a class="feature-card level-top" href="{% if post.post_type == 'free' %}{% url 'board:free_detail' post.pk %}{% elif post.post_type == 'hotdeal' %}{% url 'board:hotdeal_detail' post.pk %}{% else %}{% url 'board:parenting_detail' post.pk %}{% endif %}">
+                    <div class="feature-head">
+                      <div class="feature-reason">최근 10분 동안 댓글이 {{ comments }}개 늘었어요</div>
+                      <div class="feature-title">{{ post.title }}</div>
+                    </div>
+                    <div class="meta-line">
+                      <span class="metric comments">댓글 {{ comments }}</span>
+                      <span class="metric time">· {{ post.created_at|timesince }} 전</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+
+            <script>
+              (function() {
+                const cards = document.querySelectorAll('.rotating-card');
+                let currentIndex = 0;
+
+                if (cards.length > 1) {
+                  setInterval(() => {
+                    // 현재 카드 비활성화
+                    cards[currentIndex].classList.remove('active');
+                    
+                    // 다음 카드 활성화
+                    currentIndex = (currentIndex + 1) % cards.length;
+                    cards[currentIndex].classList.add('active');
+                  }, 3000);
+                }
+              })();
+            </script>
+          {% else %}
+            <p style="color:#777;">지금 반응 중인 글이 없습니다.</p>
+          {% endif %}
+        </div>
+
+        <!-- 2️⃣ 엄마들 진짜 속 얘기 -->
+        <div class="tab-pane" id="empathy">
+          <div class="hot-posts-category-title">공감 폭발 글</div>
+          {% if empathy_posts %}
+            <div class="rotating-feature-wrap">
+              {% for post in empathy_posts %}
+              {% with comments=post.comment_count|default:0 %}
+              <div class="rotating-card {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                <div class="feature-wrap">
+                  <a class="feature-card level-top" href="{% url 'board:free_detail' post.pk %}">
+                    <div class="feature-head">
+                      <div class="feature-reason">공감이 많은 글이에요</div>
+                      <div class="feature-title">{{ post.title }}</div>
+                    </div>
+                    <div class="meta-line">
+                      <span class="metric comments">댓글 {{ comments }}</span>
+                      <span class="metric time">· {{ post.created_at|timesince }} 전</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+
+            <script>
+              (function() {
+                const cards = document.querySelectorAll('#empathy .rotating-card');
+                let currentIndex = 0;
+
+                if (cards.length > 1) {
+                  setInterval(() => {
+                    cards[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % cards.length;
+                    cards[currentIndex].classList.add('active');
+                  }, 3000);
+                }
+              })();
+            </script>
+          {% else %}
+            <p style="color:#777;">게시글이 없습니다.</p>
+          {% endif %}
+        </div>
+
+        <!-- 3️⃣ 실전 육아 정보 -->
+        <div class="tab-pane" id="info">
+          <div class="hot-posts-category-title">다들 북마크한 글</div>
+          {% if parenting_info_posts %}
+            <div class="rotating-feature-wrap">
+              {% for post in parenting_info_posts %}
+              {% with comments=post.comment_count|default:0 %}
+              <div class="rotating-card {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                <div class="feature-wrap">
+                  <a class="feature-card level-top" href="{% url 'board:parenting_detail' post.pk %}">
+                    <div class="feature-head">
+                      <div class="feature-reason">엄마들이 자주 찾는 정보예요</div>
+                      <div class="feature-title">{{ post.title }}</div>
+                    </div>
+                    <div class="meta-line">
+                      <span class="metric comments">댓글 {{ comments }}</span>
+                      <span class="metric time">· {{ post.created_at|timesince }} 전</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+
+            <script>
+              (function() {
+                const cards = document.querySelectorAll('#info .rotating-card');
+                let currentIndex = 0;
+
+                if (cards.length > 1) {
+                  setInterval(() => {
+                    cards[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % cards.length;
+                    cards[currentIndex].classList.add('active');
+                  }, 3000);
+                }
+              })();
+            </script>
+          {% else %}
+            <p style="color:#777;">육아정보 게시판에 글이 없습니다.</p>
+          {% endif %}
+        </div>
+
+        <!-- 4️⃣ 중고물품판매 -->
+        <div class="tab-pane" id="why">
+          <div class="hot-posts-category-title">판매 중인 물품</div>
+          {% if flea_posts %}
+            <div class="rotating-feature-wrap">
+              {% for post in flea_posts %}
+              {% with comments=post.comment_count|default:0 %}
+              <div class="rotating-card {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                <div class="feature-wrap">
+                  <a class="feature-card level-top" href="{% url 'board:flea_detail' post.pk %}">
+                    <div class="feature-head">
+                      <div class="feature-reason">{{ post.price|intcomma }}원</div>
+                      <div class="feature-title">{{ post.title }}</div>
+                    </div>
+                    <div class="meta-line">
+                      <span class="metric comments">댓글 {{ comments }}</span>
+                      <span class="metric time">· {{ post.created_at|timesince }} 전</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+
+            <script>
+              (function() {
+                const cards = document.querySelectorAll('#why .rotating-card');
+                let currentIndex = 0;
+
+                if (cards.length > 1) {
+                  setInterval(() => {
+                    cards[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % cards.length;
+                    cards[currentIndex].classList.add('active');
+                  }, 3000);
+                }
+              })();
+            </script>
+          {% else %}
+            <p style="color:#777;">판매 중인 물품이 없습니다.</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <aside class="main-right">
+    <div class="login-box">
+      {% if user.is_authenticated %}
+        <div class="user-info-area">
+          <p class="login-text">
+            <span id="user-grade-chip"
+                class="user-grade-chip"
+                role="button"
+                tabindex="0"
+                aria-haspopup="dialog"
+                aria-controls="gradeModal"
+                data-current-grade="{{ user.get_grade_display }}"
+                data-next-grade="{% if grade_progress and not grade_progress.is_max %}{{ grade_progress.next_label }}{% else %}{% endif %}">
+            <span id="user-grade-name" class="grade-name">{{ user.get_grade_display }}</span>
+            <span class="grade-suffix">등급</span>
+          </span><br>
+          <strong>{{ user.nickname }}</strong>님,<br>
+          오늘도 행복한 하루 되세요!
+          </p>
+
+          <!-- ✅ 등급 안내 모달 (작게) -->
+          <div id="gradeModal" class="grade-modal is-hidden" aria-hidden="true">
+            <div class="grade-modal__backdrop" data-grade-close="1"></div>
+
+            <div class="grade-modal__panel" role="dialog" aria-modal="true" aria-labelledby="gradeModalTitle">
+              <button type="button" class="grade-modal__x" data-grade-close="1" aria-label="닫기">×</button>
+
+              <!-- 1) 헤더 -->
+              <div class="grade-modal__header">
+                <div id="gradeModalTitle" class="grade-modal__title"></div>
+                <div id="gradeModalDesc" class="grade-modal__desc"></div>
+              </div>
+
+              <!-- 3) 빨리 올리는 방법 -->
+              <div class="grade-modal__section">
+                <div class="grade-modal__stitle">다음 등급까지 빨리 오르는 법</div>
+                <ul class="grade-modal__list">
+                  <li>게시글/댓글 작성으로 경험치가 올라가요</li>
+                  <li>오늘의 미션 완료 시 추가 경험치를 얻어요</li>
+                  <li><b>연속 출석</b>을 유지하면 보너스가 붙어요</li>
+                </ul>
+              </div>
+
+              <!-- 4) 내 혜택 / 다음 혜택 -->
+              <div class="grade-modal__section">
+                <div class="grade-modal__grid">
+                  <div class="grade-modal__col">
+                    <div class="grade-modal__stitle">내 등급 혜택</div>
+                    <ul id="gradeModalPerks" class="grade-modal__list"></ul>
+                  </div>
+                  <div class="grade-modal__col">
+                    <div class="grade-modal__stitle">다음 등급 혜택 미리보기</div>
+                    <ul id="gradeModalNextPerks" class="grade-modal__list"></ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5) CTA -->
+              <div class="grade-modal__actions">
+                <a href="{% url 'accounts:mypage_grade_exp' %}" class="grade-modal__btn grade-modal__btn--primary">
+
+                  등급 자세히 보기
+                </a>
+                <button type="button" class="grade-modal__btn" data-grade-close="1">닫기</button>
+              </div>
+            </div>
+          </div>
+
+
+          <div id="grade-progress-area">
+            {% if grade_progress %}
+            <div style="margin:10px 0 12px; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+              <div class="grade-top-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; font-weight:bold; color:#555;">
+                <span class="grade-top-left">
+                  <b>Lv.</b> <span id="current-grade-label">{{ grade_progress.current_label }}</span>
+                </span>
+                <span class="grade-top-mid">
+                  <span id="point-toast" style="font-weight:bold; color:#ff6b6b;"></span>
+                </span>
+                <span class="grade-top-right"><b id="point-value" style="color:#ff6b6b;">{{ grade_progress.point }}</b> P</span>
+              </div>
+
+              <div class="grade-bar-bg" style="background:#eee; height:10px; border-radius:5px; overflow:hidden;">
+                <div id="grade-bar-fill"
+                     class="grade-bar-fill"
+                     style="width:{{ grade_progress.progress_percent }}%; background: linear-gradient(90deg, #ff9a9e 0%, #ff6b6b 100%); height:100%; transition: width 0.5s;">
+                </div>
+              </div>
+
+              <div id="grade-remaining-text" style="margin-top:10px; font-size:12px; color:#888; text-align:center;">
+                {% if grade_progress.is_max %}
+                  최고 등급이에요 ⭐
+                {% else %}
+                  다음 <b>{{ grade_progress.next_label }}</b>까지 <b>{{ grade_progress.remaining }}P</b> 남았어요!
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <div id="quest-card-area">
+            {% if today_quest and not today_quest.completed and not today_quest.skipped %}
+            <div class="quest-card" style="margin:12px 0; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+              <div style="font-weight:800; color:#333; margin-bottom:5px;">🎯 오늘의 작은 목표</div>
+              <div style="margin:8px 0 15px; color:#555; font-size:14px;">{{ today_quest.content }}</div>
+
+              <div style="display:flex; gap:8px;">
+                <form method="post" action="{% url 'quests:complete_today' %}" data-quest-action="complete" style="flex:1;">
+                  {% csrf_token %}
+                  <button class="btn-login" style="width:100%; padding:10px; background:#ff6b6b; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; transition:background 0.2s;">했어요 ✓</button>
+                </form>
+
+                <form method="post" action="{% url 'quests:skip_today' %}" style="flex:1;">
+                  {% csrf_token %}
+                  <button class="btn-login" style="width:100%; padding:10px; background:#f3f4f6; color:#666; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">패스</button>
+                </form>
+              </div>
+              <div style="margin-top:10px; font-size:12px; color:#999; text-align:center;">완료 시 +3 포인트 적립</div>
+            </div>
+            {% else %}
+            <div class="quest-card" style="margin:12px 0; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; text-align:center;">
+              <div style="font-weight:700; font-size:16px;">오늘 미션 클리어!</div>
+              <div style="margin-top:6px; color:#888; font-size:14px;">내일 새로운 목표로 만나요</div>
+            </div>
+            {% endif %}
+          </div>
+
+          <a href="{% url 'accounts:mypage_home' %}" class="btn-login" style="display:block;  text-align:center; padding:12px; background:#fff; color:#333; border:1px solid #ddd; border-radius:10px; text-decoration:none; font-weight:bold; transition:background 0.2s;">마이페이지</a>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="btn-login btn-logout" style="display:block;  text-align:center; padding:12px; margin-top:10px; background:#f1f3f5; color:#888; border-radius:10px; text-decoration:none; font-size:13px;">로그아웃</a>
+
+      {% else %}
+        <div class="user-info-area" style="padding:20px; background:white; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); text-align:center;">
+          <p class="login-text" style="margin-bottom:20px; color:#444;">
+            <strong style="font-size:18px; color:#ff6b6b;">로그인하고</strong><br>
+            나만의 육아 기록을 시작해보세요!
+          </p>
+          <a href="{% url 'accounts:login' %}" style="display:block;  padding:12px; background:#ff6b6b; color:white; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold; margin-bottom:10px; box-shadow:0 4px 10px rgba(255, 107, 107, 0.3);">로그인</a>
+          <a href="{% url 'accounts:signup' %}" style="display:block;  padding:12px; background:#fff; border:1px solid #ddd; color:#333; text-align:center; border-radius:10px; text-decoration:none; font-weight:bold;">회원가입</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- 26-01-06 슬기 추가: 2026년 인터랙티브 달력 섹션 -->
+    <!-- 기능: 월별 달력 표시, 날짜 클릭 시 기록 작성 모달 열기, 기록 있는 날짜 표시 -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <div style="margin-top: 20px;">
+      
+      <!-- 2026년 달력 (일요일 기준, 월별 네비게이션) -->
+      <div style="background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eee;">
+        <div style="padding: 20px; border-bottom: 2px solid #ff6b6b; display: flex; align-items: center; justify-content: space-between;">
+          <button id="prevMonthBtn" style="background: #ff6b6b; color: white; border: none; border-radius: 6px; width: 40px; height: 40px; font-size: 18px; cursor: pointer; font-weight: bold; transition: all 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">◀</button>
+          <h3 id="monthTitle" style="margin: 0; font-size: 20px; font-weight: 800; color: #1f2633; flex: 1; text-align: center;">1월</h3>
+          <button id="nextMonthBtn" style="background: #ff6b6b; color: white; border: none; border-radius: 6px; width: 40px; height: 40px; font-size: 18px; cursor: pointer; font-weight: bold; transition: all 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">▶</button>
+        </div>
+        
+        <div style="padding: 30px; display: flex; justify-content: center; align-items: center;">
+          <div id="calendarContainer" style="width: 100%;">
+            <!-- 달력이 여기에 동적으로 표시됩니다 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ═══════════════════════════════════════════════════════════════════════
+      // 26-01-06 슬기 추가: 인터랙티브 달력 기능 (기록 작성 및 관리)
+      // 설명: 사용자가 달력의 날짜를 클릭하면 모달창에서 육아 기록을 작성하고 저장
+      //      로컬스토리지에 저장되어 브라우저를 닫아도 데이터 유지됨
+      //      기록이 있는 날짜에는 우측 하단에 빨간 동그라미 표시
+      // ═══════════════════════════════════════════════════════════════════════
+      
+      // 로컬스토리지에서 기록 불러오기
+      function getCalendarRecords() {
+        const records = localStorage.getItem('calendarRecords');
+        return records ? JSON.parse(records) : {};
+      }
+      
+      // 로컬스토리지에 기록 저장하기
+      function saveCalendarRecords(records) {
+        localStorage.setItem('calendarRecords', JSON.stringify(records));
+      }
+      
+      // 날짜 키 생성 (YYYY-MM-DD 형식)
+      function getDateKey(year, month, day) {
+        return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      }
+      
+      // 모달 열기
+      function openCalendarModal(year, month, day) {
+        const dateKey = getDateKey(year, month, day);
+        const records = getCalendarRecords();
+        const currentRecord = records[dateKey] || '';
+        
+        const modal = document.createElement('div');
+        modal.id = 'calendarModal';
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        `;
+        
+        modal.innerHTML = `
+          <div style="background: white; border-radius: 12px; padding: 30px; max-width: 400px; width: 90%; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #1f2633;">
+              ${year}년 ${month}월 ${day}일 기록
+            </div>
+            <textarea id="recordInput" placeholder="오늘 육아 기록을 남겨보세요..." style="width: 100%; height: 150px; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; margin-bottom: 16px;">${currentRecord}</textarea>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+              <button onclick="closeModal()" style="padding: 10px 20px; background: #f3f4f6; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">취소</button>
+              <button onclick="saveRecord('${dateKey}')" style="padding: 10px 20px; background: #ff6b6b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">저장</button>
+            </div>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+        document.getElementById('recordInput').focus();
+      }
+      
+      function closeModal() {
+        const modal = document.getElementById('calendarModal');
+        if (modal) modal.remove();
+      }
+      
+      function saveRecord(dateKey) {
+        const content = document.getElementById('recordInput').value;
+        const records = getCalendarRecords();
+        
+        if (content.trim()) {
+          records[dateKey] = content;
+        } else {
+          delete records[dateKey];
+        }
+        
+        saveCalendarRecords(records);
+        closeModal();
+        renderCalendar(currentMonthIndex); // 달력 새로고침
+      }
+      
+      // 달력 생성 함수
+      function renderCalendar(monthIndex) {
+        const monthsData = {{ months_calendar|safe }};
+        const monthData = monthsData[monthIndex];
+        const year = 2026;
+        const month = monthData.month;
+        
+        // 제목 업데이트
+        document.getElementById('monthTitle').textContent = monthData.name;
+        
+        // HTML 생성
+        let html = '';
+        
+        // 요일 헤더
+        html += '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 15px;">';
+        monthData.weekdays.forEach(day => {
+          const color = day === '토' ? '#4ecdc4' : (day === '일' ? '#ff6b6b' : '#666');
+          html += `<div style="text-align: center; font-size: 16px; font-weight: 700; color: ${color}; padding: 12px 0; height: 40px; display: flex; align-items: center; justify-content: center;">${day}</div>`;
+        });
+        html += '</div>';
+        
+        // 날짜
+        html += '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">';
+        const records = getCalendarRecords();
+        
+        monthData.days.forEach(week => {
+          week.forEach(day => {
+            if (day === 0) {
+              html += '<div style="aspect-ratio: 1;"></div>';
+            } else {
+              const dateKey = getDateKey(year, month, day);
+              const hasRecord = records[dateKey] ? true : false;
+              const recordDot = hasRecord ? `<div style="position: absolute; width: 8px; height: 8px; background: #ff6b6b; border-radius: 50%; bottom: 4px; right: 4px;"></div>` : '';
+              
+              html += `<div style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: white; border: 2px solid #eee; border-radius: 8px; font-size: 16px; font-weight: 600; color: #333; cursor: pointer; transition: all 0.2s; position: relative;" onmouseover="this.style.borderColor='#ff6b6b'; this.style.background='#fff5f5';" onmouseout="this.style.borderColor='#eee'; this.style.background='white';" onclick="openCalendarModal(${year}, ${month}, ${day})">${day}${recordDot}</div>`;
+            }
+          });
+        });
+        html += '</div>';
+        
+        document.getElementById('calendarContainer').innerHTML = html;
+      }
+      
+      // 초기 달력 렌더링 (1월)
+      let currentMonthIndex = 0;
+      renderCalendar(currentMonthIndex);
+      
+      // 이전 달 버튼
+      document.getElementById('prevMonthBtn').addEventListener('click', () => {
+        if (currentMonthIndex > 0) {
+          currentMonthIndex--;
+          renderCalendar(currentMonthIndex);
+        }
+      });
+      
+      // 다음 달 버튼
+      document.getElementById('nextMonthBtn').addEventListener('click', () => {
+        if (currentMonthIndex < 11) {
+          currentMonthIndex++;
+          renderCalendar(currentMonthIndex);
+        }
+      });
+      
+      // ESC 키로 모달 닫기
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      });
+    </script>
+
+  </aside>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  /* 0. 첫 방문 선언 오버레이 (테스트: 매 새로고침 노출) */
+  const overlay = document.getElementById('missionOverlay');
+  const overlayBtn = document.getElementById('missionOverlayClose');
+
+  if (overlay && overlayBtn) {
+    const closeOverlay = () => {
+      overlay.classList.remove('is-active');
+      document.body.classList.remove('no-scroll');
+    };
+
+    overlay.classList.add('is-active');
+    document.body.classList.add('no-scroll');
+    overlayBtn.addEventListener('click', closeOverlay);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeOverlay();
+    });
+  }
+
+    /* ✅ 등급 안내 모달 */
+  const gradeChip = document.getElementById("user-grade-chip");
+  const gradeModal = document.getElementById("gradeModal");
+
+  const titleEl = document.getElementById("gradeModalTitle");
+  const descEl = document.getElementById("gradeModalDesc");
+  const perksEl = document.getElementById("gradeModalPerks");
+  const nextPerksEl = document.getElementById("gradeModalNextPerks");
+
+  const gradeMeta = {
+    "새싹": {
+      desc: "가입 후 활동을 시작한 회원이에요.",
+      perks: ["글/댓글 작성 시 기본 경험치 획득", "미션 보상 정상 획득", "등급 뱃지 표시"],
+      nextPerks: ["글/댓글 경험치 보너스(+%)", "내 글/댓글 가시성 소폭 강화"]
+    },
+    "일반": {
+      desc: "꾸준히 활동하는 회원이에요.",
+      perks: ["글/댓글 경험치 보너스(+%)", "등급 뱃지 표시"],
+      nextPerks: ["내 글/댓글 강조 표시", "미션 보너스 보상(+P)"]
+    },
+    "우수": {
+      desc: "활동이 활발한 우수 회원이에요.",
+      perks: ["내 글/댓글 강조 표시", "미션 보너스 보상(+P)", "글/댓글 경험치 보너스(+%)"],
+      nextPerks: ["장터/게시글 노출 혜택(확률/우선)", "추가 보너스(+P/+%)"]
+    },
+    "VIP": {
+      desc: "커뮤니티에 큰 기여를 하는 VIP 회원이에요.",
+      perks: ["노출 혜택(확률/우선)", "미션 보너스 보상(+P)", "글/댓글 경험치 보너스(+%)"],
+      nextPerks: ["이벤트/노출 혜택 확장", "추가 보너스(+P/+%)"]
+    },
+    "운영": {
+      desc: "커뮤니티 운영에 참여하는 회원이에요.",
+      perks: ["운영진 전용 권한/표시", "특별 이벤트 혜택", "노출/보너스 혜택"],
+      nextPerks: ["최고 등급이에요 ⭐"]
+    }
+  };
+
+  function pickKey(label) {
+    if (!label) return null;
+    if (label.includes("새싹")) return "새싹";
+    if (label.includes("일반")) return "일반";
+    if (label.includes("우수")) return "우수";
+    if (label.toUpperCase().includes("VIP")) return "VIP";
+    if (label.includes("운영")) return "운영";
+    return null;
+  }
+
+  function fillList(el, items) {
+    if (!el) return;
+    el.innerHTML = "";
+    (items || []).forEach((t) => {
+      const li = document.createElement("li");
+      li.textContent = t;
+      el.appendChild(li);
+    });
+  }
+
+  function openGradeModal() {
+    if (!gradeModal || !gradeChip) return;
+
+    const current = gradeChip.dataset.currentGrade || "";
+    const next = gradeChip.dataset.nextGrade || "";
+
+    const curKey = pickKey(current);
+    const nextKey = pickKey(next);
+
+    const curMeta = gradeMeta[curKey] || {
+      desc: "활동에 따라 등급이 올라가요.",
+      perks: ["등급 뱃지 표시", "활동 시 경험치 획득"],
+      nextPerks: ["더 많은 혜택이 열려요"]
+    };
+
+    titleEl.textContent = `${current} 등급`;
+    descEl.textContent = curMeta.desc;
+
+    fillList(perksEl, curMeta.perks);
+
+    if (next) {
+      const nextMeta = gradeMeta[nextKey] || { nextPerks: ["노출/보너스 혜택이 강화돼요"] };
+      fillList(nextPerksEl, nextMeta.nextPerks || ["노출/보너스 혜택이 강화돼요"]);
+    } else {
+      fillList(nextPerksEl, ["최고 등급이에요 ⭐"]);
+    }
+
+    gradeModal.classList.remove("is-hidden");
+    gradeModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("no-scroll");
+  }
+
+  function closeGradeModal() {
+    if (!gradeModal) return;
+    gradeModal.classList.add("is-hidden");
+    gradeModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("no-scroll");
+  }
+
+  if (gradeChip && gradeModal) {
+    gradeChip.addEventListener("click", openGradeModal);
+    gradeChip.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openGradeModal();
+      }
+    });
+
+    gradeModal.addEventListener("click", (e) => {
+      const t = e.target;
+      if (t && t.closest && t.closest("[data-grade-close='1']")) closeGradeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !gradeModal.classList.contains("is-hidden")) {
+        closeGradeModal();
+      }
+    });
+  }
+
+  /* 1. 배너 슬라이더 로직 */
+  const track = document.querySelector('.banner-track');
+  const items = document.querySelectorAll('.banner-item');
+  const prevBtn = document.getElementById('btnPrev');
+  const nextBtn = document.getElementById('btnNext');
+  
+  if (track && items.length > 0) {
+      let currentSlide = 0;
+      const totalSlides = items.length;
+
+      function updateSlidePosition() {
+          const offset = -currentSlide * 100;
+          track.style.transform = `translateX(${offset}%)`;
+      }
+
+      function moveNext() {
+          currentSlide = (currentSlide + 1) % totalSlides;
+          updateSlidePosition();
+      }
+
+      function movePrev() {
+          currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+          updateSlidePosition();
+      }
+
+      if (nextBtn) nextBtn.addEventListener('click', moveNext);
+      if (prevBtn) prevBtn.addEventListener('click', movePrev);
+      
+      setInterval(moveNext, 5000);
+  }
+
+  /* 2. 퀘스트 & 등급 애니메이션 로직 */
+  const questArea = document.getElementById("quest-card-area");
+  const toast = document.getElementById("point-toast");
+
+  if (questArea && toast) {
+    function animateNumber(el, to, duration = 450) {
+        if (!el) return;
+        const from = parseInt(el.textContent || "0", 10);
+        const target = Number(to);
+        if (Number.isNaN(target)) return;
+        const start = performance.now();
+        function tick(now) {
+            const t = Math.min(1, (now - start) / duration);
+            const value = Math.round(from + (target - from) * t);
+            el.textContent = value;
+            if (t < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    }
+
+    function replayClass(el, className) {
+        if (!el) return;
+        el.classList.remove(className);
+        void el.offsetWidth;
+        el.classList.add(className);
+    }
+
+        // ✅ +P 토스트가 한 번 뜨고 자동으로 사라지게
+    let toastTimer = null;
+
+    function showToast({ text, bg = "#111", isLevelUp = false }) {
+        toast.textContent = text;
+        toast.style.color = bg;
+        replayClass(toast, "is-pop");
+
+        // ✅ 이전 타이머가 있으면 끊고, 일정 시간 후 완전 제거
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toast.classList.remove("is-pop");
+            toast.textContent = "";
+        }, 1500); // 애니메이션보다 살짝 길게
+    }
+
+
+    questArea.addEventListener("submit", async (e) => {
+        const form = e.target;
+        if (!form.dataset || form.dataset.questAction !== "complete") return;
+        e.preventDefault();
+
+        const btn = form.querySelector("button");
+        if (btn) btn.disabled = true;
+
+        const csrf = form.querySelector("[name=csrfmiddlewaretoken]")?.value;
+        if (!csrf) return;
+
+        try {
+            const res = await fetch(form.action, {
+                method: "POST",
+                headers: { "X-CSRFToken": csrf, "X-Requested-With": "XMLHttpRequest" },
+            });
+            const data = await res.json();
+
+            if (data.status !== "ok") return;
+
+            questArea.innerHTML = `
+                <div class="quest-card" style="margin:12px 0; padding:15px; border:1px solid #eee; border-radius:12px; background:#fff; text-align:center;">
+                    <div style="font-weight:700; font-size:16px;">오늘 미션 클리어!</div>
+                    <div style="margin-top:6px; color:#888; font-size:14px;">내일 새로운 목표로 만나요</div>
+                </div>`;
+
+            const pointEl = document.getElementById("point-value");
+            const barEl = document.getElementById("grade-bar-fill");
+            const remainingEl = document.getElementById("grade-remaining-text");
+
+            if (typeof data.point === "number") animateNumber(pointEl, data.point);
+            if (data.progress_percent !== undefined) {
+                if(barEl) barEl.style.width = `${data.progress_percent}%`;
+            }
+            if (data.remaining_text && remainingEl) remainingEl.innerHTML = data.remaining_text;
+
+            const isBonus = data.streak && [3,7,14].includes(data.streak);
+            showToast({ text: isBonus ? `🔥 +10P` : "+3P", bg: "#ff6b6b" });
+
+            if (data.leveled_up) {
+                const nameEl = document.getElementById("user-grade-name");
+                const chip = document.getElementById("user-grade-chip");
+                if (nameEl) nameEl.textContent = data.new_label;
+                if (chip) replayClass(chip, "is-levelup");
+                
+                const currentLabelEl = document.getElementById("current-grade-label");
+                if (currentLabelEl) currentLabelEl.textContent = data.new_label;
+                
+                alert(`축하합니다! ${data.new_label} 등급이 되셨어요! 🎉`);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    });
+  }
+  
+  // 실시간 인기글 탭 기능
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tabName = button.getAttribute('data-tab');
+      
+      // 모든 탭 버튼에서 active 클래스 제거
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      // 모든 탭 콘텐츠에서 active 클래스 제거
+      tabPanes.forEach(pane => pane.classList.remove('active'));
+      
+      // 클릭된 버튼에 active 클래스 추가
+      button.classList.add('active');
+      // 해당 탭 콘텐츠에 active 클래스 추가
+      const activePane = document.getElementById(tabName);
+      if (activePane) {
+        activePane.classList.add('active');
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

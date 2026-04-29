@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울시 신림동 슬구 초딩학교</title>
+    <script>
+        function confirmUpdate() {
+            if(confirm('수정하시겠습니까?')) {
+                window.location.href = '/student/update';
+            }
+        }
+        
+        function confirmDelete() {
+            if(confirm('삭제하시겠습니까?')) {
+                alert('삭제가 완료되었습니다.');
+                window.location.href = '/student/list';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>초딩학생 상세 메뉴</h2>
+    <ul>
+        <li><button onclick="confirmUpdate()">수정버튼</button></li>
+        <li><button onclick="confirmDelete()">삭제버튼</button></li>
+        <li><a href="">답글을 작성합니다</a></li>
+        <li><a href="/student/list">리스트 목록입니다.</a></li>
+    </ul>
+</body>
+</html>

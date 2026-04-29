@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}SafeMap | 홈{% endblock %}
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block content %}
+
+<style>
+.main-split-container {
+  display: flex;
+  width: 100%;
+  min-height: 600px;
+  margin-top: 32px;
+}
+.main-split-left, .main-split-right {
+  flex: 1;
+  padding: 32px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.main-split-divider {
+  width: 2px;
+  background: #e0e0e0;
+  min-height: 500px;
+  margin: 0 0;
+}
+@media (max-width: 900px) {
+  .main-split-container {
+    flex-direction: column;
+  }
+  .main-split-divider {
+    width: 100%;
+    height: 2px;
+    min-height: unset;
+    margin: 24px 0;
+  }
+}
+</style>
+<div class="main-split-container">
+  <div class="main-split-left">
+    <section class="hero">
+
+    </section>
+    <section class="grid grid-3" style="margin-top:18px;">
+      <div class="card kpi">
+        <div>
+          <div class="small">최근 7일 제보</div>
+          <div class="num">{{ last7 }}</div>
+        </div>
+        <div class="badge">📆 7 days</div>
+      </div>
+      <div class="card kpi">
+        <div>
+          <div class="small">최근 30일 제보</div>
+          <div class="num">{{ last30 }}</div>
+        </div>
+        <div class="badge">🗓️ 30 days</div>
+      </div>
+      <div class="card kpi">
+        <div>
+          <div class="small">최근 7일 평균 위험도</div>
+          <div class="num">{{ avg_risk_7 }}</div>
+        </div>
+        <div class="badge">⭐ 1~5</div>
+      </div>
+    </section>
+    <section class="grid grid-3" style="margin-top:16px;">
+      <div class="card">
+        <h3>🧠 AI 요약</h3>
+        <div class="small">긴 제보를 1줄로 압축해 “한 눈에” 보이게.</div>
+      </div>
+      <div class="card">
+        <h3>🏷️ 자동 분류</h3>
+        <div class="small">교통/폭력/분실/화재 등 유형을 자동 판단.</div>
+      </div>
+      <div class="card">
+        <h3>⚠️ 위험도 점수</h3>
+        <div class="small">1~5 점으로 우선 확인할 사건을 정리.</div>
+      </div>
+    </section>    <!-- 슬기 2025-12-24: 최근 제보 및 사건유형 상세 섹션 -->
+    <section style="margin-top:20px;">
+      <h3 style="margin:0 0 12px;color:#e8ecff;">최근 제보 · 사건 사고 유형</h3>
+      <div class="grid grid-4" style="gap:10px;">
+        <div class="card" style="background:linear-gradient(135deg,rgba(255,71,87,0.15),rgba(255,71,87,0.05));border:1px solid rgba(255,71,87,0.2);">
+          <div style="font-size:24px;margin-bottom:6px;">🔴</div>
+          <div style="font-weight:800;color:#ff4757;font-size:18px;">{{ crime_count }}</div>
+          <div style="color:#9aa4c6;font-size:12px;margin-top:4px;">범죄 사건</div>
+        </div>
+        <div class="card" style="background:linear-gradient(135deg,rgba(255,159,64,0.15),rgba(255,159,64,0.05));border:1px solid rgba(255,159,64,0.2);">
+          <div style="font-size:24px;margin-bottom:6px;">🚗</div>
+          <div style="font-weight:800;color:#ffa040;font-size:18px;">{{ traffic_count }}</div>
+          <div style="color:#9aa4c6;font-size:12px;margin-top:4px;">교통사고</div>
+        </div>
+        <div class="card" style="background:linear-gradient(135deg,rgba(75,192,192,0.15),rgba(75,192,192,0.05));border:1px solid rgba(75,192,192,0.2);">
+          <div style="font-size:24px;margin-bottom:6px;">🌊</div>
+          <div style="font-weight:800;color:#4bc0c0;font-size:18px;">{{ disaster_count }}</div>
+          <div style="color:#9aa4c6;font-size:12px;margin-top:4px;">자연재해</div>
+        </div>
+        <div class="card" style="background:linear-gradient(135deg,rgba(153,102,255,0.15),rgba(153,102,255,0.05));border:1px solid rgba(153,102,255,0.2);">
+          <div style="font-size:24px;margin-bottom:6px;">📦</div>
+          <div style="font-weight:800;color:#9966ff;font-size:18px;">{{ other_count }}</div>
+          <div style="color:#9aa4c6;font-size:12px;margin-top:4px;">분실/기타</div>
+        </div>
+      </div>
+    </section>  </div>
+  <div class="main-split-divider"></div>
+  <div class="main-split-right">
+    <!-- 슬기 2025-12-24: 메인 오른쪽에 DATE POP · Korea Map 바로가기 카드 배치, 한눈에 보일 수 있도록 컨테이너 전체 차지 -->
+    <style>
+      .main-split-right {
+        padding: 32px 24px !important;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+      }
+      .right-title {
+        margin: 0 0 60px;
+        font-size: 32px;
+        font-weight: 900;
+        line-height: 1.3;
+        color: #e8ecff;
+        letter-spacing: -0.01em;
+      }
+      .datepop-card {
+        position: relative;
+        background: linear-gradient(145deg, #0b1020, #070a14);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+        height: auto;
+        min-height: auto;
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        border: 1px solid rgba(255,255,255,.08);
+        /* 슬기 2025-12-24: 카드를 위로 올려 왼쪽 "우리 동네 사건·사고" 텍스트와 높이 맞춤 */
+      }
+      .datepop-card h3 { margin: 0; font-size: 22px; color: #e8ecff; letter-spacing: -0.01em; }
+      .datepop-card .subtext { color: #9aa4c6; line-height: 1.4; font-size: 13px; }
+      .datepop-card .cta-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+      .datepop-card .cta-btn { background: #7c5cff; color: #e8ecff; border-radius: 12px; padding: 8px 12px; font-weight: 800; border: 1px solid rgba(124,92,255,.3); box-shadow: 0 10px 18px rgba(124,92,255,.22); cursor: pointer; }
+      .datepop-card .ghost-btn { background: rgba(124,92,255,.1); color: #00d4ff; border-radius: 10px; padding: 6px 10px; font-weight: 700; border: 1px solid rgba(0,212,255,.2); cursor: pointer; }
+      .datepop-figure { position: relative; flex: none; border: 1px dashed rgba(255,255,255,.12); border-radius: 14px; padding: 10px; background: rgba(18,26,51,.5); height: 280px; }
+      .datepop-figure svg { width: 100%; height: 100%; filter: drop-shadow(0 12px 24px rgba(0,0,0,0.25)); }
+      .datepop-figure path { fill: #1a3f4a; stroke: #00d4ff; stroke-width: 6; stroke-linejoin: round; stroke-linecap: round; }
+      .datepop-pin { position: absolute; transform: translate(-50%,-50%); background: #7c5cff; color: #e8ecff; padding: 8px 10px; border-radius: 12px; font-weight: 800; box-shadow: 0 8px 14px rgba(124,92,255,.25); border: 1px solid rgba(124,92,255,.3); font-size: 12px; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+      .datepop-pin small { display: block; font-size: 10px; opacity: 0.9; }
+      .datepop-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+      .datepop-chip { background: rgba(124,92,255,.1); color: #00d4ff; padding: 6px 10px; border-radius: 10px; font-weight: 700; font-size: 12px; border: 1px solid rgba(0,212,255,.15); }
+    </style>
+
+    <div class="datepop-card">
+      <h1 class="h1">우리 동네 사건·사고,<br>한 줄로 요약해서 지도에</h1>
+      <p class="sub">
+        제보 내용을 기반으로 1줄 요약, 유형 분류, 위험도(1~5)를 자동 산출해
+        누구나 빠르게 지역 안전 신호를 볼 수 있게 합니다.
+      </p>
+      <h3>DATE POP · Korea Map</h3>
+      <div class="subtext">메인에서 바로 지도 열기! 시/도 → 구 → 동까지 한눈에 내려가며 제보를 확인하세요.</div>
+      <div class="cta-row">
+        <a class="cta-btn" href="{% url 'reports:map' %}">지도 바로 열기</a>
+        <a class="ghost-btn" href="{% url 'reports:new' %}">+ 제보 추가</a>
+      </div>
+      <div class="datepop-meta">
+        <span class="datepop-chip">밝은 일러스트 톤</span>
+        <span class="datepop-chip">지역 클릭 → 구/동</span>
+        <span class="datepop-chip">날짜 · 반경 필터</span>
+      </div>
+      <div class="datepop-figure">
+        <svg viewBox="0 0 320 520" aria-label="대한민국 지도 미리보기">
+          <path d="M180 10 L210 40 L195 90 L220 130 L205 170 L230 220 L215 270 L230 320 L200 360 L210 400 L190 450 L160 500 L120 480 L90 490 L70 450 L80 420 L70 380 L50 340 L70 300 L60 260 L80 230 L90 190 L80 150 L90 110 L120 90 L140 60 L160 70 Z" />
+        </svg>
+        <!-- 슬기 2025-12-24: 대한민국 지도 지역별 핀 포인트 -->
+        <div class="datepop-pin" data-label="서울특별시" style="top:24%;left:32%;">서울<small>SEOUL</small></div>
+        <div class="datepop-pin" data-label="강원특별자치도" style="top:14%;left:60%;">강원<small>GANGWON</small></div>
+        <div class="datepop-pin" data-label="충청권" style="top:36%;left:50%;">충청<small>CHUNG</small></div>
+        <div class="datepop-pin" data-label="전라권" style="top:55%;left:34%;">전라<small>JEOLLA</small></div>
+        <div class="datepop-pin" data-label="경상권" style="top:48%;left:62%;">경상<small>GYEONG</small></div>
+        <div class="datepop-pin" data-label="제주특별자치도" style="top:88%;left:38%;">제주<small>JEJU</small></div>
+      </div>
+    </div>
+  </div>
+ </div>
+
+  <!-- 안전 그래프 섹션 -->
+  <div id="safety-graphs" class="grid grid-2" style="margin-top:32px;">
+    <div class="card">
+      <h3 style="margin:0 0 8px;">최근 30일 사건 추이</h3>
+      <div class="small">DB에 쌓인 제보 기준으로 자동 그래프.</div>
+      <canvas id="chartDaily" height="140"></canvas>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 8px;">유형 분포</h3>
+      <div class="small">사건/사고 큰틀 기준: 범죄 → 교통사고 → 자연재해 순</div>
+      <canvas id="chartCat" height="140"></canvas>
+    </div>
+  </div>
+
+  <script>
+  async function loadHomeCharts(){
+    try{
+      const res = await fetch('/reports/api/stats/?days=30');
+      const data = await res.json();
+
+      const dailyCtx = document.getElementById('chartDaily');
+      const catCtx = document.getElementById('chartCat');
+
+      if(!dailyCtx || !catCtx) return;
+
+      new Chart(dailyCtx, {
+        type: 'line',
+        data: {
+          labels: data.daily.labels,
+          datasets: [{ label: '건수', data: data.daily.counts, tension: 0.25 }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+      });
+
+      new Chart(catCtx, {
+        type: 'bar',
+        data: {
+          labels: data.categories.labels.map(cat => {
+            const MAP = {
+              'violence': '범죄',
+              'traffic': '교통사고',
+              'fire': '자연재해',
+              'lost': '분실/도난',
+              'etc': '기타'
+            };
+            return MAP[cat] || cat;
+          }),
+          datasets: [{ label: '건수', data: data.categories.counts }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+      });
+    }catch(e){
+      console.log('home chart error', e);
+    }
+  }
+  document.addEventListener('DOMContentLoaded', loadHomeCharts);
+
+  // 슬기 2025-12-23: 홈 카드 핀 클릭 시 지도 이동
+  document.addEventListener('DOMContentLoaded', () => {
+    const pins = document.querySelectorAll('.datepop-card .datepop-pin');
+    pins.forEach(pin => {
+      pin.addEventListener('click', () => {
+        const label = pin.dataset.label || pin.textContent.trim();
+        const url = `/reports/map/?region=${encodeURIComponent('대한민국 ' + label)}`;
+        window.location.href = url;
+      });
+    });
+  });
+  </script>
+
+{% endblock %}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원전체리스트</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+    <h2>회원리스트</h2>
+    <a href="{% url 'member:write' %}">회원등록</a> | <a href="{% url 'home_index' %}">메인페이지</a>
+    <br><br>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>번호</th>
+                <th>아이디</th>
+                <th>이름</th>
+                <th>전화번호</th>
+                <th>성별</th>
+                <th>취미</th>
+                <th>가입일</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ member.user_id }}</td>
+                <td>{{ member.name }}</td>
+                <td>{{ member.phone }}</td>
+                <td>{{ member.gender }}</td>
+                <td>{{ member.hobby }}</td>
+                <td>{{ member.mdate|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center;" {% url "member:write" %}>등록된 회원이 없습니다.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

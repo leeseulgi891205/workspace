@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+<style>
+    *{padding: 0; margin: 0;}
+        #banner{width: 1200px; height: 1120px;
+        border-radius: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        }
+
+    #b01{width: 270px; height: 270px;
+        border-radius: 16px;
+        background: url("image/1111.png");
+        background-size: cover;
+    }
+    #b01_2{width: 270px; height: 270px;
+        border-radius: 16px;
+        background: url("image/1112.jpg");
+        background-size: cover;
+    }
+    #b01_3{width: 270px; height: 270px;
+        border-radius: 16px;
+        background: url("image/1113.jpg");
+        background-size: cover;
+    }
+    #b01_4{width: 270px; height: 270px;
+        border-radius: 16px;
+        background: url("image/1114.jpg");
+        background-size: cover;
+    }
+    #b01_5{width: 270px; height: 270px;
+        border-radius: 16px;
+        background: url("image/1115.jpg");
+        background-size: cover;
+    }
+    #b01_6{width: 270px; height: 270px;
+        border-radius: 16px;
+        background: url("image/1116.jpg");
+        background-size: cover;
+    }
+    #b01_7{width: 270px; height: 270px;
+        border-radius: 16px;
+        background: url("image/1117.jpg");
+        background-size: cover;
+    }
+    #b01_8{width: 270px; height: 270px;
+        border-radius: 16px;
+        background: url("image/1118.jpg");
+        background-size: cover;
+    }
+    #article>ul{margin-top: 8px; list-style: none;}
+    #article>ul>li{margin-left: 4px;
+    font-size: 16px; color: #333; letter-spacing: -0.4px;}
+    #header{width: 100%; height: 84px;}
+        #nav{width: 1200px; height: 84px; margin: 0 auto;
+        }
+        #nav>ul{list-style: none; display: flex; text-align: center;
+            width: 1200px; border-radius: 8px; overflow: hidden;
+        }
+        #nav>ul>li{width: 300px; height: 64px;
+            font-size: 16px; color: #333; font-weight: 600;
+            display: flex; align-items: center; justify-content: center;
+            background: #f5f5f5; border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        #nav>ul>li:not(:last-child){
+            border-right: none;
+        }
+        #nav>ul>li:first-child{
+            background: #f5f5f5; color: #333;
+        }
+        #nav>ul>li:hover{
+            background: #e0e0e0;
+        }
+        #nav>ul>li:first-child:hover{
+            background: #f5f5f5;
+        }
+        
+        
+        #b02{width: 270px; height: 270px; 
+            border-radius: 8px;
+            background: white; padding: 15px; box-sizing: border-box;
+        }
+        .card{
+            display: flex;
+            flex-direction: column;
+        }
+
+        #section{width: 1200px; height: 1400px; margin: 0 auto;}
+
+        #article{padding: 0;}
+        #article h3{color: #682fca; font-size: 14px; 
+            font-weight: bold; margin-bottom: 8px;}
+        #article>p{font-size: 18px; font-weight: bold; 
+            color: #333; margin-bottom: 8px; line-height: 1.4;}
+        #article h4{color: #666; font-size: 14px; 
+            margin-bottom: 15px; font-weight: normal;}
+        #article div{font-size: 20px; font-weight: bold; 
+            color: #ff299c; margin-bottom: 10px;
+            margin: 0; padding: 0;
+        }
+        #article>div>span{font-size: 20px;}
+        #article>h5{font-size: 12px; color: #7d7886; 
+            padding: 3px 8px; 
+            border-radius: 3px; display: inline-block;}
+        #article>h5>span{background: #f2f2f3; padding: 3px 8px; 
+            border-radius: 3px; margin-left: 5px;}
+        #article>h5.hotel-upgrade{background: #f2f2f3; color: #ff299c;}
+        #article>h5:not(.hotel-upgrade){background: #f2f2f3;}
+</style>
+</head>
+<body>
+
+<ul>
+ <div id="header">
+        <div id="nav">
+            <ul>
+                <li>동남아</li>
+                <li>중국</li>
+                <li>일본</li>
+                <li>유럽</li>
+                
+
+            </ul>
+        </div>
+</div>
+
+<div id="section">
+    <div id="banner">
+        <div class="card">
+            <div id="b01"></div>
+            <div id="b02">
+                <div id="article">
+                    <h3>하롱베이 데이크루즈&뷔페</h3>
+                    <p>하노이/하롱베이 4,5,6일 #베스트셀러</p>
+                    <h4>인천/부산 | 4,5,6일</h4>
+                    <div>399,000<span>원~</span></div>
+                    <h5 class="hotel-upgrade">호텔 업그레이드</h5><h5><span>하노이 핵심관광</span></h5>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div id="b01_2"></div>
+            <div id="b02">
+                <div id="article">
+                    <h3>야류 해상 국립공원</h3>
+                    <p>타이베이/야류/지우펀 3,4일 #천등 날리기</p>
+                    <h4>인천/김포/청주3,4일</h4>
+                    <div>509,900<span>원~</span></div>
+                    <h5><span>먹거리 가득 야시장</span></h5>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div id="b01_3"></div>
+            <div id="b02">
+                <div id="article">
+                    <h3>👍 베트남 베스트셀러</h3>
+                    <p>다낭/호이안 5,6일 #5성 추천호텔 #바나힐</p>
+                    <h4>인천/청주 | 5,6일</h4>
+                    <div>289,000<span>원~</span></div>
+                    <h5 class="hotel-upgrade">한정특가</h5><h5><span>맛있는 다낭여행</span></h5>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div id="b01_4"></div>
+            <div id="b02">
+                <div id="article">
+                    <h3>아름다운 물빛의 산호섬</h3>
+                    <p>푸껫 5일 #가성비 #4성급호텔 #팡아만 #야시장투어</p>
+                    <h4>인천 | 5일</h4>
+                    <div>669,000<span>원~</span></div>
+                    <h5><span>타이전통지압</span></h5>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div id="b01_5"></div>
+            <div id="b02">
+                <div id="article">
+                    <h3>🎁취향저격 베스트셀러 특가모음</h3>
+                    <p>나트랑/달랏 5일 #미식여행or해변투어or힐링여행</p>
+                    <h4>인천/부산/대구/청주 | 5일</h4>
+                    <div>289,000<span>원~</span></div>
+                    <h5><span>나트랑 5성호텔UP</span></h5>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div id="b01_6"></div>
+            <div id="b02">
+                <div id="article">
+                    <h3>코끼리 먹이주기 체험</h3>
+                    <p>치앙마이/치앙라이 5일#가성비추천 #4성급호텔</p>
+                    <h4>인천 | 5일</h4>
+                    <div>479,000<span>원~</span></div>
+                    <h5><span>청/백/금 3色 사원</span></h5>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div id="b01_7"></div>
+            <div id="b02">
+                <div id="article">
+                    <h3>도심속 자연&미식&액티비티</h3>
+                    <p>싱가포르 5일 #전일관광or1일자유</p>
+                    <h4>인천/부산 | 5일</h4>
+                    <div>868,600<span>원~</span></div>
+                    <h5 class="hotel-upgrade">NO쇼핑</h5><h5><span>가든스바이더베이&센토사</span></h5>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div id="b01_8"></div>
+            <div id="b02">
+                <div id="article">
+                    <h3>남쪽으로 떠나는 힐링여행</h3>
+                    <p>[만남(滿南)] 가오슝 3,4일 #대만남부투어 #타이난</p>
+                    <h4>인천/김포 | 3,4일/h4>
+                    <div>549,900<span>원~</span></div>
+                    <h5 class="hotel-upgrade">NO쇼핑</h5><h5><span>대만 최남단 휴양지 컨딩</span></h5>
+                </div>
+            </div>
+        </div>
+
+        
+
+    </div>
+</div>
+
+</body>
+</html>

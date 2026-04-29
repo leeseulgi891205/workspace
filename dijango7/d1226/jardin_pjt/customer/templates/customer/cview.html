@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+{% block script %}{% endblock script %}
+{% block body %}
+    <!-- container -->
+    <div id="container">
+        <div id="location">
+            <ol>
+                <li><a href="#">HOME</a></li>
+                <li><a href="#">CUSTOMER</a></li>
+                <li class="last">NOTICE</li>
+            </ol>
+        </div>
+        <div id="outbox">
+            <div id="left">
+                <div id="title2">CUSTOMER<span>고객센터</span></div>
+                <ul>
+                    <li><a href="#" id="leftNavi1">NOTICE</a></li>
+                    <li><a href="#" id="leftNavi2">1:1문의</a></li>
+                    <li><a href="#" id="leftNavi3">FAQ</span></a></li>
+                    <li class="last"><a href="#" id="leftNavi4">이용안내</a></li>
+                </ul>
+            </div><script type="text/javascript">initSubmenu(1,0);</script>
+            <!-- contents -->
+            <div id="contents">
+                <div id="customer">
+                    <h2><strong>NOTICE</strong><span>쟈뎅샵 소식을 전해드립니다.</span></h2>
+                    <div class="viewDivMt">
+                        <div class="viewHead">
+                            <div class="subject">
+                                <ul>
+                                    <li>{{c.btitle}}</li>
+                                </ul>
+                            </div>
+                            <div class="day">
+                                <p class="txt">작성일<span>{{c.bdate|date:"Y-m-d H:i"}}</span></p>
+                            </div>
+                        </div>
+                        <div class="viewContents">
+                            {{c.bcontent}}
+                        </div>
+                    </div>
+                    <!-- 이전다음글 -->
+                    <div class="pnDiv web">
+                        <table summary="이전다음글을 선택하여 보실 수 있습니다." class="preNext" border="1" cellspacing="0">
+                            <caption>이전다음글</caption>
+                            <colgroup>
+                            <col width="100px" />
+                            <col width="*" />
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <th class="pre">PREV</th>
+                                    {% if pre_c %}
+                                    <td><a href="/customer/cview/{{pre_c.bno}}/">{{pre_c.btitle}}</a></td>
+                                    {% else %}
+                                    <td>이전글이 없습니다.</td>
+                                    {% endif %}
+                                </tr>
+                                <tr>
+                                    <th class="next">NEXT</th>
+                                    {% if next_c %}
+                                    <td><a href="/customer/cview/{{next_c.bno}}">{{next_c.btitle}}</a></td>
+                                    {% else %}
+                                    <td>다음글이 없습니다.</td>
+                                    {% endif %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- //이전다음글 -->
+
+					<script>
+                        //하단댓글 추가부분 ------------------------
+                        $(function(){
+                            // 댓글 등록
+                            $(document).on('click','.replyBtn',function(e){
+                                e.preventDefault();
+                                
+                                let cpw = $(".replynum").val();
+                                let ccontent = $(".replyType").val();
+                                
+                                // 입력값 검증
+                                if(!ccontent.trim()){
+                                    alert('댓글 내용을 입력해주세요.');
+                                    return;
+                                }
+                                
+                                console.log('데이터 : ' + ccontent);
+                                console.log('비밀번호 : ' + cpw);
+                                
+                                //ajax
+                                $.ajax({
+                                    url:'/comment/cowrite/',
+                                    type:'post',
+                                    headers:{'X-CSRFToken':'{{csrf_token}}'},
+                                    data:{'cpw':cpw,'ccontent':ccontent,'bno':'{{c.bno}}'},
+                                    dataType:'json',
+                                    success:function(data){
+                                        alert('댓글이 등록되었습니다.');
+                                        console.log('응답데이터 :', data);
+                                        
+                                        // 화면에 댓글 추가
+                                        let reply = '<ul id="'+data.co[0].cno+'">'
+                                                  + '<li class="name">'+data.co[0].member__name+' <span>['+data.co[0].cdate+']</span></li>'
+                                                  + '<li class="txt">'+data.co[0].ccontent+'</li>'
+                                                  + '<li class="btn">'
+                                                  + '<a class="rebtn updateBtn" data-cno="'+data.co[0].cno+'" data-has-cpw="false">수정</a>'
+                                                  + '<a class="rebtn deleteBtn" data-cno="'+data.co[0].cno+'" data-has-cpw="false">삭제</a>'
+                                                  + '</li>'
+                                                  + '</ul>';
+                                        $(".replyBox").prepend(reply);
+                                        
+                                        // 입력창 초기화
+                                        $(".replynum").val('');
+                                        $(".replyType").val('');
+                                        
+                                        // 댓글 개수 업데이트
+                                        let countText = $(".orange").text().trim();
+                                        let count = isNaN(parseInt(countText)) ? 1 : parseInt(countText) + 1;
+                                        $(".orange").text(count);
+                                    },
+                                    error:function(){
+                                        alert('댓글 등록 실패');
+                                    }
+                                });//ajax
+                            });
+                            
+                            // 댓글 삭제
+                            $(document).on('click', '.deleteBtn', function(e){
+                                e.preventDefault();
+                                
+                                let cno = $(this).attr('data-cno');
+                                let hasCpw = $(this).attr('data-has-cpw') === 'true';
+                                let cpw = '';
+                                console.log('댓글 삭제 시작 - cno:', cno, 'hasCpw:', hasCpw);
+                                
+                                // 비밀번호가 있으면 입력 받음
+                                if(hasCpw){
+                                    cpw = prompt('비밀번호를 입력하세요:');
+                                    // 취소 시 중단
+                                    if(cpw === null){
+                                        return;
+                                    }
+                                }
+                                // 비밀번호가 없으면 cpw는 빈 문자열로 진행
+                                
+                                $.ajax({
+                                    url:'/comment/codelete/',
+                                    type:'post',
+                                    headers:{'X-CSRFToken':'{{csrf_token}}'},
+                                    data:{'cno':cno,'cpw':cpw},
+                                    dataType:'json',
+                                    success:function(data){
+                                        console.log('삭제 응답:', data);
+                                        if(data.result == 'success'){
+                                            alert('댓글이 삭제되었습니다.');
+                                            $('#'+cno).remove();
+                                            
+                                            // 댓글 개수 감소
+                                            let countText = $(".orange").text().trim();
+                                            let count = isNaN(parseInt(countText)) ? 0 : parseInt(countText) - 1;
+                                            $(".orange").text(count);
+                                        } else if(data.result == 'fail'){
+                                            alert('비밀번호가 일치하지 않습니다.');
+                                        } else {
+                                            alert('댓글 삭제 중 오류가 발생했습니다.');
+                                        }
+                                    },
+                                    error:function(xhr, status, error){
+                                        console.error('Error:', error);
+                                        alert('댓글 삭제 실패. 다시 시도해주세요.');
+                                    }
+                                });
+                            });
+                            
+                            // 댓글 수정
+                            $(document).on('click', '.updateBtn', function(e){
+                                e.preventDefault();
+                                
+                                let cno = $(this).attr('data-cno');
+                                let hasCpw = $(this).attr('data-has-cpw') === 'true';
+                                console.log('댓글 수정 시작 - cno:', cno, 'hasCpw:', hasCpw);
+                                let $ul = $('#'+cno);
+                                let $txtLi = $ul.find('.txt');
+                                let originText = $txtLi.text();
+                                
+                                // 수정 폼으로 변환
+                                let editForm = '<textarea class="editContent" style="width:100%; height:60px;">'+originText+'</textarea>'
+                                             + '<button class="submitEdit" data-cno="'+cno+'" data-has-cpw="'+hasCpw+'">저장</button>'
+                                             + '<button class="cancelEdit">취소</button>';
+                                
+                                $txtLi.html(editForm);
+                                $ul.find('.btn').hide();
+                            });
+                            
+                            // 수정 저장
+                            $(document).on('click', '.submitEdit', function(e){
+                                e.preventDefault();
+                                
+                                let cno = $(this).attr('data-cno');
+                                let hasCpw = $(this).attr('data-has-cpw') === 'true';
+                                let $ul = $('#'+cno);
+                                let newContent = $ul.find('.editContent').val();
+                                let cpw = '';
+                                
+                                if(!newContent.trim()){
+                                    alert('댓글 내용을 입력해주세요.');
+                                    return;
+                                }
+                                
+                                // 비밀번호가 있으면 입력 받음
+                                if(hasCpw){
+                                    cpw = prompt('비밀번호를 입력하세요:');
+                                    // 취소 시 중단
+                                    if(cpw === null){
+                                        return;
+                                    }
+                                }
+                                // 비밀번호가 없으면 cpw는 빈 문자열로 진행
+                                
+                                $.ajax({
+                                    url:'/comment/coupdate/',
+                                    type:'post',
+                                    headers:{'X-CSRFToken':'{{csrf_token}}'},
+                                    data:{'cno':cno,'ccontent':newContent,'cpw':cpw},
+                                    dataType:'json',
+                                    success:function(data){
+                                        console.log('수정 응답:', data);
+                                        if(data.result == 'success'){
+                                            alert('댓글이 수정되었습니다.');
+                                            $ul.find('.txt').html(newContent);
+                                            $ul.find('.btn').show();
+                                        } else if(data.result == 'fail'){
+                                            alert('비밀번호가 일치하지 않습니다.');
+                                        } else {
+                                            alert('댓글 수정 중 오류가 발생했습니다.');
+                                        }
+                                    },
+                                    error:function(xhr, status, error){
+                                        console.error('Error:', error);
+                                        alert('댓글 수정 실패. 다시 시도해주세요.');
+                                    }
+                                });
+                            });
+                            
+                            // 수정 취소
+                            $(document).on('click', '.cancelEdit', function(e){
+                                e.preventDefault();
+                                
+                                let $ul = $(this).closest('ul');
+                                let cno = $ul.attr('id');
+                                
+                                location.reload();
+                            });
+                        });//jquery
+                    </script>
+                    <!-- 댓글-->
+                    <div class="replyWrite">
+                        <ul>
+                            <li class="in">
+                                <p class="txt">총 <span class="orange">{{comment_qs.count}}</span> 개의 댓글이 달려있습니다.</p>
+                                <p class="password">비밀번호&nbsp;&nbsp;<input type="password" class="replynum" /></p>
+                                <textarea class="replyType"></textarea>
+                            </li>
+                            <li class="btn"><a href="#" class="replyBtn">등록</a></li>
+                        </ul>
+                        <p class="ntic">※ 비밀번호를 입력하시면 댓글이 비밀글로 등록 됩니다.</p>
+                    </div>
+                    <div class="replyBox">
+						{% for co in comment_qs %}
+                        <ul id='{{co.cno}}'>
+                            <li class="name">{{co.member.name}} <span>[{{co.cdate|date:"Y-m-d H:i"}}]</span></li>
+                            <li class="txt">{{co.ccontent}}</li>
+                            <li class="btn">
+                                <a class="rebtn updateBtn" data-cno="{{co.cno}}" data-has-cpw="{% if co.cpw %}true{% else %}false{% endif %}">수정</a>
+                                <a class="rebtn deleteBtn" data-cno="{{co.cno}}" data-has-cpw="{% if co.cpw %}true{% else %}false{% endif %}">삭제</a>
+                            </li>
+                        </ul>
+						{% endfor %}
+                        <!-- 수정폼, 비밀글 페이지
+                        <ul>
+                            <li class="name">jjabcde <span>[2014-03-04&nbsp;&nbsp;15:01:59]</span></li>
+                            <li class="txt"><textarea class="replyType"></textarea></li>
+                            <li class="btn">
+                                <a href="#" class="rebtn">수정</a>
+                                <a href="#" class="rebtn">삭제</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li class="name">jjabcde <span>[2014-03-04&nbsp;&nbsp;15:01:59]</span></li>
+                            <li class="txt">
+                                <a href="password.html" class="passwordBtn"><span class="orange">※ 비밀글입니다.</span></a>
+                            </li>
+                        </ul>
+                         -->
+                    </div>
+                    <!-- //댓글 -->
+                    <!-- Btn Area -->
+                    <div class="btnArea btline">
+                        <div class="bRight">
+                            <ul>
+                                <li><a href="#" class="sbtnMini mw">목록</a></li>
+                                <li><a href="#" class="sbtnMini mw">답글</a></li>
+                                <li><a href="#" class="sbtnMini mw">수정</a></li>
+                                <li><a href="#" class="sbtnMini mw">삭제</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- //Btn Area -->
+                </div>
+            </div>
+            <!-- //contents -->
+        </div>
+    </div>
+    <!-- //container -->
+{% endblock body %}

@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% load static %} {# 슬기 2025-12-23: static 태그 로딩 #}
+{% block title %}SafeMap | DATE POP 지도{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/map.css' %}">
+{% endblock %}
+{% block content %}
+<div class="map-page">
+  <!-- 슬기 2025-12-23: DATE POP 지도형 히어로 구성 -->
+  <section class="map-hero">
+    <div>
+      <p class="map-tagline">우리 동네 사건·사고, 한 줄로 요약해서 지도에</p>
+      <h1 class="map-title">DATE POP · Korea Map</h1>
+      <p class="map-sub">대한민국을 한 눈에 보는 밝은 톤의 지도 UI입니다. 지역 버튼을 누르면 시/도 → 시/군/구 → 동 단위로 내려가며, 선택한 범위의 제보 목록이 자동으로 갱신됩니다.</p>
+      <div class="map-badges">
+        <span class="map-badge">지역 계층: 시/도 → 시/군/구 → 동</span>
+        <span class="map-badge">실시간 제보 API 연동</span>
+        <span class="map-badge">날짜 필터 · 반경 슬라이더</span>
+      </div>
+    </div>
+    <div class="kmap-pill kmap-shadow-soft">DATE POP · 안전 신호판</div>
+  </section>
+
+  <section class="map-grid">
+    <div class="kmap-card kmap-visual">
+      <!-- 슬기 2025-12-23: 한국 실루엣 + 포인트 버튼 -->
+      <div class="kmap-figure">
+        <svg class="kmap-silhouette" viewBox="0 0 320 520" role="img" aria-label="대한민국 지도">
+          <path d="M180 10 L210 40 L195 90 L220 130 L205 170 L230 220 L215 270 L230 320 L200 360 L210 400 L190 450 L160 500 L120 480 L90 490 L70 450 L80 420 L70 380 L50 340 L70 300 L60 260 L80 230 L90 190 L80 150 L90 110 L120 90 L140 60 L160 70 Z" />
+        </svg>
+        <div class="kmap-pins">
+          <button class="kmap-pin" data-region="seoul" style="top:24%;left:32%;">서울<small>SEOUL</small></button>
+          <button class="kmap-pin" data-region="gangwon" style="top:14%;left:60%;">강원<small>GANGWON</small></button>
+          <button class="kmap-pin" data-region="chungcheong" style="top:36%;left:50%;">충청<small>CHUNG</small></button>
+          <button class="kmap-pin" data-region="jeolla" style="top:55%;left:34%;">전라<small>JEOLLA</small></button>
+          <button class="kmap-pin" data-region="gyeongsang" style="top:48%;left:62%;">경상<small>GYEONG</small></button>
+          <button class="kmap-pin" data-region="jeju" style="top:88%;left:38%;">제주<small>JEJU</small></button>
+        </div>
+      </div>
+      <div class="kmap-legend">
+        <div class="kmap-legend-item">
+          
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="kmap-card kmap-panel">
+      <div class="panel-title">
+        <h3>지역 선택</h3>
+        <small id="stat">최근 제보를 불러오는 중...</small>
+      </div>
+      <div class="kmap-path" id="kmapPath">대한민국 전체 · 최근 7일</div>
+      <div class="kmap-controls">
+        <div class="kmap-chips" id="dayChips">
+          <button class="kmap-chip active" data-days="7">최근 7일</button>
+          <button class="kmap-chip" data-days="30">최근 30일</button>
+          <button class="kmap-chip" data-days="90">최근 90일</button>
+          <div class="kmap-stat">
+            <div>
+              <strong id="regionLabel">대한민국 전체</strong><br>
+              <span>지도를 누르면 자동으로 지역구와 동을 불러와요.</span>
+            </div>
+            <a href="{% url 'reports:new' %}" style="background:#7c5cff;color:#e8ecff;padding:8px 12px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;display:inline-block;">+ 제보하기</a>
+          </div>
+          
+          <!-- 슬기 2025-12-24: 오른쪽에 빠른 제보 버튼 추가 -->
+          <div style=""" );border-radius:10px;font-size:12px;">
+            <span style="font-size:16px;"></span>
+            
+          </div>
+        </div>
+      </div>
+
+      <div class="kmap-range">
+        <span>동네 반경</span>
+        <input type="range" id="bboxKm" min="3" max="15" step="1" value="6">
+        <span id="bboxLabel">6km</span>
+      </div>
+
+      <div class="kmap-section">
+        <h4>지역구</h4>
+        <div class="kmap-list" id="guList"></div>
+      </div>
+
+      <div class="kmap-section">
+        <h4>동</h4>
+        <div class="kmap-list" id="dongList"></div>
+      </div>
+
+
+      <div class="kmap-section" style="margin-top:12px;">
+        <h4>최근 제보</h4>
+        <div class="kmap-feed" id="miniList"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="kmap-mini">
+    <div class="kmap-mini-card">
+      <h4>동네 깊이로 보는 안전 신호</h4>
+      <p>시/군/구 선택 후 동을 고르면 반경 내 제보가 자동으로 필터링됩니다. 지도는 밝은 파스텔 톤으로 유지하면서도, 클릭 가능한 포인트로 직관적인 내비게이션을 제공합니다.</p>
+    </div>
+    <div class="kmap-mini-card">
+      <h4>제보 추가</h4>
+      <p>내 주변의 사건·사고가 보이지 않으면 직접 제보해 주세요. 가장 가까운 반경으로 바로 반영됩니다.</p>
+      <p style="margin-top:8px;"><a href="{% url 'reports:new' %}" class="kmap-pill">+ 제보 작성</a></p>
+    </div>
+  </section>
+</div>
+
+<script>
+  // 슬기 2025-12-23: DATE POP 대한민국 지도 인터랙션 스크립트
+  (function(){
+    const MAP_URL = "{% url 'reports:map' %}"; // 슬기 2025-12-23: 지도 바로 열기용 기준 URL
+    const REGION_DATA = {
+      seoul: {
+        label: "서울특별시",
+        bbox: [126.76, 37.41, 127.18, 37.71],
+        gu: [
+          { name: "종로구", dong: ["청운효자동", "혜화동", "창신동"] },
+          { name: "중구", dong: ["소공동", "을지로동", "황학동"] },
+          { name: "용산구", dong: ["이태원동", "한남동", "후암동"] },
+          { name: "성동구", dong: ["성수동", "행당동", "왕십리도선동"] },
+          { name: "광진구", dong: ["자양동", "구의동", "화양동"] },
+          { name: "동대문구", dong: ["휘경동", "이문동", "답십리동"] },
+          { name: "중랑구", dong: ["상봉동", "망우동", "중화동"] },
+          { name: "성북구", dong: ["길음동", "정릉동", "돈암동"] },
+          { name: "강북구", dong: ["수유동", "미아동", "번동"] },
+          { name: "도봉구", dong: ["창동", "쌍문동", "방학동"] },
+          { name: "노원구", dong: ["상계동", "중계동", "월계동"] },
+          { name: "은평구", dong: ["불광동", "응암동", "진관동"] },
+          { name: "서대문구", dong: ["신촌동", "연희동", "충현동"] },
+          { name: "마포구", dong: ["합정동", "상암동", "연남동"] },
+          { name: "양천구", dong: ["목동", "신정동", "신월동"] },
+          { name: "강서구", dong: ["마곡동", "화곡동", "등촌동"] },
+          { name: "구로구", dong: ["구로동", "고척동", "개봉동"] },
+          { name: "금천구", dong: ["가산동", "독산동", "시흥동"] },
+          { name: "영등포구", dong: ["여의동", "문래동", "당산동"] },
+          { name: "동작구", dong: ["흑석동", "노량진동", "사당동"] },
+          { name: "관악구", dong: ["신림동", "봉천동", "남현동"] },
+          { name: "서초구", dong: ["서초동", "방배동", "양재동"] },
+          { name: "강남구", dong: ["역삼동", "삼성동", "신사동"] },
+          { name: "송파구", dong: ["잠실동", "방이동", "가락동"] },
+          { name: "강동구", dong: ["천호동", "둔촌동", "고덕동"] }
+        ]
+      },
+      gangwon: {
+        label: "강원특별자치도",
+        bbox: [127.0, 37.0, 129.3, 38.6],
+        gu: [
+          { name: "춘천시", dong: ["석사동", "퇴계동", "효자동"] },
+          { name: "원주시", dong: ["무실동", "단계동", "태장동"] },
+          { name: "강릉시", dong: ["포남동", "교동", "주문진읍"] }
+        ]
+      },
+      chungcheong: {
+        label: "충청권",
+        bbox: [126.6, 35.8, 128.3, 37.2],
+        gu: [
+          { name: "대전 서구", dong: ["둔산동", "월평동", "탄방동"] },
+          { name: "세종시", dong: ["어진동", "종촌동", "아름동"] },
+          { name: "청주시 상당구", dong: ["금천동", "영운동", "용담동"] },
+          { name: "천안시 동남구", dong: ["신부동", "청당동", "쌍용동"] }
+        ]
+      },
+      jeolla: {
+        label: "전라권",
+        bbox: [125.7, 34.0, 127.8, 35.9],
+        gu: [
+          { name: "전주시 완산구", dong: ["서신동", "중화산동", "평화동"] },
+          { name: "군산시", dong: ["미성동", "수송동", "조촌동"] },
+          { name: "목포시", dong: ["하당동", "용해동", "북항동"] },
+          { name: "순천시", dong: ["연향동", "조곡동", "해룡면"] }
+        ]
+      },
+      gyeongsang: {
+        label: "경상권",
+        bbox: [127.5, 34.8, 130.0, 36.9],
+        gu: [
+          { name: "부산 해운대구", dong: ["우동", "좌동", "중동"] },
+          { name: "부산 수영구", dong: ["광안동", "남천동", "망미동"] },
+          { name: "대구 수성구", dong: ["범어동", "수성동", "지산동"] },
+          { name: "포항시 남구", dong: ["상도동", "지곡동", "오천읍"] },
+          { name: "창원시 성산구", dong: ["상남동", "대방동", "가음정동"] }
+        ]
+      },
+      jeju: {
+        label: "제주특별자치도",
+        bbox: [126.0, 33.1, 126.98, 33.6],
+        gu: [
+          { name: "제주시", dong: ["연동", "노형동", "이도동"] },
+          { name: "서귀포시", dong: ["중문동", "서귀동", "대정읍"] }
+        ]
+      }
+    };
+
+    let selectedRegion = "seoul";
+    let selectedGu = null;
+    let selectedDong = null;
+    let DAYS = 7;
+    let ACTIVE_BBOX = REGION_DATA[selectedRegion].bbox;
+    let bboxKm = 6;
+
+    const guList = document.getElementById("guList");
+    const dongList = document.getElementById("dongList");
+    const miniList = document.getElementById("miniList");
+    const regionLabel = document.getElementById("regionLabel");
+    const stat = document.getElementById("stat");
+    const kmapPath = document.getElementById("kmapPath");
+    const bboxKmInput = document.getElementById("bboxKm");
+    const bboxLabel = document.getElementById("bboxLabel");
+
+    function updatePath(){
+      const guPart = selectedGu ? " · " + selectedGu : "";
+      const dongPart = selectedDong ? " · " + selectedDong : "";
+      kmapPath.textContent = `${REGION_DATA[selectedRegion].label}${guPart}${dongPart} · 최근 ${DAYS}일`;
+      regionLabel.textContent = REGION_DATA[selectedRegion].label + (selectedGu ? " · " + selectedGu : "");
+    }
+
+    function renderGuList(){
+      guList.innerHTML = "";
+      (REGION_DATA[selectedRegion].gu || []).forEach(item => {
+        const btn = document.createElement("button");
+        btn.className = "kmap-chip" + (selectedGu === item.name ? " active" : "");
+        btn.textContent = item.name;
+        btn.onclick = () => setGu(item.name);
+        guList.appendChild(btn);
+      });
+      if(!guList.children.length){
+        guList.innerHTML = `<div class="kmap-empty">아직 준비된 지역구가 없어요.</div>`;
+      }
+    }
+
+    function renderDongList(){
+      dongList.innerHTML = "";
+      if(!selectedGu){
+        dongList.innerHTML = `<div class="kmap-empty">지역구를 먼저 골라주세요.</div>`;
+        return;
+      }
+      const gu = (REGION_DATA[selectedRegion].gu || []).find(g => g.name === selectedGu);
+      (gu?.dong || []).forEach(name => {
+        const btn = document.createElement("button");
+        btn.className = "kmap-chip" + (selectedDong === name ? " active" : "");
+        btn.textContent = name;
+        btn.onclick = () => setDong(name);
+        dongList.appendChild(btn);
+      });
+    }
+
+    function renderPins(){
+      document.querySelectorAll('.kmap-pin').forEach(pin => {
+        pin.classList.toggle('active', pin.dataset.region === selectedRegion);
+        pin.onclick = () => {
+          const key = pin.dataset.region;
+          setRegion(key);
+          const label = REGION_DATA[key]?.label || "";
+          // 슬기 2025-12-23: 핀 클릭 시 지도 바로 열기 동작과 동일하게 region 쿼리로 이동
+          const url = `${MAP_URL}?region=${encodeURIComponent('대한민국 ' + label)}`;
+          window.location.href = url;
+        };
+      });
+    }
+
+    function bboxAroundPoint(lat, lng, km){
+      const dLat = km * 0.009;
+      const dLng = km * 0.009 / Math.cos(lat * Math.PI / 180);
+      return [lng - dLng, lat - dLat, lng + dLng, lat + dLat];
+    }
+
+    async function geocodeKorea(query){
+      const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=kr&q=" + encodeURIComponent(query);
+      const res = await fetch(url, { headers: { "Accept": "application/json" } });
+      const j = await res.json();
+      if(!j || !j[0]) return null;
+      return { lat: parseFloat(j[0].lat), lng: parseFloat(j[0].lon) };
+    }
+
+    async function setRegion(key){
+      selectedRegion = key;
+      selectedGu = null;
+      selectedDong = null;
+      ACTIVE_BBOX = REGION_DATA[selectedRegion].bbox;
+      renderGuList();
+      renderDongList();
+      renderPins();
+      updatePath();
+      await loadReports();
+    }
+
+    async function setGu(name){
+      selectedGu = name;
+      selectedDong = null;
+      renderGuList();
+      renderDongList();
+      updatePath();
+      const q = `대한민국 ${REGION_DATA[selectedRegion].label} ${name}`;
+      const loc = await geocodeKorea(q);
+      ACTIVE_BBOX = loc ? bboxAroundPoint(loc.lat, loc.lng, bboxKm) : REGION_DATA[selectedRegion].bbox;
+      await loadReports();
+    }
+
+    async function setDong(name){
+      selectedDong = name;
+      renderDongList();
+      updatePath();
+      const q = `대한민국 ${REGION_DATA[selectedRegion].label} ${selectedGu || ''} ${name}`;
+      const loc = await geocodeKorea(q);
+      ACTIVE_BBOX = loc ? bboxAroundPoint(loc.lat, loc.lng, bboxKm) : ACTIVE_BBOX;
+      await loadReports();
+    }
+
+    function renderFeed(items){
+      miniList.innerHTML = "";
+      const top = (items || []).slice(0, 8);
+      if(top.length === 0){
+        miniList.innerHTML = `<div class="kmap-empty">아직 이 지역에 등록된 제보가 없습니다.</div>`;
+        return;
+      }
+      top.forEach(it => {
+        const card = document.createElement('div');
+        card.className = 'feed-card';
+        const summary = (it.summary || "").replace(/\n/g, " ");
+        card.innerHTML = `<div class="feed-meta">${it.sido || ''} ${it.sigungu || ''} ${it.dong || ''}</div>
+          <h5>${it.title || '제보'}</h5>
+          <div class="small" style="color:#9aa4c6;">${summary || ''}</div>
+          <a class="feed-link" href="${it.detail_url}">상세 보기 →</a>`;
+        miniList.appendChild(card);
+      });
+    }
+
+    async function loadReports(){
+      const params = new URLSearchParams();
+      params.set("days", String(DAYS));
+      if(ACTIVE_BBOX){ params.set("bbox", ACTIVE_BBOX.join(",")); }
+      const url = `/reports/api/list/?${params.toString()}`;
+      stat.textContent = "제보 불러오는 중...";
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        stat.textContent = `표시중: ${data.count || 0}건 · 최근 ${DAYS}일` + (ACTIVE_BBOX ? " · 지역 필터 ON" : "");
+        renderFeed(data.items || []);
+      } catch (e) {
+        stat.textContent = "제보를 불러오지 못했습니다";
+        miniList.innerHTML = `<div class="kmap-empty">네트워크 오류로 데이터를 가져오지 못했어요.</div>`;
+      }
+    }
+
+    document.querySelectorAll('#dayChips .kmap-chip').forEach(btn => {
+      btn.onclick = async () => {
+        document.querySelectorAll('#dayChips .kmap-chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        DAYS = Number(btn.dataset.days || 7);
+        updatePath();
+        await loadReports();
+      };
+    });
+
+    bboxKmInput.addEventListener('input', () => {
+      bboxKm = Number(bboxKmInput.value);
+      bboxLabel.textContent = `${bboxKm}km`;
+    });
+
+    bboxKmInput.addEventListener('change', async () => {
+      // 슬기 2025-12-23: 반경 슬라이더 조정 시 즉시 현재 선택 범위에 반영
+      if(selectedDong){
+        await setDong(selectedDong);
+      }else if(selectedGu){
+        await setGu(selectedGu);
+      }else{
+        await loadReports();
+      }
+    });
+
+    async function init(){
+      renderPins();
+      renderGuList();
+      renderDongList();
+      updatePath();
+
+      // 슬기 2025-12-23: region 쿼리 파라미터가 있으면 해당 권역을 바로 표시
+      const params = new URLSearchParams(location.search);
+      const regionQ = params.get('region') || '';
+      const found = Object.keys(REGION_DATA).find(key => regionQ.includes(REGION_DATA[key].label));
+      if(found){
+        await setRegion(found);
+      }else{
+        // 슬기 2025-12-24: 초기값으로 서울 선택 및 제보 로드
+        await setRegion('seoul');
+      }
+    }
+
+    init();
+  })();
+</script>
+{% endblock %}

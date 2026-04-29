@@ -1,0 +1,56 @@
+<!--
+═══════════════════════════════════════════════════════════════════════
+pet_write.html - 반려동물 게시판 글쓰기
+═══════════════════════════════════════════════════════════════════════
+작성일: 2025-12-30
+기능: 반려동물 게시판 글 작성 (이미지 업로드 포함)
+-->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="login-container">
+    <h2>반려동물 게시판 글쓰기 🐾</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- 제목 -->
+        <div class="form-group">
+            <label for="id_title">제목</label>
+            <input type="text"
+                   name="title"
+                   id="id_title"
+                   required
+                   placeholder="제목을 입력하세요">
+        </div>
+
+        <!-- 내용 -->
+        <div class="form-group">
+            <label for="id_content">내용</label>
+            <textarea name="content"
+                      id="id_content"
+                      required
+                      placeholder="반려동물과 관련된 이야기를 자유롭게 작성해주세요 🐶🐱"
+                      style="min-height: 250px; resize: vertical;"></textarea>
+        </div>
+
+        <!-- 이미지 업로드 -->
+        <div class="form-group">
+            <label for="id_image">반려동물 사진 (선택)</label>
+            <input type="file"
+                   name="image"
+                   id="id_image"
+                   accept="image/*">
+        </div>
+
+        <!-- 등록 버튼 -->
+        <button type="submit" class="btn-login-submit">
+            등록하기
+        </button>
+    </form>
+
+    <div class="login-links">
+        <a href="{% url 'board:pet_list' %}">목록으로 돌아가기</a>
+    </div>
+</div>
+{% endblock %}

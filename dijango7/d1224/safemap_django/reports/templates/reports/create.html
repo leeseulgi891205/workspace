@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}SafeMap | 제보 등록{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h2 style="margin:0 0 6px;">제보 등록</h2>
+  <div class="muted">지도 클릭 → 위경도 자동 입력 → 저장하면 AI가 한 줄 요약</div>
+</div>
+
+<div style="height:14px"></div>
+
+<div class="grid">
+  <section class="card">
+    <h3 style="margin:0 0 10px;">지도에서 위치 선택</h3>
+    <div id="map"></div>
+    <div class="help" style="margin-top:10px;">지도 클릭하면 아래 위도/경도가 자동으로 들어감</div>
+  </section>
+
+  <aside class="card">
+    <h3 style="margin:0 0 10px;">내용 입력</h3>
+    <form class="form" method="post">
+      {% csrf_token %}
+      <label>제목</label>{{ form.title }}
+      <label>내용</label>{{ form.content }}
+
+      <label>위도</label>{{ form.latitude }}
+      <label>경도</label>{{ form.longitude }}
+      <div class="help">* 위도/경도는 숨겨도 되는데(원하면), 지금은 디버깅용으로 노출해둠</div>
+
+      <button class="btn" type="submit">제보 등록</button>
+    </form>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const map = L.map('map').setView([37.535, 126.97], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+  let marker = null;
+  function setLatLng(lat, lng){
+    const latEl = document.getElementById("id_latitude");
+    const lngEl = document.getElementById("id_longitude");
+    if (latEl) latEl.value = lat.toFixed(6);
+    if (lngEl) lngEl.value = lng.toFixed(6);
+  }
+
+  map.on('click', function(e){
+    const {lat, lng} = e.latlng;
+    if (marker) marker.remove();
+    marker = L.marker([lat, lng]).addTo(map);
+    marker.bindPopup("선택 위치").openPopup();
+    setLatLng(lat, lng);
+  });
+
+  // init marker from initial form values
+  const initLat = parseFloat(document.getElementById("id_latitude").value || "37.535");
+  const initLng = parseFloat(document.getElementById("id_longitude").value || "126.97");
+  marker = L.marker([initLat, initLng]).addTo(map);
+</script>
+{% endblock %}

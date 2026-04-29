@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}SafeMap | 공지사항{% endblock %}
+{% block content %}
+<div class="card">
+  <h2 style="margin:0 0 6px;">공지사항 (혜은)</h2>
+  <div class="muted">관리자만 작성 · 메인에는 최근 3개 노출(추가 구현 가능)</div>
+</div>
+
+<div style="height:14px"></div>
+
+<div class="card">
+  <div class="list">
+    {% for n in notices %}
+      <a class="item" href="{% url 'notices:detail' n.pk %}">
+        <div class="top">
+          <div class="title">{{ n.title }}</div>
+          <span class="badge">{{ n.created_at|date:"Y-m-d" }}</span>
+        </div>
+        <div class="muted" style="margin-top:6px;">{{ n.content|truncatechars:80 }}</div>
+      </a>
+    {% empty %}
+      <div class="muted">공지 없음. 관리자 페이지(/admin)에서 공지 추가 ㄱ</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

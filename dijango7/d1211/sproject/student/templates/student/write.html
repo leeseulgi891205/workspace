@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학생 등록</title>
+</head>
+<body>
+    <h2>학생 등록 페이지</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div>
+            <label for="name">이름:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div>
+            <label for="major">전공:</label>
+            <input type="text" id="major" name="major" required>
+        </div>
+        
+        <div>
+            <label for="age">나이:</label>
+            <input type="number" id="age" name="age" required>
+        </div>
+        
+        <div>
+            <label for="grade">학년:</label>
+            <input type="number" id="grade" name="grade" required>
+        </div>
+        
+        
+        <div>
+            <label for="address">주소:</label>
+            <input type="text" id="address" name="address">
+        </div>
+        
+        <div>
+            <label for="hobby">취미:</label>
+            <input type="text" id="hobby" name="hobby">
+        </div>
+        <div>
+            <label>성별:</label>
+            <input type="radio" id="male" name="gender" value="남자" required>
+            <label for="male">남자</label>
+            <input type="radio" id="female" name="gender" value="여자" required>
+            <label for="female">여자</label>
+        </div>
+        
+        <div>
+            <button type="submit">등록</button>
+            <a href="/student/">취소</a>
+        </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <style>
+            table,th,td{border: 1px solid black; border-collapse: collapse;}
+            th,td{width: 180px; height: 40px; text-align: center;}
+            thead{background: pink;}
+            tfoot{background: green;}
+        </style>
+    </head>
+    <body>
+        <table>
+            <!-- 열을 기준으로 적용할때 -->
+            <colgroup>
+                <col width="500px" style = "background: blue;">
+                <col width="180px" style = "background: yellow;">
+                <col width="200px">
+                <col width="300px">
+
+            </colgroup>
+            <thead>
+                <tr>
+                <th>방 이름</th>
+                <th>대상</th>
+                <th>크기</th>
+                <th>가격</th>
+                
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+                <td>유채방</td>
+                <td>여성 도미토리</td>
+                <td rowspan="2">4인실</td>
+                <td rowspan="3">1인 20,000원</td>
+            </tr>
+            
+            <tr>
+                <td>동백방</td>
+                <td>남성 도미토리</td>
+                
+            </tr>
+            
+            <tr>
+                <td>천혜향방</td>
+                <td>가족실</td>
+                <td>2인실</td>
+            </tr>
+            
+            <tr>
+                <th colspan="4">바깥채 전체를 렌트합니다</th>
+            </tr>
+            </tbody>
+
+        </table>
+        
+    </body>
+</html>

@@ -1,0 +1,185 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>VLAST Shop - 회원 상세정보</title>
+  <style>
+    .detail-container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .profile-section {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .profile-image {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #035fe0;
+      margin-bottom: 20px;
+    }
+    .no-image {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 14px;
+      margin: 0 auto 20px;
+    }
+    .detail-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .detail-table th {
+      background: #f8f9fa;
+      padding: 15px;
+      text-align: left;
+      width: 30%;
+      border-bottom: 1px solid #ddd;
+      font-weight: 600;
+      color: #333;
+    }
+    .detail-table td {
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      color: #666;
+    }
+    .btn-group {
+      text-align: center;
+      margin-top: 30px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background-color: #035fe0;
+      color: white;
+    }
+    .btn-success {
+      background-color: #28a745;
+      color: white;
+    }
+    .btn-secondary {
+      background-color: #666;
+      color: white;
+    }
+    .btn:hover {
+      opacity: 0.8;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .member-name {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #035fe0;
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="top-menu">
+      <a href="{% url 'member:join' %}">회원가입</a> |
+      <a href="{% url 'member:login' %}">로그인</a> |
+      <a href="{% url 'member:list' %}">회원리스트</a> |
+      <a href="{% url 'member:logout' %}">로그아웃</a>
+    </div>
+    <div class="icons">
+      <i class="fas fa-search"></i>
+      <i class="fas fa-user"></i>
+      <i class="fas fa-shopping-bag"></i>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="detail-container">
+      <h1>회원 상세정보</h1>
+      
+      <div class="profile-section">
+        {% if member.profile_image %}
+          <img src="{{member.profile_image.url}}" alt="프로필" class="profile-image">
+        {% else %}
+          <div class="no-image">프로필 사진 없음</div>
+        {% endif %}
+        <div class="member-name">{{member.name}}</div>
+      </div>
+      
+      <table class="detail-table">
+        <tr>
+          <th>아이디</th>
+          <td>{{member.id}}</td>
+        </tr>
+        <tr>
+          <th>이름</th>
+          <td>{{member.name}}</td>
+        </tr>
+        <tr>
+          <th>전화번호</th>
+          <td>{{member.phone}}</td>
+        </tr>
+        <tr>
+          <th>성별</th>
+          <td>{{member.gender}}</td>
+        </tr>
+        <tr>
+          <th>취미</th>
+          <td>{{member.hobby}}</td>
+        </tr>
+        <tr>
+          <th>우편번호</th>
+          <td>{{member.zipcode|default:"-"}}</td>
+        </tr>
+        <tr>
+          <th>주소</th>
+          <td>{{member.address|default:"-"}}</td>
+        </tr>
+        <tr>
+          <th>상세주소</th>
+          <td>{{member.addressdetail|default:"-"}}</td>
+        </tr>
+        <tr>
+          <th>가입일</th>
+          <td>{{member.mdate|date:"Y년 m월 d일 H:i"}}</td>
+        </tr>
+      </table>
+      
+      <div class="btn-group">
+        <a href="{% url 'member:update' member.id %}" class="btn btn-success">정보 수정</a>
+        <a href="{% url 'member:list' %}" class="btn btn-primary">목록으로</a>
+        <a href="/" class="btn btn-secondary">메인으로</a>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    Copyright © VLAST Shop. All rights reserved.
+  </footer>
+</body>
+</html>

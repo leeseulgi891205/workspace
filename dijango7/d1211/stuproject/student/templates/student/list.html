@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학생 리스트</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        h2 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .no-data { margin-top: 20px; font-style: italic; color: #777; }
+        .links { margin-top: 20px; }
+        .links a { margin-right: 15px; color: #000000ff; text-decoration: none; }
+        .student-name { color: #007bff; text-decoration: none; cursor: pointer; }
+        .student-name:hover { text-decoration: underline; color: #0056b3; }
+        .links a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h2>학생 리스트 페이지</h2>
+    
+    {% if students %}
+    <table>
+        <thead>
+            <tr>
+                <th>번호</th>
+                <th>이름</th>
+                <th>전공</th>
+                <th>나이</th>
+                <th>학년</th>
+                <th>주소</th>
+                <th>등록일</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><a href="{% url 'student:view' student.id %}" class="student-name">{{ student.name }}</a></td>
+                <td>{{ student.major }}</td>
+                <td>{{ student.age }}세</td>
+                <td>{{ student.grade }}학년</td>
+                <td>{{ student.address|default:"-" }}</td>
+                <td>{{ student.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="no-data">
+        <p>등록된 학생이 없습니다.</p>
+    </div>
+    {% endif %}
+    
+    <div class="links">
+        <a href="/">메인으로 돌아가기</a>
+        <a href="/student/write/">학생 등록하기</a>
+    </div>
+</body>
+</html>

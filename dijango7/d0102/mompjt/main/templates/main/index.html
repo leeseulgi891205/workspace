@@ -1,0 +1,667 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* ==================== 전체 레이아웃 ==================== */
+  * { box-sizing: border-box; }
+  
+  body {
+    background: #f5f3f0;
+  }
+
+  /* ==================== 배너 섹션 ==================== */
+  .hero-banner {
+    background: linear-gradient(135deg, #fdf3e6 0%, #fff9f5 100%);
+    padding: 50px 40px;
+    border-radius: 24px;
+    margin: 30px 0;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .hero-text h1 {
+    font-size: 36px;
+    font-weight: 900;
+    color: #333;
+    margin: 0 0 15px 0;
+    line-height: 1.2;
+  }
+
+  .hero-text p {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 25px 0;
+  }
+
+  .hero-btn {
+    display: inline-block;
+    padding: 14px 30px;
+    background: linear-gradient(135deg, #d4927a 0%, #c17d63 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(212, 146, 122, 0.3);
+  }
+
+  .hero-image {
+    flex: 1;
+    text-align: center;
+  }
+
+  .hero-image img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ==================== 탭 네비게이션 ==================== */
+  .main-nav-tabs {
+    display: flex;
+    gap: 30px;
+    margin: 40px 0 30px 0;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 15px;
+    background: white;
+    padding: 15px 0;
+  }
+
+  .nav-tab {
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+
+  .nav-tab.active {
+    color: #d4927a;
+  }
+
+  .nav-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #d4927a;
+  }
+
+  /* ==================== 콘텐츠 래퍼 ==================== */
+  .content-main {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin: 30px 0;
+  }
+
+  .main-left { }
+
+  .main-right {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+  }
+
+  /* ==================== 섹션 박스 ==================== */
+  .section-box {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #333;
+    margin: 0;
+  }
+
+  .section-more {
+    color: #d4927a;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .section-more:hover {
+    color: #b8725f;
+  }
+
+  /* ==================== 포스트 카드 ==================== */
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .post-item {
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #f0f0f0;
+    background: #fafaf8;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .post-item:hover {
+    background: #fff5f1;
+    border-color: #d4927a;
+    transform: translateX(5px);
+  }
+
+  .post-category {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #d4927a;
+    background: #f5ede6;
+    padding: 4px 10px;
+    border-radius: 15px;
+    margin-bottom: 8px;
+  }
+
+  .post-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+  }
+
+  .post-meta {
+    font-size: 12px;
+    color: #999;
+    display: flex;
+    gap: 10px;
+  }
+
+  /* ==================== 카테고리 아이콘 ==================== */
+  .category-icons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+  }
+
+  .category-icon-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5ede6 0%, #f9f6f2 100%);
+    border-radius: 12px;
+    border: 1px solid #ede7df;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .category-icon-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(212, 146, 122, 0.15);
+    border-color: #d4927a;
+  }
+
+  .category-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .category-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+  }
+
+  /* ==================== 우측 사이드바 ==================== */
+  .sidebar-box {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .sidebar-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  .comment-item {
+    padding: 12px;
+    background: #f9f6f2;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border-left: 3px solid #d4927a;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .comment-item:hover {
+    background: #f5ede6;
+    transform: translateX(5px);
+  }
+
+  .comment-author {
+    font-size: 12px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  .comment-text {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  /* ==================== 캘린더 ==================== */
+  .calendar-box {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+
+  .calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #999;
+    border-radius: 8px;
+    background: #f9f6f2;
+  }
+
+  .calendar-day.active {
+    background: #d4927a;
+    color: white;
+  }
+
+  /* ==================== 프로모션 박스 ==================== */
+  .promo-box {
+    background: linear-gradient(135deg, #fff5f1 0%, #f9f0eb 100%);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid #ede7df;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .promo-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .promo-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .promo-desc {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.5;
+  }
+
+  .promo-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #d4927a 0%, #c17d63 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .promo-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(212, 146, 122, 0.3);
+  }
+
+  .promo-image {
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    width: 120px;
+    height: 120px;
+    opacity: 0.3;
+    background-size: cover;
+  }
+
+  /* ==================== 하단 섹션 ==================== */
+  .footer-sections {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+  }
+
+  .footer-section {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+  }
+
+  .footer-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+
+  .footer-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+  }
+
+  .footer-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .footer-desc {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  /* ==================== 반응형 ==================== */
+  @media (max-width: 1024px) {
+    .content-main {
+      grid-template-columns: 1fr;
+    }
+
+    .main-right {
+      position: relative;
+      top: 0;
+    }
+
+    .category-icons {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .footer-sections {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-banner {
+      flex-direction: column;
+    }
+  }
+
+  /* ==================== 컨테이너 ==================== */
+  .page-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+</style>
+
+<div class="page-container">
+  <!-- 배너 섹션 -->
+  <div class="hero-banner">
+    <div class="hero-text">
+      <h1>우리 아이 첫 이유식 가이드</h1>
+      <p>초기부터 완료기까지 단계별 이유식 시작과 소아유용정 필터드세요.</p>
+      <button class="hero-btn">가이드 시작하기 ></button>
+    </div>
+    <div class="hero-image">
+      <img src="{% static 'images/image_2.png' %}" alt="이유식" onerror="this.style.display='none'">
+    </div>
+  </div>
+
+  <!-- 탭 네비게이션 -->
+  <div class="main-nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('all', this)">전체글</button>
+    <button class="nav-tab" onclick="switchTab('qna', this)">육아Q&A</button>
+    <button class="nav-tab" onclick="switchTab('recipe', this)">우리레시피</button>
+    <button class="nav-tab" onclick="switchTab('review', this)">제품후기</button>
+    <button class="nav-tab" onclick="switchTab('blogger', this)">유명블로거</button>
+  </div>
+
+  <!-- 메인 콘텐츠 -->
+  <div class="content-main">
+    <!-- 좌측 -->
+    <div class="main-left">
+      <!-- 실시간 인기글 -->
+      <div class="section-box">
+        <div class="section-header">
+          <h2 class="section-title">🔥 실시간 인기글</h2>
+          <a href="#" class="section-more">더보기 ></a>
+        </div>
+        <div class="post-list">
+          {% for post in hot_posts|slice:":5" %}
+          <div class="post-item">
+            <span class="post-category">{% if post.post_type == 'free' %}자유게시판{% else %}벼룩시장{% endif %}</span>
+            <h3 class="post-title">{{ post.title }}</h3>
+            <div class="post-meta">
+              <span>{{ post.author.nickname }}</span>
+              <span>조회 {{ post.views }}</span>
+              <span>{{ post.created_at|date:"m.d H:i" }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- 인기 게시판 -->
+      <div class="section-box">
+        <div class="section-header">
+          <h2 class="section-title">📌 인기 게시판</h2>
+        </div>
+        <div class="category-icons">
+          <div class="category-icon-box">
+            <div class="category-icon">❓</div>
+            <div class="category-label">육아 Q&A</div>
+          </div>
+          <div class="category-icon-box">
+            <div class="category-icon">👨‍👩‍👧</div>
+            <div class="category-label">인심/졸손톨</div>
+          </div>
+          <div class="category-icon-box">
+            <div class="category-icon">🍽</div>
+            <div class="category-label">요리 레시피</div>
+          </div>
+          <div class="category-icon-box">
+            <div class="category-icon">⭐</div>
+            <div class="category-label">제품 후기</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 인기정보 / 육아팁 -->
+      <div class="section-box">
+        <div class="section-header">
+          <h2 class="section-title">📚 인기정보 / 육아팁</h2>
+        </div>
+        <div class="category-icons" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="category-icon-box" style="background: linear-gradient(135deg, #f5ede6 0%, #f9f6f2 100%);">
+            <div class="category-icon">📖</div>
+            <div class="category-label">뜨뜨된 다기</div>
+          </div>
+          <div class="category-icon-box" style="background: linear-gradient(135deg, #f5ede6 0%, #f9f6f2 100%);">
+            <div class="category-icon">🎨</div>
+            <div class="category-label">아기 간식</div>
+          </div>
+          <div class="category-icon-box" style="background: linear-gradient(135deg, #f5ede6 0%, #f9f6f2 100%);">
+            <div class="category-icon">🏠</div>
+            <div class="category-label">아기 안심</div>
+          </div>
+          <div class="category-icon-box" style="background: linear-gradient(135deg, #f5ede6 0%, #f9f6f2 100%);">
+            <div class="category-icon">👶</div>
+            <div class="category-label">육아팁</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 우측 사이드바 -->
+    <div class="main-right">
+      <!-- 한줄말씀 -->
+      <div class="sidebar-box">
+        <h3 class="sidebar-title">💬 한줄말씀</h3>
+        <div class="comment-item">
+          <div class="comment-author">엄마, 오늘뭐했어?</div>
+          <div class="comment-text">더 인정 다이어트해 줄때 왔어!</div>
+        </div>
+        <div class="comment-item">
+          <div class="comment-author">육아 꿀팁</div>
+          <div class="comment-text">오늘 아이와 함께 보낸 시간이 의미있어요</div>
+        </div>
+        <div class="comment-item">
+          <div class="comment-author">맘스로그</div>
+          <div class="comment-text">우리 함께라면 모든게 잘될거야</div>
+        </div>
+      </div>
+
+      <!-- 캘린더 -->
+      <div class="calendar-box">
+        <div class="calendar-header">
+          <span>2024</span>
+          <span>1월</span>
+        </div>
+        <div class="calendar-grid">
+          <div class="calendar-day">월</div>
+          <div class="calendar-day">화</div>
+          <div class="calendar-day">수</div>
+          <div class="calendar-day">목</div>
+          <div class="calendar-day">금</div>
+          <div class="calendar-day">토</div>
+          <div class="calendar-day">일</div>
+          <div class="calendar-day">1</div>
+          <div class="calendar-day">2</div>
+          <div class="calendar-day">3</div>
+          <div class="calendar-day">4</div>
+          <div class="calendar-day">5</div>
+          <div class="calendar-day">6</div>
+          <div class="calendar-day">7</div>
+          <div class="calendar-day">8</div>
+          <div class="calendar-day">9</div>
+          <div class="calendar-day">10</div>
+          <div class="calendar-day">11</div>
+          <div class="calendar-day">12</div>
+          <div class="calendar-day">13</div>
+          <div class="calendar-day active">14</div>
+          <div class="calendar-day">15</div>
+          <div class="calendar-day">16</div>
+          <div class="calendar-day">17</div>
+          <div class="calendar-day">18</div>
+          <div class="calendar-day">19</div>
+          <div class="calendar-day">20</div>
+          <div class="calendar-day">21</div>
+          <div class="calendar-day">22</div>
+          <div class="calendar-day">23</div>
+          <div class="calendar-day">24</div>
+          <div class="calendar-day">25</div>
+          <div class="calendar-day">26</div>
+          <div class="calendar-day">27</div>
+          <div class="calendar-day">28</div>
+          <div class="calendar-day">29</div>
+          <div class="calendar-day">30</div>
+          <div class="calendar-day">31</div>
+        </div>
+      </div>
+
+      <!-- 프로모션 -->
+      <div class="promo-box">
+        <div class="promo-content">
+          <h3 class="promo-title">🎁 유기농 아이 간식 체험 모집</h3>
+          <p class="promo-desc">건강한 재료로 만든 유기농 간식을 아이와 함께 체험해보세요!</p>
+          <button class="promo-btn">체험글 신청하기 ></button>
+        </div>
+        <div class="promo-image" style="background-image: url('{% static 'images/image_5.png' %}');"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 하단 섹션 -->
+  <div class="footer-sections">
+    <div class="footer-section">
+      <div class="footer-icon">📖</div>
+      <h3 class="footer-title">단계별 가이드</h3>
+      <p class="footer-desc">초기부터 완료기까지 디테일한 가이드 제공</p>
+    </div>
+    <div class="footer-section">
+      <div class="footer-icon">🍽</div>
+      <h3 class="footer-title">안심 레시피</h3>
+      <p class="footer-desc">영양갖춘 아이 맞춤 레시피 모음</p>
+    </div>
+    <div class="footer-section">
+      <div class="footer-icon">🏘</div>
+      <h3 class="footer-title">육아 커뮤니티</h3>
+      <p class="footer-desc">다른 맘들과 정보 공유하는 따뜻한 모임</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tabName, element) {
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  element.classList.add('active');
+  console.log('Switched to tab:', tabName);
+}
+</script>
+
+{% endblock %}

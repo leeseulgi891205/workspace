@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{# 26-01-02 슬기 추가: 육아정보 상세 페이지 #}
+{% block content %}
+<style>
+    .parenting-detail-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .detail-header {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+    
+    .detail-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    
+    .detail-meta {
+        display: flex;
+        gap: 20px;
+        padding: 15px 0;
+        border-top: 1px solid #dee2e6;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .detail-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        min-height: 200px;
+        line-height: 1.8;
+    }
+    
+    .detail-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-list {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-edit {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+</style>
+
+<div class="parenting-detail-container">
+    <div class="detail-header">
+        <div class="detail-title">{{ post.title }}</div>
+        
+        <div class="detail-meta">
+            <span><strong>카테고리:</strong> {{ post.get_category_display }}</span>
+            <span><strong>작성자:</strong> {{ post.author.nickname }}</span>
+            <span><strong>조회:</strong> {{ post.views }}</span>
+            <span><strong>작성일:</strong> {{ post.created_at|date:"Y.m.d H:i" }}</span>
+        </div>
+    </div>
+    
+    <div class="detail-content">
+        {{ post.content|linebreaks }}
+    </div>
+    
+    <div class="detail-actions">
+        <a href="{% url 'board:parenting_list' %}" class="btn btn-list">목록으로</a>
+        
+        {% if user == post.author %}
+            <a href="{% url 'board:parenting_update' post.pk %}" class="btn btn-edit">수정</a>
+            <form method="post" action="{% url 'board:parenting_delete' post.pk %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-delete" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
